@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 — Synthwave / Outrun | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     15 — SYNTHWAVE / OUTRUN
+     Anchor: Outrun, Tron, Miami Vice, Kavinsky
+     Type: Major Mono Display (display) + Rubik (body)
+     Palette: deep navy, magenta, cyan, sun yellow
+     Layout: perspective grid, neon glows, 80s sci-fi
+     ============================================================ */
+  :root {
+    --navy: #0a0a2e;
+    --navy-2: #1a0a3e;
+    --bg: #050514;
+    --magenta: #ff2d92;
+    --magenta-2: #ff6bb5;
+    --cyan: #00f0ff;
+    --cyan-2: #66f5ff;
+    --yellow: #ffd84d;
+    --orange: #ff7a1a;
+    --grid: #ff2d9255;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--cyan);
+    background: var(--bg);
+    font-family: "Rubik", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .doc-banner {
+    background: linear-gradient(90deg, #1a0a3e, #0a0a2e);
+    border-bottom: 1px solid var(--magenta);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 11px;
+    color: var(--cyan);
+    box-shadow: 0 0 20px rgba(255, 45, 146, 0.3);
+  }
+  .doc-banner .badge {
+    background: var(--magenta); color: var(--bg);
+    padding: 4px 14px;
+    font-family: "Major Mono Display", monospace;
+    font-size: 12px;
+    box-shadow: 0 0 12px var(--magenta);
+  }
+  .doc-banner b {
+    font-family: "Major Mono Display", monospace;
+    color: var(--yellow); font-weight: 400;
+  }
+  .doc-banner span { color: var(--cyan-2); opacity: 0.7; }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    background: var(--cyan); color: var(--bg);
+    padding: 2px 12px;
+    font-family: "Major Mono Display", monospace;
+    font-size: 10px;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  .window {
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--navy);
+    border: 1px solid var(--magenta);
+    display: grid;
+    grid-template-rows: 40px 1fr;
+    overflow: hidden;
+    box-shadow:
+      0 0 40px rgba(255, 45, 146, 0.4),
+      inset 0 0 60px rgba(0, 240, 255, 0.05);
+    position: relative;
+  }
+  .titlebar {
+    background: linear-gradient(90deg, #1a0a3e, #2a0a4e);
+    border-bottom: 1px solid var(--magenta);
+    display: flex; align-items: center;
+    user-select: none;
+    box-shadow: 0 1px 12px rgba(255, 45, 146, 0.4);
+  }
+  .titlebar .tb-icon {
+    width: 18px; height: 18px; margin: 0 10px 0 14px;
+    background: linear-gradient(135deg, var(--magenta), var(--cyan));
+    box-shadow: 0 0 12px var(--magenta);
+  }
+  .titlebar .tb-title {
+    font-size: 13px; color: var(--cyan); flex: 1;
+    font-family: "Major Mono Display", monospace;
+    text-shadow: 0 0 8px var(--cyan);
+    letter-spacing: 0.05em;
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 44px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cyan); cursor: pointer;
+    border: none; background: transparent;
+    border-left: 1px solid var(--magenta);
+  }
+  .titlebar .tb-btn:hover { background: var(--magenta); color: var(--bg); box-shadow: 0 0 12px var(--magenta); }
+  .titlebar .tb-btn.close:hover { background: var(--yellow); color: var(--bg); }
+  .titlebar .tb-btn svg { width: 10px; height: 10px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 60px 1fr 100px;
+    height: 100%;
+    background: var(--navy);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--magenta);
+    background: linear-gradient(90deg, #1a0a3e 0%, #2a0a3e 50%, #1a0a3e 100%);
+    box-shadow: 0 1px 20px rgba(255, 45, 146, 0.3);
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "Major Mono Display", monospace;
+    font-size: 16px; color: var(--magenta-2);
+    text-shadow: 0 0 8px var(--magenta);
+    letter-spacing: 0.05em;
+  }
+  .app-title .glyph {
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, var(--yellow), var(--magenta));
+    box-shadow: 0 0 16px var(--magenta);
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 2px; align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--cyan);
+    padding: 4px;
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+  }
+  .switcher .seg {
+    padding: 7px 18px;
+    font-size: 12px;
+    color: var(--cyan-2);
+    font-family: "Major Mono Display", monospace;
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+  }
+  .switcher .seg.active {
+    background: var(--magenta);
+    color: var(--bg);
+    box-shadow: 0 0 12px var(--magenta);
+  }
+  .switcher .seg.disabled { color: var(--cyan-2); opacity: 0.4; cursor: not-allowed; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    overflow: hidden;
+  }
+  .canvas-zone {
+    background: var(--navy-2);
+    display: flex; flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  /* perspective grid bg */
+  .canvas-zone::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(180deg, transparent 60%, var(--magenta) 60%, var(--magenta) 60.5%, transparent 60.5%),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 100% 100%, 60px 60px, 60px 60px;
+    background-position: 0 0, 0 0, 0 0;
+    transform: perspective(800px) rotateX(60deg) translateY(20%) scale(1.5);
+    transform-origin: 50% 100%;
+    mask-image: linear-gradient(180deg, transparent 30%, #000 80%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 30%, #000 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .canvas-toolbar {
+    position: relative; z-index: 2;
+    height: 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--cyan);
+    display: flex; align-items: center; padding: 0 16px;
+    gap: 8px;
+    color: var(--cyan);
+    font-size: 12px;
+    box-shadow: 0 1px 12px rgba(0, 240, 255, 0.3);
+  }
+  .canvas-toolbar .ddl {
+    height: 26px;
+    padding: 0 26px 0 10px;
+    background: var(--navy);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    display: flex; align-items: center;
+    font-size: 12px;
+    font-family: "Major Mono Display", monospace;
+    position: relative;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) inset;
+  }
+  .canvas-toolbar .ddl::after {
+    content: "▾"; position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--cyan);
+    font-size: 9px;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 16px var(--cyan); }
+
+  .canvas {
+    position: relative; z-index: 1;
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(ellipse at 50% 60%, rgba(255, 45, 146, 0.15) 0%, transparent 60%);
+  }
+  .canvas .photo {
+    width: min(700px, 80%);
+    aspect-ratio: 3/2;
+    background:
+      linear-gradient(180deg, #ff7a1a 0%, #ff2d92 40%, #6e2dff 100%);
+    border: 2px solid var(--cyan);
+    box-shadow:
+      0 0 30px var(--cyan),
+      0 0 60px var(--magenta),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+  }
+  .canvas .photo::after {
+    content: "DSC_0042";
+    position: absolute; bottom: 8px; left: 12px;
+    color: var(--cyan);
+    font-family: "Major Mono Display", monospace;
+    font-size: 11px;
+    text-shadow: 0 0 6px var(--cyan);
+    letter-spacing: 0.1em;
+  }
+  .canvas .photo::before {
+    content: "▌";
+    position: absolute; top: 8px; right: 12px;
+    color: var(--yellow);
+    font-size: 10px;
+    text-shadow: 0 0 6px var(--yellow);
+  }
+  .canvas .sun {
+    position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 100px;
+    background: linear-gradient(180deg, var(--yellow) 0%, var(--magenta) 100%);
+    border-radius: 200px 200px 0 0;
+    z-index: 0;
+    opacity: 0.3;
+  }
+
+  .right-panel {
+    background: var(--navy-2);
+    border-left: 1px solid var(--magenta);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: -1px 0 20px rgba(255, 45, 146, 0.3);
+  }
+  .histogram {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--cyan);
+  }
+  .histogram .h-title {
+    font-family: "Major Mono Display", monospace;
+    font-size: 11px; color: var(--magenta-2);
+    text-shadow: 0 0 6px var(--magenta);
+    margin-bottom: 8px;
+    text-transform: lowercase;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--bg);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) inset;
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--cyan);
+  }
+  .tabs .tab {
+    flex: 1; padding: 11px 0;
+    font-size: 11px; color: var(--cyan-2);
+    text-align: center;
+    border-right: 1px solid var(--cyan);
+    font-family: "Major Mono Display", monospace;
+    text-transform: lowercase;
+  }
+  .tabs .tab:last-child { border-right: 0; }
+  .tabs .tab.active {
+    color: var(--magenta);
+    background: var(--bg);
+    text-shadow: 0 0 8px var(--magenta);
+    box-shadow: inset 0 -2px 0 var(--magenta);
+  }
+  .tabs .tab.disabled { color: var(--cyan-2); opacity: 0.4; cursor: not-allowed; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 0;
+  }
+  .builtin {
+    border-bottom: 1px solid rgba(255, 45, 146, 0.2);
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 12px 18px;
+    gap: 10px;
+  }
+  .builtin .label {
+    flex: 1; font-size: 13px; color: var(--cyan);
+    font-family: "Major Mono Display", monospace;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+  }
+  .builtin .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--magenta-2);
+  }
+  .builtin .icon-btn:hover { color: var(--yellow); }
+  .builtin .chev { color: var(--magenta-2); }
+  .builtin.open .controls { display: block; padding: 6px 18px 16px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 6px;
+    margin-bottom: 10px; font-size: 12px;
+  }
+  .slider .lbl {
+    color: var(--cyan-2);
+    font-family: "Major Mono Display", monospace;
+    font-size: 11px;
+    text-transform: lowercase;
+  }
+  .slider .val {
+    color: var(--yellow);
+    text-shadow: 0 0 6px var(--yellow);
+    font-weight: 700;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 4px; background: var(--bg);
+    border: 1px solid var(--cyan);
+    position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -3px;
+    width: 10px; height: 10px;
+    background: var(--magenta);
+    box-shadow: 0 0 8px var(--magenta);
+    transform: translateX(-50%);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin: 14px 18px;
+    border: 1px dashed var(--magenta);
+    padding: 16px;
+    text-align: center;
+    color: var(--magenta-2);
+    box-shadow: 0 0 12px rgba(255, 45, 146, 0.1) inset;
+  }
+  .custom-add .add-btn {
+    width: 32px; height: 32px;
+    background: var(--magenta); color: var(--bg);
+    border: none; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+    box-shadow: 0 0 16px var(--magenta);
+    font-weight: 300;
+  }
+  .custom-add .add-text {
+    font-family: "Major Mono Display", monospace;
+    font-size: 11px; color: var(--cyan);
+    text-transform: lowercase;
+  }
+
+  .filmstrip {
+    background: linear-gradient(180deg, var(--navy-2), var(--bg));
+    border-top: 1px solid var(--magenta);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 -1px 20px rgba(255, 45, 146, 0.3);
+  }
+  .filmstrip .frame {
+    width: 110px; height: 70px;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    border-color: var(--yellow);
+    box-shadow: 0 0 16px var(--yellow);
+  }
+  .filmstrip .frame.dim { opacity: 0.4; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    color: var(--cyan);
+    font-size: 10px;
+    padding: 2px 6px;
+    font-family: "Major Mono Display", monospace;
+    border-top: 1px solid var(--cyan);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">15</span>
+  <b>synthwave / outrun</b>
+  <span>· Major Mono Display + Rubik · magenta/cyan/yellow · perspective grid · 80s sci-fi reference</span>
+  <span class="skill-tag">frontend-design skill</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon"></div>
+    <div class="tb-title">photo_node_super :: edit</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">—</button>
+      <button class="tb-btn" title="Maximize">▢</button>
+      <button class="tb-btn close" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>photo_node_super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">library</div>
+        <div class="seg active">edit</div>
+        <div class="seg">nodes</div>
+        <div class="seg disabled" title="Coming in a future version">lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">fit</div>
+          <div style="color:var(--cyan-2); font-family:'Major Mono Display'; font-size:11px;">// 01/248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">⛶</div>
+        </div>
+        <div class="canvas">
+          <div class="sun"></div>
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">~ histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 320 56" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hg15" x1="0" x2="1">
+                  <stop offset="0" stop-color="#ff2d92"/>
+                  <stop offset="0.5" stop-color="#ffd84d"/>
+                  <stop offset="1" stop-color="#00f0ff"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L288 56 L296 56 L304 56 L312 56 L320 56 L0 56 Z" fill="url(#hg15)" opacity="0.7"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">global</div>
+          <div class="tab disabled" title="Coming in a future version">mask</div>
+          <div class="tab disabled" title="Coming in a future version">crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">lens_correction</div>
+              <div class="icon-btn">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="chev">▾</div>
+              <div class="label">basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">hsl_mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">tone_curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">// add custom</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="frame active"><div class="name">DSC_0042</div></div>
+      <div class="frame"><div class="name">DSC_0043</div></div>
+      <div class="frame"><div class="name">DSC_0044</div></div>
+      <div class="frame dim"><div class="name">DSC_0045</div></div>
+      <div class="frame dim"><div class="name">DSC_0046</div></div>
+      <div class="frame dim"><div class="name">DSC_0047</div></div>
+      <div class="frame dim"><div class="name">DSC_0048</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

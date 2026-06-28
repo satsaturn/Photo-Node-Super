@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 — Newspaper Print | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     17 — NEWSPAPER PRINT
+     Anchor: The New York Times, Financial Times, broadsheets
+     Type: Crimson Pro (display) + IBM Plex Serif (body)
+     Palette: newsprint cream, ink black, masthead red
+     Layout: columns, drop caps, masthead, formal
+     ============================================================ */
+  :root {
+    --paper: #f0e9d6;
+    --paper-2: #e8e0c8;
+    --ink: #1a1812;
+    --ink-2: #3a352a;
+    --ink-3: #6a6354;
+    --rule: #1a1812;
+    --accent: #a01e1e;
+    --accent-2: #7a1616;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font-family: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.05 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+    z-index: 0;
+  }
+
+  .doc-banner {
+    position: relative; z-index: 2;
+    background: var(--ink); color: var(--paper);
+    border-top: 0; border-left: 0; border-right: 0;
+    border-bottom: 4px double var(--paper-2);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 11px;
+  }
+  .doc-banner .badge {
+    background: var(--accent); color: var(--paper);
+    padding: 3px 12px;
+    font-family: "Crimson Pro", serif;
+    font-weight: 700; font-style: italic;
+    font-size: 12px; letter-spacing: 0.04em;
+  }
+  .doc-banner b {
+    font-family: "Crimson Pro", serif;
+    font-weight: 700; font-style: italic;
+  }
+  .doc-banner span { color: var(--paper-2); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    border: 1px solid var(--paper-2);
+    color: var(--paper-2);
+    padding: 2px 10px;
+    font-family: "Crimson Pro", serif;
+    font-style: italic;
+    font-size: 11px;
+  }
+
+  .window {
+    position: relative; z-index: 1;
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    display: grid;
+    grid-template-rows: 40px 1fr;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(26, 24, 18, 0.18);
+  }
+  .titlebar {
+    background: var(--ink);
+    color: var(--paper);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 18px; height: 18px; margin: 0 10px 0 14px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    font-family: "Crimson Pro", serif; font-style: italic;
+  }
+  .titlebar .tb-title {
+    font-size: 13px; color: var(--paper); flex: 1;
+    font-family: "Crimson Pro", serif; font-style: italic;
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 44px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper); cursor: pointer;
+    border: none; background: transparent;
+    border-left: 1px solid var(--paper-2);
+  }
+  .titlebar .tb-btn:hover { background: var(--paper); color: var(--ink); }
+  .titlebar .tb-btn.close:hover { background: var(--accent); color: var(--paper); }
+  .titlebar .tb-btn svg { width: 10px; height: 10px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 70px 1fr 100px;
+    height: 100%;
+    background: var(--paper);
+  }
+  /* masthead */
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 24px;
+    border-bottom: 3px double var(--ink);
+    background: var(--paper);
+  }
+  .topbar .left, .topbar .right {
+    font-family: "Crimson Pro", serif;
+    font-style: italic; font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.18em;
+  }
+  .topbar .right { text-align: right; }
+  .app-title {
+    text-align: center;
+    font-family: "Crimson Pro", serif;
+    font-size: 26px; font-weight: 900;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1;
+    padding: 4px 0;
+  }
+  .app-title .sub {
+    display: block;
+    font-size: 10px; font-weight: 400; font-style: italic;
+    text-transform: none; letter-spacing: 0.2em;
+    color: var(--ink-3);
+    margin-top: 4px;
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 0; align-items: center;
+    border: 1px solid var(--ink);
+  }
+  .switcher .seg {
+    padding: 5px 16px;
+    font-size: 11px;
+    color: var(--ink);
+    border-right: 1px solid var(--ink);
+    text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 700;
+    font-family: "Crimson Pro", serif;
+  }
+  .switcher .seg:last-child { border-right: 0; }
+  .switcher .seg.active {
+    background: var(--ink); color: var(--paper);
+  }
+  .switcher .seg.disabled { color: var(--ink-3); cursor: not-allowed; }
+
+  /* hide the topbar switcher since we put the masthead in */
+  .topbar .switcher { display: none; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    overflow: hidden;
+  }
+  .canvas-zone {
+    background: var(--paper);
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--ink);
+  }
+  .canvas-toolbar {
+    height: 38px;
+    border-bottom: 1px solid var(--ink);
+    display: flex; align-items: center; padding: 0 16px;
+    gap: 10px;
+    color: var(--ink-2);
+    font-size: 12px;
+    font-style: italic;
+  }
+  .canvas-toolbar .ddl {
+    height: 24px;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--ink);
+    color: var(--ink);
+    font-style: normal;
+    display: flex; align-items: center;
+  }
+  .canvas-toolbar .ddl::after { content: " ▾"; font-size: 9px; }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2);
+  }
+  .canvas-toolbar .icon-btn:hover { color: var(--accent); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .canvas .photo {
+    width: min(680px, 80%);
+    aspect-ratio: 3/2;
+    background:
+      radial-gradient(ellipse at 30% 25%, #c89870 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #3a2a3a 0%, transparent 60%),
+      linear-gradient(180deg, #1a2a3a 0%, #4a2a2a 45%, #a06040 100%);
+    filter: contrast(1.05) saturate(0.95);
+  }
+  .canvas .caption {
+    text-align: center;
+    margin-top: 12px;
+    font-family: "IBM Plex Serif", serif;
+    font-size: 11px; color: var(--ink-2);
+    font-style: italic;
+  }
+  .canvas .caption strong {
+    font-weight: 700; font-style: normal;
+    color: var(--ink);
+    margin-right: 6px;
+  }
+
+  .right-panel {
+    background: var(--paper);
+    border-left: 1px solid var(--ink);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .histogram .h-title {
+    font-family: "Crimson Pro", serif;
+    font-size: 11px; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    margin-bottom: 6px; font-weight: 700;
+    text-align: center;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--ink);
+  }
+  .tabs .tab {
+    flex: 1; padding: 10px 0;
+    font-size: 11px; color: var(--ink-2);
+    text-align: center;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    font-weight: 700;
+    font-family: "Crimson Pro", serif;
+    border-right: 1px solid var(--ink);
+  }
+  .tabs .tab:last-child { border-right: 0; }
+  .tabs .tab.active {
+    background: var(--ink); color: var(--paper);
+  }
+  .tabs .tab.disabled { color: var(--ink-3); cursor: not-allowed; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 0;
+  }
+  .builtin {
+    border-bottom: 1px solid var(--ink);
+  }
+  .builtin .row {
+    display: flex; align-items: baseline;
+    padding: 12px 20px 10px;
+    gap: 10px;
+  }
+  .builtin .label {
+    flex: 1; font-size: 18px; font-weight: 700;
+    font-family: "Crimson Pro", serif;
+  }
+  .builtin .icon-btn {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2); font-size: 11px;
+  }
+  .builtin .icon-btn:hover { color: var(--accent); }
+  .builtin .chev { color: var(--ink-2); font-size: 12px; font-family: serif; }
+  .builtin.open .controls { display: block; padding: 4px 20px 16px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: baseline; gap: 6px;
+    margin-bottom: 12px; font-size: 13px;
+  }
+  .slider .lbl {
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  .slider .val {
+    color: var(--accent); font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 1px; background: var(--ink);
+    position: relative;
+    margin: 4px 0;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -3px;
+    width: 7px; height: 7px;
+    background: var(--ink);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin: 16px 20px;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 18px 0;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 32px; height: 32px;
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--ink);
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+    font-family: "Crimson Pro", serif; font-weight: 300;
+  }
+  .custom-add .add-btn:hover { background: var(--ink); color: var(--paper); }
+  .custom-add .add-text {
+    font-family: "Crimson Pro", serif; font-style: italic;
+    font-size: 12px; color: var(--ink-2);
+  }
+
+  .filmstrip {
+    background: var(--paper);
+    border-top: 3px double var(--ink);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filmstrip .label {
+    font-family: "Crimson Pro", serif; font-style: italic;
+    font-size: 11px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.18em;
+    padding-right: 12px; border-right: 1px solid var(--ink);
+  }
+  .filmstrip .frame {
+    width: 110px; height: 70px;
+    background: linear-gradient(135deg, #2a3a4a 0%, #a06040 100%);
+    filter: contrast(1.05) saturate(0.95);
+    flex-shrink: 0;
+    border: 1px solid var(--ink);
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 9px;
+    padding: 2px 4px;
+    font-family: "Crimson Pro", serif; font-style: italic;
+    border-top: 1px solid var(--ink);
+    text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">17</span>
+  <b>Newspaper Print</b>
+  <span>· Crimson Pro + IBM Plex Serif · Newsprint cream + masthead red · NYT / broadsheet reference</span>
+  <span class="skill-tag">frontend-design skill</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon">P</div>
+    <div class="tb-title">The Photo-Node-Super — Tuesday, 27 June 2026 — Edit</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">—</button>
+      <button class="tb-btn" title="Maximize">▢</button>
+      <button class="tb-btn close" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="left">Vol. 1 · No. 0042</div>
+      <div class="app-title">
+        The Photo-Node-Super
+        <span class="sub">— an editorial of edits —</span>
+      </div>
+      <div class="right">Library · Edit · Nodes · Lens</div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <span>—</span>
+          <span><i>Plate</i> 001 <i>of</i> 248</span>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">⛶</div>
+        </div>
+        <div class="canvas">
+          <div>
+            <div class="photo"></div>
+            <div class="caption">
+              <strong>Fig. 1.</strong>
+              <em>Untitled (Coastal series). Raw, ISO 200, 50mm, f/2.8. Photographer's own collection.</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">— Histogram —</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 360 56" preserveAspectRatio="none">
+              <g fill="#1a1812" stroke="none" opacity="0.85">
+                <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L288 56 L296 56 L304 56 L312 56 L320 56 L328 56 L336 56 L344 56 L352 56 L360 56 L0 56 Z"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">Global</div>
+          <div class="tab disabled" title="Coming in a future version">Mask</div>
+          <div class="tab disabled" title="Coming in a future version">Crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">Lens Correction</div>
+              <div class="icon-btn">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="chev">▾</div>
+              <div class="label">Basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">Colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">HSL / Mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">Tone Curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▸</div>
+              <div class="label">Detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">A new edit &mdash; place your own</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="label">Plates</div>
+      <div class="frame active"><div class="name">DSC_0042</div></div>
+      <div class="frame"><div class="name">DSC_0043</div></div>
+      <div class="frame"><div class="name">DSC_0044</div></div>
+      <div class="frame dim"><div class="name">DSC_0045</div></div>
+      <div class="frame dim"><div class="name">DSC_0046</div></div>
+      <div class="frame dim"><div class="name">DSC_0047</div></div>
+      <div class="frame dim"><div class="name">DSC_0048</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

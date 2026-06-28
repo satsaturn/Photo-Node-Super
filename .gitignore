@@ -1,0 +1,78 @@
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+build/
+out/
+release/
+*.tsbuildinfo
+
+# Electron
+app/dist/
+electron/dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Runtime / caches
+.cache/
+.tmp/
+.temp/
+.parcel-cache/
+.eslintcache
+.vite/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE / editor
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+*.swp
+*.swo
+*~
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Native / sharp / libraw build artefacts
+*.node
+*.o
+*.obj
+
+# Photo editor runtime data
+catalog.sqlite
+catalog.sqlite-journal
+catalog.sqlite-wal
+catalog.sqlite-shm
+thumbnails/
+previews/
+edits/
+node-sheets/
+lens-packs/

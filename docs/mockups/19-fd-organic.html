@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>19 — Organic Nature | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     19 — ORGANIC / NATURE
+     Anchor: Kinfolk, Patagonia, Away (travel magazine)
+     Type: Fraunces (display) + Manrope (body)
+     Palette: warm cream, terracotta, sage, deep moss
+     Layout: photo-centric, soft shadows, organic shapes
+     ============================================================ */
+  :root {
+    --paper: #f5efe1;
+    --paper-2: #ebe3cf;
+    --paper-3: #fff8eb;
+    --ink: #2a2820;
+    --ink-2: #4a4638;
+    --ink-3: #7a7460;
+    --terracotta: #c25e3a;
+    --terracotta-2: #a14a2a;
+    --sage: #7d8b5e;
+    --sage-2: #5e6b40;
+    --moss: #4a5530;
+    --moss-2: #2e3a1e;
+    --clay: #d8b48a;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    background-image:
+      radial-gradient(at 10% 90%, rgba(125, 139, 94, 0.12) 0px, transparent 50%),
+      radial-gradient(at 90% 10%, rgba(194, 94, 58, 0.10) 0px, transparent 50%),
+      linear-gradient(180deg, #f7f1e3 0%, #ede5d2 100%);
+    font-family: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* organic blob shapes in background */
+  body::before {
+    content: "";
+    position: fixed;
+    top: -10%; right: -5%;
+    width: 40%; height: 60%;
+    background: radial-gradient(ellipse, rgba(125, 139, 94, 0.08) 0%, transparent 70%);
+    border-radius: 50% 40% 60% 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    bottom: -10%; left: -5%;
+    width: 30%; height: 50%;
+    background: radial-gradient(ellipse, rgba(194, 94, 58, 0.06) 0%, transparent 70%);
+    border-radius: 60% 50% 40% 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .doc-banner {
+    position: relative; z-index: 2;
+    background: var(--paper-3);
+    border-bottom: 1px solid rgba(125, 139, 94, 0.2);
+    padding: 14px 28px;
+    display: flex; align-items: center; gap: 16px;
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  .doc-banner .badge {
+    background: var(--moss); color: var(--paper-3);
+    padding: 4px 14px;
+    font-weight: 700; letter-spacing: 0.04em;
+    font-family: "Fraunces", serif; font-style: italic;
+    border-radius: 999px;
+  }
+  .doc-banner b { font-family: "Fraunces", serif; font-style: italic; font-weight: 600; }
+  .doc-banner span { color: var(--ink-3); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    background: var(--terracotta); color: var(--paper-3);
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    font-family: "Fraunces", serif; font-style: italic;
+  }
+
+  .window {
+    position: relative; z-index: 1;
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--paper-3);
+    border-radius: 20px;
+    border: 1px solid rgba(125, 139, 94, 0.15);
+    display: grid;
+    grid-template-rows: 40px 1fr;
+    overflow: hidden;
+    box-shadow:
+      0 24px 60px rgba(42, 40, 32, 0.10),
+      0 4px 8px rgba(42, 40, 32, 0.04);
+  }
+  .titlebar {
+    background: var(--paper-2);
+    border-bottom: 1px solid rgba(125, 139, 94, 0.15);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 22px; height: 22px; margin: 0 10px 0 16px;
+    background: linear-gradient(135deg, var(--terracotta), var(--moss));
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--paper-3), 0 0 0 3px var(--sage);
+  }
+  .titlebar .tb-title {
+    font-size: 13px; color: var(--ink-2); flex: 1;
+    font-family: "Fraunces", serif; font-style: italic;
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; align-items: center; padding-right: 10px; gap: 4px; }
+  .titlebar .tb-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2); cursor: pointer;
+    border: none; background: transparent;
+    border-radius: 50%;
+  }
+  .titlebar .tb-btn:hover { background: var(--paper-3); color: var(--terracotta); }
+  .titlebar .tb-btn.close:hover { background: var(--terracotta); color: var(--paper-3); }
+  .titlebar .tb-btn svg { width: 9px; height: 9px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 64px 1fr 96px;
+    height: 100%;
+    background: var(--paper-3);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 28px;
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 12px;
+    font-family: "Fraunces", serif;
+    font-size: 22px; color: var(--ink);
+    font-weight: 400; font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  .app-title .glyph {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--terracotta), var(--moss));
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(42, 40, 32, 0.15);
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 4px; align-items: center;
+    background: var(--paper-2);
+    padding: 5px;
+    border-radius: 999px;
+  }
+  .switcher .seg {
+    padding: 7px 20px;
+    font-size: 13px;
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .switcher .seg.active {
+    background: var(--moss);
+    color: var(--paper-3);
+    box-shadow: 0 2px 6px rgba(42, 40, 32, 0.15);
+    font-weight: 600;
+  }
+  .switcher .seg.disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.5; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    overflow: hidden;
+    gap: 18px;
+    padding: 0 18px;
+  }
+  .canvas-zone {
+    background: var(--paper-2);
+    border-radius: 16px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .canvas-toolbar {
+    height: 44px;
+    padding: 0 18px;
+    display: flex; align-items: center;
+    gap: 10px;
+    color: var(--ink-2);
+    font-size: 12px;
+  }
+  .canvas-toolbar .ddl {
+    height: 28px;
+    padding: 0 32px 0 14px;
+    background: var(--paper-3);
+    border: 1px solid rgba(125, 139, 94, 0.2);
+    border-radius: 999px;
+    display: flex; align-items: center;
+    font-size: 12px;
+    color: var(--ink);
+    position: relative;
+    font-weight: 500;
+  }
+  .canvas-toolbar .ddl::after {
+    content: "▾"; position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-3);
+    font-size: 9px;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2);
+    border-radius: 50%;
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--paper-3); color: var(--terracotta); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .canvas .photo {
+    width: min(720px, 85%);
+    aspect-ratio: 3/2;
+    border-radius: 12px;
+    background:
+      radial-gradient(ellipse at 30% 25%, #e8b070 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #4a3a4a 0%, transparent 60%),
+      linear-gradient(180deg, #3a4d5e 0%, #6b3e3a 45%, #c47840 100%);
+    box-shadow:
+      0 20px 40px rgba(42, 40, 32, 0.20),
+      0 0 0 1px rgba(125, 139, 94, 0.15);
+  }
+
+  .right-panel {
+    background: var(--paper-2);
+    border-radius: 16px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid rgba(125, 139, 94, 0.15);
+  }
+  .histogram .h-title {
+    font-family: "Fraunces", serif; font-style: italic;
+    font-size: 14px; color: var(--ink);
+    margin-bottom: 8px; font-weight: 400;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--paper-3);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(125, 139, 94, 0.1);
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex; padding: 8px 8px 0;
+    gap: 4px;
+  }
+  .tabs .tab {
+    flex: 1; padding: 10px 0;
+    font-size: 12px; color: var(--ink-3);
+    text-align: center;
+    border-radius: 12px 12px 0 0;
+    font-weight: 600;
+  }
+  .tabs .tab.active {
+    color: var(--ink);
+    background: var(--paper-3);
+    font-family: "Fraunces", serif; font-style: italic;
+  }
+  .tabs .tab.disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.5; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    background: var(--paper-3);
+    padding: 14px 14px 18px;
+    border-radius: 0 0 16px 16px;
+  }
+  .builtin {
+    background: var(--paper-2);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(125, 139, 94, 0.08);
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    gap: 10px;
+  }
+  .builtin .label {
+    flex: 1; font-size: 16px;
+    font-family: "Fraunces", serif; font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .builtin .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3); border-radius: 50%;
+  }
+  .builtin .icon-btn:hover { background: var(--paper-3); color: var(--terracotta); }
+  .builtin .chev { color: var(--ink-3); font-size: 10px; }
+  .builtin.open .controls { display: block; padding: 4px 18px 16px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 6px;
+    margin-bottom: 12px; font-size: 12px;
+  }
+  .slider .lbl { color: var(--ink-2); font-weight: 500; }
+  .slider .val {
+    color: var(--terracotta); font-variant-numeric: tabular-nums;
+    font-size: 12px; font-weight: 600;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 4px; background: rgba(125, 139, 94, 0.2);
+    border-radius: 999px; position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--moss);
+    border: 2px solid var(--paper-3);
+    transform: translateX(-50%);
+    box-shadow: 0 2px 4px rgba(42, 40, 32, 0.15);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin-top: 12px;
+    background: var(--paper-2);
+    border: 1.5px dashed rgba(125, 139, 94, 0.3);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--terracotta);
+    color: var(--paper-3);
+    border: none; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+    font-weight: 300;
+    box-shadow: 0 4px 12px rgba(194, 94, 58, 0.3);
+  }
+  .custom-add .add-text {
+    font-family: "Fraunces", serif; font-style: italic;
+    font-size: 13px; color: var(--ink-2);
+  }
+
+  .filmstrip {
+    padding: 0 18px 18px;
+  }
+  .filmstrip-inner {
+    background: var(--paper-2);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filmstrip .frame {
+    width: 100px; height: 70px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4a5d6e 0%, #d68a52 100%);
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s;
+    border: 1px solid rgba(125, 139, 94, 0.1);
+  }
+  .filmstrip .frame:hover { transform: translateY(-2px); }
+  .filmstrip .frame.active {
+    outline: 2px solid var(--moss);
+    outline-offset: 3px;
+  }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 4px; left: 6px; right: 6px;
+    color: var(--paper-3);
+    font-size: 10px;
+    font-family: "Fraunces", serif; font-style: italic;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">19</span>
+  <b>Organic · Nature</b>
+  <span>· Fraunces italic + Manrope · Terracotta, sage, moss · Photo-centric · Kinfolk / Patagonia reference</span>
+  <span class="skill-tag">frontend-design skill</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon"></div>
+    <div class="tb-title">photo-node-super &mdash; an outdoor editor</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="tb-btn" title="Maximize">
+        <svg viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="tb-btn close" title="Close">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>photo-node-super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">library</div>
+        <div class="seg active">edit</div>
+        <div class="seg">nodes</div>
+        <div class="seg disabled" title="Coming in a future version">lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <div style="color:var(--ink-3)">·</div>
+          <div style="font-size:11px;color:var(--ink-3)">plate 01 / 248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="canvas">
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">from the field</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 296 56" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hg19" x1="0" x2="1">
+                  <stop offset="0" stop-color="#c25e3a"/>
+                  <stop offset="0.5" stop-color="#7d8b5e"/>
+                  <stop offset="1" stop-color="#4a5530"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L288 56 L296 56 L0 56 Z" fill="url(#hg19)" opacity="0.65"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">global</div>
+          <div class="tab disabled" title="Coming in a future version">mask</div>
+          <div class="tab disabled" title="Coming in a future version">crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">lens correction</div>
+              <div class="icon-btn" title="Reserved slot">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="icon-btn">▾</div>
+              <div class="label">basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">hsl / mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">tone curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">add a custom layer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="filmstrip-inner">
+        <div class="frame active"><div class="name">DSC_0042</div></div>
+        <div class="frame"><div class="name">DSC_0043</div></div>
+        <div class="frame"><div class="name">DSC_0044</div></div>
+        <div class="frame dim"><div class="name">DSC_0045</div></div>
+        <div class="frame dim"><div class="name">DSC_0046</div></div>
+        <div class="frame dim"><div class="name">DSC_0047</div></div>
+        <div class="frame dim"><div class="name">DSC_0048</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

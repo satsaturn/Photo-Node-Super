@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Editor — Lens Corrector extension spec</title>
+<style>
+  :root {
+    --bg: #1a1a1f; --panel: #232329; --panel2: #2c2c34; --text: #e8e8ec;
+    --muted: #9a9aa4; --accent: #6ea8ff; --border: #3a3a44; --warn: #ffb454;
+    --future: #4ec9b0; --lens: #4ec9b0; --lens2: #2a8a76; --hole: #ff6b6b;
+    /* data-type colours */
+    --t-image: #e53935; --t-number: #3b82f6; --t-color: #d4a017;
+    --t-curve: #22c55e; --t-bool: #a855f7; --t-enum: #f97316;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.55; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav { background: var(--panel); border-right: 1px solid var(--border); padding: 20px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 24px 0 8px; }
+  nav h2:first-child { margin-top: 0; }
+  nav a { display: block; color: var(--text); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  nav a:hover { background: var(--panel2); color: var(--accent); }
+  nav a.hole { color: var(--hole); }
+  main { padding: 40px 48px 80px; max-width: 920px; }
+  main a { color: var(--accent); text-decoration: underline; }
+  main a:hover { color: #a8caff; text-decoration: underline; }
+  main a[href^="spec-"] { font-weight: 600; }
+  main a[href^="spec-"]:hover { color: #b8d4ff; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .subtitle { color: var(--muted); margin: 0 0 32px; font-size: 14px; }
+  h2 { font-size: 22px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  h2:first-of-type { border-top: 0; padding-top: 0; }
+  h3 { font-size: 17px; margin: 24px 0 8px; color: var(--accent); }
+  h3.lens { color: var(--lens); }
+  h4 { font-size: 15px; margin: 16px 0 6px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 3px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; }
+  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; font-family: "SF Mono", Consolas, monospace; font-size: 13px; line-height: 1.4; color: var(--text); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .callout { background: var(--panel); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin: 14px 0; }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.future { border-left-color: var(--future); background: rgba(78,201,176,0.06); }
+  .callout.lens { border-left-color: var(--lens); background: rgba(78,201,176,0.06); }
+  .hole-section { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.3); border-radius: 8px; padding: 8px 20px 16px; margin-top: 24px; }
+  .hole-section h2 { border-top: 0; color: var(--hole); }
+  .hole-item { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--hole); border-radius: 4px; padding: 10px 14px; margin: 10px 0; }
+  .hole-item h4 { margin: 0 0 4px; color: var(--hole); font-size: 14px; }
+  .hole-item .sev { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .sev.high { background: #c0392b; color: #fff; }
+  .sev.med { background: #d68910; color: #fff; }
+  .sev.low { background: #2e86c1; color: #fff; }
+  .status { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+  .status.resolved { background: #1e7e34; color: #fff; }
+  .status.partial { background: #5a7a5a; color: #fff; }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: var(--panel2); color: var(--muted); margin-left: 6px; }
+  .tag.lens { background: var(--lens2); color: #fff; }
+  .deferred { color: var(--muted); font-style: italic; }
+  .toc-num { color: var(--muted); margin-right: 6px; }
+  strong { color: #fff; }
+  em { color: var(--muted); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } nav { position: static; height: auto; } main { padding: 24px; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <h2>Lens extension</h2>
+  <a href="#s1"><span class="toc-num">1</span>Pipeline integration</a>
+  <a href="#s2"><span class="toc-num">2</span>Core concept & terminology</a>
+  <a href="#s3"><span class="toc-num">3</span>Profile data model</a>
+  <a href="#s4"><span class="toc-num">4</span>Edit integration (panel)</a>
+  <a href="#s5"><span class="toc-num">5</span>EXIF auto-detect & interpolation</a>
+  <a href="#s6"><span class="toc-num">6</span>Per-photo overrides</a>
+  <a href="#s7"><span class="toc-num">7</span>Calibration workflow</a>
+  <a href="#s8"><span class="toc-num">8</span>Lens library & management</a>
+  <a href="#s9"><span class="toc-num">9</span>Profile packs & JSON format</a>
+  <a href="#holes" class="hole">Holes #24–#39</a>
+  <a href="spec-v1.html">← back to v1 spec</a>
+</nav>
+<main>
+
+<h1>Lens Corrector — extension spec</h1>
+<p class="subtitle">The Lens module + the Lens Correction built-in edit. Profile files tagged by (focal length, aperture), linear interpolation, EXIF auto-detect, calibration workflow, lens library, JSON packs. Not in v1; the Lens tab is a disabled placeholder and the Lens Correction built-in slot is identity in v1.</p>
+
+<div class="callout future">
+  <strong>Depends on v1 <a href="spec-v1.html#s6">§6</a> (pipeline buckets — lens correction is bucket 0), <a href="spec-v1.html#s5">§5</a> (layer header controls — the panel ports the enable/bypass pattern), <a href="spec-v1.html#s13">§13</a> (catalog stores edit list + lens pack storage location), <a href="spec-v1.html#s14">§14</a> (software stack).</strong>
+</div>
+
+<h2 id="s1">1. Lens-correction pipeline integration</h2>
+<p>The lens-correction panel in Edit runs as the <strong>very first stage of the pipeline</strong> (order 0 in <a href="spec-v1.html#s6">v1 §6</a>), before crop, any built-in sheet, or any custom sheet. Rationale: geometric distortion changes the image geometry, so anything downstream (cropping, transforms, masks, blur kernels) needs the corrected coordinates. Vignetting and CA are pixel-value corrections, but keeping them in the same first stage means the corrector is a single, atomic module the user toggles. The panel references a lens profile file (copy or link, §4.6); a <strong>linked</strong> panel re-interpolates whenever the file is edited in the Lens section (§7).</p>
+<p>The Lens Correction stage is "phase 0". Crop follows at stage 1 (see <a href="spec-crop.html">spec-crop</a>). The four custom-sheet phases in <a href="spec-v1.html#s6">v1 §6</a> are unchanged — they describe the custom pipeline, and both lens correction and crop are upstream of all of them. See Hole #31 for how this affects existing copy/link semantics on the first custom phase.</p>
+
+<h4>Bypass</h4>
+<p>The panel's <strong>Enable toggle</strong> (§4.2) bypasses the entire corrector: the photo enters the rest of the pipeline uncorrected. Identical semantics to a layer's enable toggle in the main editor (<a href="spec-v1.html#s5">v1 §5</a>).</p>
+
+<h4>Edge cases</h4>
+<ul>
+  <li><strong>No lens matched</strong> (EXIF unknown, Auto from EXIF off) → corrector shows an empty state and outputs the image unmodified. User can still pick a lens manually or create one.</li>
+  <li><strong>Lens has zero profile points</strong> → corrector shows an empty state and outputs the image unmodified. A "+ New" CTA switches to the Lens section to start calibrating.</li>
+  <li><strong>One profile point</strong> → that point's values are used directly (no interpolation).</li>
+  <li><strong>Two or more points</strong> → linear interpolation per §5.</li>
+</ul>
+
+<h2 id="s2">2. Lens Corrector — core concept & terminology</h2>
+<p class="subtitle">The Lens Corrector is the subsystem behind the <strong>Lens</strong> header module and the <strong>Lens Correction</strong> built-in edit in the Edit module. Per-lens profile files are tagged by (focal length, aperture), with linear interpolation between profile points. The lens-correction math (distortion, vignetting, CA, colour vignette) runs on the same CPU stack as the rest of the app (<a href="spec-v1.html#s14">v1 §14</a>).</p>
+
+<p>Raw editors typically apply <strong>one static lens-correction profile per lens</strong>. But a lens's distortion and vignetting change with <strong>focal length</strong> and <strong>aperture</strong>, so a single profile <em>over-corrects one image and under-corrects another</em> shot on the same lens. The Lens Corrector fixes this by storing <strong>multiple profile points per lens</strong> — each tagged with a (focal length, aperture) pair — and <strong>linearly interpolating</strong> between the nearest points for every photo. The more points the user adds, the more accurate the result becomes. The system <strong>auto-detects</strong> the lens and shooting parameters from EXIF and applies the interpolated correction as the first step in the pipeline (§1). Profiles are <strong>shareable as JSON packs</strong> so communities can distribute calibration data.</p>
+
+<div class="callout lens">
+  <strong>Design intent:</strong> treat lens correction not as a single dial but as a <em>surface</em> across focal length × aperture. The user's job is to populate that surface with points; the app's job is to read the surface smoothly. Calibration is a first-class workflow, not a one-time setup.
+</div>
+
+<h3 class="lens">2.1 Why it matters</h3>
+<ul>
+  <li><strong>Real lenses are not uniform.</strong> A 24–70mm f/2.8 zoom has dramatically different barrel distortion at 24mm vs 70mm, and vignetting at f/2.8 is much heavier than at f/8. A single-profile correction must average — and therefore mis-corrects most frames.</li>
+  <li><strong>Calibration improves with use.</strong> Unlike most edits, a lens profile gets <em>better</em> the more the user shoots with that lens. Every photo at a new (FL, aperture) is an opportunity to fill in the surface.</li>
+  <li><strong>Community scales calibration.</strong> Once one user calibrates a popular lens, sharing the pack saves every other owner hours of work.</li>
+</ul>
+
+<h3 class="lens">2.2 Terminology</h3>
+<ul>
+  <li><strong>Lens entry</strong> — one physical lens in the user's library. Identified by make + model (and optional serial / variant notes).</li>
+  <li><strong>Lens profile file</strong> — a file in the user's lens folder holding one lens entry. Authored in the <strong>Lens</strong> module (§7 / §8). Referenced (copy or link) by the Edit lens-correction panel (§4), the same way a node-sheet file is referenced by a layer in Edit. A <strong>profile pack</strong> (below) is the multi-lens export / import container.</li>
+  <li><strong>Profile point</strong> — a single calibration sample at a specific (focal length, aperture) pair, holding correction values for all four parameter types.</li>
+  <li><strong>Profile surface</strong> — the implicit 2D function over (focal length, aperture) defined by the lens's profile points and the interpolation rule. What gets applied to a photo.</li>
+  <li><strong>Calibration</strong> — the act of creating or refining a profile point by adjusting sliders against a reference image.</li>
+  <li><strong>Profile pack</strong> — a JSON file containing one or more lens entries for export / import.</li>
+  <li><strong>Active lens</strong> — the lens entry the corrector is currently using for the loaded photo (auto-detected or manually chosen).</li>
+  <li><strong>Coverage</strong> — a visual indicator of how well the profile surface is sampled across the (FL, aperture) range the lens actually supports.</li>
+</ul>
+
+<h2 id="s3">3. Lens profile data model</h2>
+
+<h3 id="s3-1">3.1 Lens entry</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>id</code></td><td>UUID</td><td>Stable internal identifier. Survives renames.</td></tr>
+    <tr><td><code>make</code></td><td>string</td><td>Lens manufacturer. Matched against EXIF <code>LensMake</code>.</td></tr>
+    <tr><td><code>model</code></td><td>string</td><td>Lens model name. Matched against EXIF <code>LensModel</code>.</td></tr>
+    <tr><td><code>variant</code></td><td>string?</td><td>Optional free text (e.g. "Mark II", "serial 12345").</td></tr>
+    <tr><td><code>focalLengthRange</code></td><td>[min, max] mm</td><td>Zoom range if a zoom. Fixed [n, n] for a prime.</td></tr>
+    <tr><td><code>apertureRange</code></td><td>[min, max] f-number</td><td>Available aperture range (widest to narrowest).</td></tr>
+    <tr><td><code>profilePoints</code></td><td>ProfilePoint[]</td><td>All calibrated samples (see §3.2).</td></tr>
+    <tr><td><code>copyLinkDefault</code></td><td>"ask" | "copy" | "link"</td><td>Default copy/link behaviour when this profile is referenced from Edit. "ask" = prompt each time (default). Mirrors the sheet-file override in <a href="spec-copy-link.html">spec-copy-link</a>.</td></tr>
+    <tr><td><code>notes</code></td><td>string?</td><td>User notes (purchase date, sample variation, etc.).</td></tr>
+    <tr><td><code>createdAt</code> / <code>updatedAt</code></td><td>ISO timestamp</td><td>For library management.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-2">3.2 Profile point</h3>
+<p>One sample of the lens's behaviour at a specific (FL, aperture) pair. Carries the four correction parameter types.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>focalLength</code></td><td>number (mm)</td><td>Tagged focal length for this point.</td></tr>
+    <tr><td><code>aperture</code></td><td>number (f-number)</td><td>Tagged aperture for this point.</td></tr>
+    <tr><td><code>distortion</code></td><td>Distortion</td><td>Geometric correction (see §3.3).</td></tr>
+    <tr><td><code>vignetting</code></td><td>Vignetting</td><td>Brightness falloff correction (see §3.4).</td></tr>
+    <tr><td><code>chromaticAberration</code></td><td>CA</td><td>Lateral colour fringe correction (see §3.5).</td></tr>
+    <tr><td><code>colourVignette</code></td><td>ColourVignette</td><td>Radial colour cast correction (see §3.6).</td></tr>
+    <tr><td><code>calibratedFrom</code></td><td>string?</td><td>Photo filename or "test-chart" for traceability.</td></tr>
+    <tr><td><code>notes</code></td><td>string?</td><td>Per-point notes.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s3-3">3.3 Distortion (geometry)</h3>
+<p>Brown–Conrady-style radial polynomial correction. Multi-order so the user can correct complex lens curves, not just a single barrel/pincushion term.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>k1</code></td><td>number</td><td>typically −0.20 … +0.20</td><td>Primary radial term. Negative = pincushion correction of barrel; positive = barrel correction of pincushion.</td></tr>
+    <tr><td><code>k2</code></td><td>number</td><td>typically −0.50 … +0.50</td><td>Secondary term. Corrects mid-radius residual after k1.</td></tr>
+    <tr><td><code>k3</code></td><td>number</td><td>typically −1.0 … +1.0</td><td>Tertiary term. Fine-tuning at extreme radii (wide rectilinears, fisheye-ish). Default 0.</td></tr>
+    <tr><td><code>scale</code></td><td>number</td><td>0.5 … 1.5</td><td>Uniform scale applied after un-distort, to keep the output frame size consistent.</td></tr>
+  </tbody>
+</table>
+<p>UI surfaces k1, k2, k3 as three sliders grouped under "Distortion", and a "Scale" slider beneath them. Reset per slider (double-click label).</p>
+
+<h3 id="s3-4">3.4 Vignetting (brightness)</h3>
+<p>Radial brightness compensation. Modelled as a smooth curve the user shapes, not a single multiplier — real lens falloff is rarely a clean radial function.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>strength</code></td><td>number</td><td>0.0 … 2.0</td><td>Overall correction intensity. 0 = off.</td></tr>
+    <tr><td><code>curve</code></td><td>Curve</td><td>—</td><td>Falloff shape from centre (0.0) to corner (1.0). Same Curve control type as the main editor's vertex curves (Hole #14 in <a href="spec-v1.html#holes">v1 holes</a>). Brightness multiplier on the Y axis.</td></tr>
+    <tr><td><code>midpoint</code></td><td>number</td><td>0.0 … 1.0</td><td>Where the falloff curve's "knee" sits along the radius.</td></tr>
+    <tr><td><code>feather</code></td><td>number</td><td>0.0 … 1.0</td><td>Softness of the falloff edge at the knee.</td></tr>
+  </tbody>
+</table>
+<p>UI: strength slider, then an editable falloff curve widget, then midpoint and feather sliders.</p>
+
+<h3 id="s3-5">3.5 Chromatic aberration (lateral)</h3>
+<p>Lateral (transverse) CA: per-channel radial offset that causes coloured fringes towards the edges. Resolved with a per-channel scale around the optical centre.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>redScale</code></td><td>number</td><td>−0.05 … +0.05</td><td>Red channel radial scale. Negative pulls red inward.</td></tr>
+    <tr><td><code>blueScale</code></td><td>number</td><td>−0.05 … +0.05</td><td>Blue channel radial scale. Positive pushes blue outward.</td></tr>
+    <tr><td><code>feather</code></td><td>number</td><td>0.0 … 1.0</td><td>How smoothly the offset ramps with radius.</td></tr>
+  </tbody>
+</table>
+<p>UI: two sliders "R scale" and "B scale" + "Feather". G is implicit (the reference channel).</p>
+
+<h3 id="s3-6">3.6 Colour vignette (radial colour cast)</h3>
+<p>Distinct from brightness vignetting: a colour cast that varies with radius (e.g. green corners on older lenses, magenta on some wide-angles).</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>strength</code></td><td>number</td><td>0.0 … 1.0</td><td>How much correction to apply. 0 = off.</td></tr>
+    <tr><td><code>hue</code></td><td>number (degrees)</td><td>0 … 360</td><td>Colour to push toward (or away from) at the corners.</td></tr>
+    <tr><td><code>saturation</code></td><td>number</td><td>0.0 … 1.0</td><td>How saturated the corner cast is.</td></tr>
+    <tr><td><code>midpoint</code> / <code>feather</code></td><td>numbers</td><td>0.0 … 1.0</td><td>Same role as brightness vignette — where the colour change begins and how softly it ramps.</td></tr>
+  </tbody>
+</table>
+<p>UI: a colour swatch (clicking opens the standard colour picker per v1 Hole #14) + sliders for strength, saturation, midpoint, feather.</p>
+
+<h2 id="s4">4. Edit integration (the lens-correction built-in)</h2>
+<p>The Lens Corrector ships as two pieces: the <strong>Lens module</strong> (the authoring / calibration / library tool — see §7 / §8), and a <strong>lens-correction built-in edit inside Edit's edit list</strong> that references a lens profile file made in the Lens module. This mirrors the node-editor relationship: a sheet file made in Nodes is referenced (copy or link — <a href="spec-copy-link.html">spec-copy-link</a>) by a layer in Edit; a lens profile file made in Lens is referenced (copy or link) by the lens-correction built-in edit in Edit. <strong>Edit never authors lens profiles — it consumes them.</strong></p>
+<p>The lens-correction entry is the first built-in in the edit list (Lens Correction → Basic → Colour → HSL/Mix → Tone Curve → Detail, <a href="spec-v1.html#s3">v1 §3</a>). It is a built-in edit, <strong>not a node sheet</strong> — it has no node graph; instead it references a lens profile file and exposes two basic sliders (Distort, Vignette). It runs as the <strong>very first stage of the pipeline</strong> (§1), before any other built-in or custom sheet. <strong>Visual list position ≠ execution order</strong>: it displays at the top of the built-in list and also executes first; the broader principle (customs execute by phase, not by panel position — <a href="spec-v1.html#s6">v1 §6</a>) still holds for every other entry. With no lens profile file referenced, the panel shows an empty / unknown-lens state (Hole #24) until one is picked or auto-detected from EXIF.</p>
+
+<h3 id="s4-1">4.1 Panel layout</h3>
+<pre>┌─ Lens Correction  (built-in edit) ─────────────────┐
+│ [On/Off]  [Auto EXIF ✓]  Profile: … ▾   [+ New ▸]  │
+│───────────────────────────────────────────────────│
+│  Distort    ────●──────────                        │
+│  Vignette   ──────●────────                        │
+└───────────────────────────────────────────────────┘</pre>
+<p>A compact built-in entry, not a rich four-group panel. The header row carries the on/off toggle, the Auto-from-EXIF checkbox, the profile dropdown, and the <strong>+ New</strong> button (switches to the Lens module, §4.5). Below the header are just two basic sliders (§4.4). Everything else — coverage map, full per-parameter calibration, lens library — lives in the Lens module (§7 / §8).</p>
+
+<h3 id="s4-2">4.2 Header controls</h3>
+<ul>
+  <li><strong>On/Off toggle</strong> — off = identity passthrough (no correction). Like a layer's enable toggle (<a href="spec-v1.html#s5">v1 §5</a>). Toggles the whole lens-correction built-in edit.</li>
+  <li><strong>Auto from EXIF</strong> — checkbox. On (default) = system reads EXIF on photo load and auto-selects the matching lens profile file in the dropdown (§5). Off = user picks a profile manually.</li>
+  <li><strong>Profile dropdown</strong> — pick which lens profile file this photo references (copy or link, §4.6). Lists the lens profile files in the user's lens folder; a one-line summary under the selection shows variant (if any) + profile-point count.</li>
+  <li><strong>+ New button</strong> — switches to the <strong>Lens</strong> module to author a new lens profile file (§4.5). The lens library manager, pack import / export, and calibration all live in the Lens module — not behind a menu here.</li>
+</ul>
+
+<h3 id="s4-3">4.3 Unknown-lens state</h3>
+<p>When Auto from EXIF is on and no lens profile file matches the photo's <code>LensMake</code> + <code>LensModel</code>, the dropdown shows empty / "Unknown lens — create one?" (Hole #24). The user can pick an existing file manually, or hit <strong>+ New</strong> to switch to the Lens module and create a matching profile.</p>
+
+<h3 id="s4-4">4.4 Basic sliders (Distort &amp; Vignette)</h3>
+<p>Below the header, the panel exposes just two basic sliders: <strong>Distort</strong> and <strong>Vignette</strong>. These are <strong>per-photo overrides</strong> (§6) on top of the referenced profile's interpolated correction — a quick nudge without leaving Edit. The full per-parameter correction (k1/k2/k3/scale, falloff curve, chromatic aberration, colour vignette) is authored in the Lens module (§7), not exposed here.</p>
+<ul>
+  <li><strong>Distort</strong> — a single slider that offsets the profile's overall distortion correction for this photo.</li>
+  <li><strong>Vignette</strong> — a single slider that scales the profile's vignetting correction for this photo.</li>
+  <li>Sliders match the main editor's numeric conventions (double-click value to type, double-click label to reset, Alt-drag for fine adjust — <a href="spec-v1.html#s4">v1 §4</a>).</li>
+</ul>
+
+<h3 id="s4-5">4.5 Add new profile</h3>
+<p>The <strong>+ New</strong> button in the panel header switches to the <strong>Lens module</strong> to author a new lens profile file (§7). On creation, the new file is referenced by this panel (copy or link per §4.6). All profile authoring, calibration, and profile-point editing happens in the Lens module — never in Edit.</p>
+
+<h3 id="s4-6">4.6 Copy / link semantics</h3>
+<ul>
+  <li>The lens-correction panel references a <strong>lens profile file</strong> from the user's lens folder. On adding / swapping a file, the app asks <strong>copy or link?</strong> — the same prompt as a custom sheet layer (<a href="spec-copy-link.html">spec-copy-link</a>).
+    <ul>
+      <li><strong>Copy</strong> — a snapshot of the lens profile file is frozen into the photo's edit data; later edits to the file in the Lens module do not affect this photo.</li>
+      <li><strong>Link</strong> — the panel stays live to the lens profile file; editing the file in the Lens module updates this photo's correction. A linked panel whose file is missing / moved shows a broken-link badge (parallels <a href="spec-library.html#s5">spec-library §5</a>).</li>
+    </ul>
+  </li>
+  <li>A lens profile file can set a <strong>copy/link default</strong> (§3.1) to skip the prompt — the same override mechanism as a sheet file (<a href="spec-copy-link.html">spec-copy-link</a>). The default is "ask" unless the profile file specifies otherwise.</li>
+  <li><strong>Auto from EXIF</strong> (§4.2) auto-selects which lens profile file to reference by matching <code>LensMake</code> + <code>LensModel</code>; the resulting reference follows the same copy / link default. If no file matches, the panel shows the unknown-lens state (Hole #24).</li>
+  <li>Per-photo overrides (§6) live on the photo's edit data, on top of the referenced file's interpolated values — independent of copy / link.</li>
+</ul>
+
+<h2 id="s5">5. EXIF auto-detect & interpolation</h2>
+
+<h3 id="s5-1">5.1 EXIF fields read</h3>
+<table>
+  <thead><tr><th>EXIF tag</th><th>Used for</th></tr></thead>
+  <tbody>
+    <tr><td><code>Make</code> + <code>Model</code> (camera)</td><td>Sanity check / display.</td></tr>
+    <tr><td><code>LensMake</code> + <code>LensModel</code></td><td>Match a lens entry in the library.</td></tr>
+    <tr><td><code>FocalLength</code></td><td>Tag the active point on the (FL, aperture) surface.</td></tr>
+    <tr><td><code>FNumber</code></td><td>Tag the active point on the (FL, aperture) surface.</td></tr>
+    <tr><td><code>LensSerialNumber</code> (if present)</td><td>Disambiguate multiple copies of the same lens model.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s5-2">5.2 Match algorithm</h3>
+<ol>
+  <li>Read <code>LensMake</code> + <code>LensModel</code> from the photo.</li>
+  <li>Find lens entries where <code>make</code> + <code>model</code> match (case-insensitive, trimmed).</li>
+  <li>If multiple matches, prefer the one with a matching <code>LensSerialNumber</code>; otherwise prompt the user to pick (Hole #25).</li>
+  <li>Read the photo's <code>FocalLength</code> and <code>FNumber</code> → these define the (FL, aperture) coordinate on the lens's profile surface.</li>
+  <li>Compute the interpolated correction (see §5.4).</li>
+  <li>Apply it as the first pipeline stage (§1).</li>
+</ol>
+
+<h3 id="s5-3">5.3 Missing EXIF</h3>
+<p>If the photo lacks <code>LensModel</code> or <code>FocalLength</code> (scanned images, heavily cropped JPEGs), the corrector falls back to manual mode and shows a notice: "EXIF incomplete — choose lens and (FL, aperture) manually." See Hole #26.</p>
+
+<h3 id="s5-4">5.4 Interpolation rule</h3>
+<p>When a photo is at a (FL, aperture) coordinate that doesn't exactly match a profile point, the corrector finds the <strong>nearest profile points</strong> in (FL, aperture) space and <strong>linearly interpolates</strong> their parameter values. Linear is the chosen model: simple, predictable, and behaves well with sparse data — a user with one or two points gets sensible corrections, and the surface refines gracefully as more points are added.</p>
+
+<h3 id="s5-5">5.5 How neighbours are found</h3>
+<ol>
+  <li>Compute the photo's (FL, aperture) coordinate.</li>
+  <li>For each profile point, compute a distance. Default metric: weighted Euclidean with weights that emphasise focal length — empirically, distortion varies more sharply with zoom than with aperture.
+    <pre>  d = sqrt( ( (FL - FL_p) / FL_range )² + ( (A - A_p) / A_range )² )</pre>
+  </li>
+  <li>Take the <strong>two nearest profile points</strong> (or one if only one exists; or zero if none exist).</li>
+  <li>Weight each by inverse distance (with epsilon against division-by-zero at exact match).</li>
+  <li>Linearly combine the per-parameter values: distortion, vignetting, CA, colour vignette — <em>each interpolated independently</em> (no cross-parameter coupling).</li>
+</ol>
+
+<h3 id="s5-6">5.6 Out-of-range behaviour</h3>
+<p>If the photo's (FL, aperture) is outside the convex hull of the lens's profile points, the corrector uses the <strong>single nearest profile point</strong> with a "Far from calibration" badge on the panel (no extrapolation). See Hole #27 for the visual treatment.</p>
+
+<h3 id="s5-7">5.7 Coverage indicator</h3>
+<p>The coverage heatmap lives in the <strong>Lens module</strong> (calibration screen §7 / library manager §8), not in the compact Edit panel. It shows density of profile points across (FL, aperture) for the active lens:</p>
+<ul>
+  <li><strong>Empty cells</strong> = no nearby points. Photos at those coordinates will use the nearest point only.</li>
+  <li><strong>Dense cells</strong> = many points; interpolation is most accurate here.</li>
+  <li><strong>Current photo's cell</strong> is highlighted so the user can see at a glance how well-supported the current shot is.</li>
+</ul>
+<p>The indicator's job is to <em>motivate</em> the user to fill gaps in the surface.</p>
+
+<h2 id="s6">6. Per-photo overrides</h2>
+<p>Even with a well-calibrated surface, a particular photo may need a tweak (a focus shift, an off-calibration sample). The two basic sliders in the Edit panel (§4.4 — Distort, Vignette) <strong>act as per-photo overrides</strong> on top of the referenced profile's interpolated correction. The full per-parameter surface (k1/k2/k3, falloff curve, CA, colour vignette) is edited in the Lens module on the profile file, not per-photo in Edit.</p>
+
+<h3 id="s6-1">6.1 How overrides combine with interpolation</h3>
+<p>For each parameter, the corrector stores a per-photo override value (default = identity / "use interpolation"). The final value applied is:</p>
+<pre>final = interpolated(profile surface) ⊕ per-photo override</pre>
+<p>where <code>⊕</code> is parameter-appropriate combination:</p>
+<ul>
+  <li><strong>Distort slider</strong> — scales the profile's overall distortion correction for this photo (additive offset on the combined k1/k2/k3/scale result).</li>
+  <li><strong>Vignette slider</strong> — scales the profile's vignetting correction for this photo (multiplicative; a 0.1 nudge = 10% more / less correction).</li>
+</ul>
+<p>CA and colour vignette are not per-photo adjustable in this version — they follow the referenced profile's interpolated values exactly. Exposing them per-photo is deferred.</p>
+
+<h3 id="s6-2">6.2 Override affordances</h3>
+<ul>
+  <li>When a slider is at its default (no override), it shows in the "interpolated" state — no badge.</li>
+  <li>When the user moves it, a small <strong>badge</strong> appears next to the slider label: "overridden".</li>
+  <li>Double-clicking the label resets the override to "use interpolation" (back to interpolated state).</li>
+  <li>A <strong>"Reset all overrides"</strong> link at the bottom of the panel clears every per-photo adjustment in one click.</li>
+</ul>
+
+<h3 id="s6-3">6.3 Storing overrides</h3>
+<p>Per-photo overrides live on the photo's edit metadata, not in the lens entry. Editing the lens profile does not overwrite a photo's overrides, and removing a photo's overrides does not affect the lens profile. They are independent layers of state.</p>
+
+<h2 id="s7">7. Calibration workflow (Lens module)</h2>
+<p>Calibration is the main workspace of the <strong>Lens module</strong> (the way the node editor is the Nodes section, <a href="spec-v1.html#s7">v1 §7</a>). Entered from the Lens header, or from the Edit lens-correction built-in edit's <strong>+ New</strong> button (§4.5, which switches to the Lens module).</p>
+
+<h3 id="s7-1">7.1 Entry points</h3>
+<ul>
+  <li><strong>+ New</strong> (Edit lens-correction built-in edit, §4.5) — switches to the Lens module and starts a new lens profile file; if a photo is loaded, calibration opens against it at the current (FL, aperture).</li>
+  <li><strong>Lens header</strong> — works with no photo loaded; opens calibration against a neutral test pattern (see §7.3). Also the entry point for editing an existing profile or adding points to an existing lens.</li>
+  <li><strong>Lens library manager</strong> (§8) — calibrate-any-existing-point picker.</li>
+</ul>
+
+<h3 id="s7-2">7.2 Calibration screen layout</h3>
+<pre>┌──────────────────────────────────┬────────────────────┐
+│  [Canvas toolbar]               │  Profile point     │
+│  [Grid overlay toggle]          │  settings          │
+│  [Grid opacity ────●──]         │  ─────────────     │
+│──────────────────────────────────│  Lens:             │
+│                                  │  Canon RF 24-70…   │
+│        Calibration canvas        │  Focal length:     │
+│  (photo or test pattern          │  [   35   ] mm     │
+│   + grid overlay, with           │  Aperture:         │
+│   live distortion / vignetting / │  [   2.8  ] f      │
+│   CA / colour vignette applied   │  ─────────────     │
+│   in real time)                  │  Source image:     │
+│                                  │  [photo filename]  │
+│                                  │  ─────────────     │
+│                                  │  Correction groups │
+│                                  │  (same 4 groups    │
+│                                  │   as §3)           │
+│                                  │                    │
+│                                  │  [Save point]      │
+│                                  │  [Discard]         │
+└──────────────────────────────────┴────────────────────┘</pre>
+
+<h3 id="s7-3">7.3 Reference image</h3>
+<p>Calibration can be run on:</p>
+<ol>
+  <li><strong>The loaded photo</strong> — if a photo is loaded, the canvas shows it. Best for "I have a shot of a grid at 24mm f/2.8, let me dial in corrections for that exact (FL, aperture)."</li>
+  <li><strong>A neutral test pattern</strong> — if no photo is loaded (or the user explicitly wants a clean reference), the app shows a synthetic <strong>built-in grid pattern</strong>: regular orthogonal lines on a neutral grey background, filling the frame. The user adjusts sliders against this known geometry, which is the most reliable way to correct distortion.</li>
+</ol>
+<p>Either way, the canvas applies the current corrections in real time so the user sees the grid undistort / brighten as they adjust.</p>
+
+<h3 id="s7-4">7.4 Grid overlay</h3>
+<p>A separate <strong>overlay layer</strong> the user can toggle on/off and adjust opacity for. Two modes:</p>
+<ul>
+  <li><strong>On top of the photo / test pattern</strong> — fine orthogonal lines the user aligns against known straight features (door frames, horizons, architectural edges in the photo).</li>
+  <li><strong>Standalone</strong> — the full grid is the canvas, used as the reference in §7.3 option 2.</li>
+</ul>
+<p>Controls: <strong>toggle</strong>, <strong>opacity slider</strong>, and a <strong>spacing dropdown</strong> (fine / medium / coarse) for the grid line frequency.</p>
+
+<h3 id="s7-5">7.5 Calibrating each parameter</h3>
+<p>The four correction groups behave differently during calibration:</p>
+<table>
+  <thead><tr><th>Group</th><th>How the user calibrates</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Distortion</strong></td><td>Adjust k1/k2/k3 until grid lines in the photo / test pattern are perfectly straight. Distortion is the easiest to "see" against a grid.</td></tr>
+    <tr><td><strong>Vignetting</strong></td><td>Adjust strength + shape the falloff curve until corner brightness matches centre brightness on a uniform subject. The curve widget is the primary control here.</td></tr>
+    <tr><td><strong>Chromatic aberration</strong></td><td>Zoom in on high-contrast edges near the corners. Adjust R/B scale until the colour fringes disappear.</td></tr>
+    <tr><td><strong>Colour vignette</strong></td><td>Adjust hue + saturation + strength until the corners are colour-neutral.</td></tr>
+  </tbody>
+</table>
+<p>The user can work through the groups in any order. The Save button at the bottom commits the current values as a new profile point (or updates the existing one being edited).</p>
+
+<h3 id="s7-6">7.6 No-photo / no-lens state</h3>
+<p>Same principle as the node editor (<a href="spec-v1.html#s10">v1 §10.5</a>): the user can author profile points with no photo loaded. In that case, the canvas shows the built-in grid pattern at a neutral focal length / aperture, and the user must set the (FL, aperture) explicitly in the right-panel settings before saving. No "sample image" concept — just the grid.</p>
+
+<h2 id="s8">8. Lens library & management</h2>
+<p>The <strong>Lens Library Manager</strong> lives in the <strong>Lens module</strong> (entered from the Lens header, or from the Edit lens-correction panel's ⚙ menu which switches to Lens), separate from the per-photo panel in Edit.</p>
+
+<h3 id="s8-1">8.1 Layout</h3>
+<pre>┌──────────────────────────────────────────────────┐
+│  Lens Library                    [Import pack]  │
+│                                   [Export pack]  │
+│  [Search ───────────────────]   [+ New lens]    │
+│──────────────────────────────────────────────────│
+│  ▸ Canon RF 24-70mm f/2.8 L IS USM    12 pts    │
+│       serial 12345  ·  updated 2026-06-10        │
+│       ▸ 24mm  f/2.8  2026-06-01  test-chart      │   <- expandable
+│       ▸ 24mm  f/5.6  2026-06-01  test-chart      │     list of
+│       ▸ 35mm  f/2.8  2026-06-03  photo:DSC_0001  │     profile
+│       ▸ …                                          │     points
+│  ▸ Sony FE 50mm f/1.4 GM               3 pts     │
+│  ▸ Sigma 35mm f/1.4 DG DN Art          0 pts     │   <- empty lens
+│  …                                                │
+└──────────────────────────────────────────────────┘</pre>
+
+<h3 id="s8-2">8.2 Per-lens actions</h3>
+<ul>
+  <li><strong>Expand</strong> → show all profile points with their (FL, aperture) and source.</li>
+  <li><strong>Edit</strong> → open calibration for the closest point to the current photo, or a chosen point.</li>
+  <li><strong>Add profile point</strong> → open calibration with a blank new point at the current photo's (FL, aperture).</li>
+  <li><strong>Rename / change variant / change range</strong>.</li>
+  <li><strong>Duplicate</strong> (for "I bought a second copy of the same lens, calibrate separately").</li>
+  <li><strong>Delete</strong> — with confirm; warns if any photo currently uses it.</li>
+  <li><strong>Export pack</strong> — writes a JSON pack containing this lens (or all lenses — see §9).</li>
+</ul>
+
+<h3 id="s8-3">8.3 Per-profile-point actions</h3>
+<ul>
+  <li><strong>Edit</strong> → open calibration on this point.</li>
+  <li><strong>Duplicate</strong> (e.g. "duplicate at 35mm f/2.8 → set to 35mm f/4").</li>
+  <li><strong>Delete</strong> — with confirm.</li>
+  <li><strong>Inspect raw values</strong> → a popover showing the JSON for this point (Hole #28).</li>
+</ul>
+
+<h3 id="s8-4">8.4 Search & filter</h3>
+<p>Filter-as-you-type across make + model + variant + notes. Lens entries that match show with all their points; non-matches collapse away. An empty search shows everything.</p>
+
+<h2 id="s9">9. Profile packs & JSON format</h2>
+<p>Lens data can be <strong>exported as JSON packs</strong> and <strong>imported</strong> from packs. This is how communities share calibration data.</p>
+
+<h3 id="s9-1">9.1 Export</h3>
+<ul>
+  <li><strong>Per-lens export</strong> — one lens, all its points. File: <code>{lens-slug}.lenspack.json</code>.</li>
+  <li><strong>Whole-library export</strong> — all lenses, all points. File: <code>all-lenses.lenspack.json</code>.</li>
+  <li><strong>Selective multi-lens export</strong> — checkboxes in the library manager; file: <code>{n}-lenses.lenspack.json</code>.</li>
+</ul>
+
+<h3 id="s9-2">9.2 Import</h3>
+<ul>
+  <li>File picker accepts one or more <code>.lenspack.json</code> files.</li>
+  <li>For each lens in the pack, the app compares make + model + variant against the local library:
+    <ul>
+      <li><strong>No match</strong> → import as a new lens entry.</li>
+      <li><strong>Exact match</strong> (same make + model + variant) → merge profile points: points whose (FL, aperture) is new are added; existing points are left untouched unless the user picks "overwrite" or "merge newer-wins" (see Hole #29).</li>
+    </ul>
+  </li>
+  <li>Author and notes from the pack are preserved as metadata on the lens entry; users can see "sourced from hugh's pack, 2026-06-10".</li>
+</ul>
+
+<h3 id="s9-3">9.3 Pack provenance</h3>
+<p>Every pack carries an <code>author</code> field and per-point <code>calibratedFrom</code> + <code>notes</code>. The lens library surfaces this in the manager (§8) so users know where a profile came from. The point of a community is knowing which calibrations to trust.</p>
+
+<h3 id="s9-4">9.4 JSON pack format — top-level</h3>
+<pre>{
+  "format": "lens-profile-pack",
+  "version": 1,
+  "author": "hugh",
+  "exportedAt": "2026-06-25T14:30:00Z",
+  "notes": "Calibrated on DNG test charts, 2m subject distance.",
+  "lenses": [ /* LensEntry, see §9.5 */ ]
+}</pre>
+
+<h3 id="s9-5">9.5 JSON pack format — lens entry</h3>
+<pre>{
+  "id": "9b1c…",
+  "make": "Canon",
+  "model": "RF 24-70mm f/2.8 L IS USM",
+  "variant": "serial 12345",
+  "focalLengthRange": [24, 70],
+  "apertureRange": [2.8, 22],
+  "notes": "Sample 1, bought 2024-03.",
+  "profilePoints": [ /* ProfilePoint, see §9.6 */ ]
+}</pre>
+
+<h3 id="s9-6">9.6 JSON pack format — profile point</h3>
+<pre>{
+  "focalLength": 35,
+  "aperture": 2.8,
+  "distortion": {
+    "k1": -0.048,
+    "k2": 0.012,
+    "k3": 0.0,
+    "scale": 1.02
+  },
+  "vignetting": {
+    "strength": 0.42,
+    "curve": [
+      { "x": 0.0, "y": 1.00 },
+      { "x": 0.5, "y": 0.95 },
+      { "x": 0.8, "y": 0.78 },
+      { "x": 1.0, "y": 0.62 }
+    ],
+    "midpoint": 0.6,
+    "feather": 0.8
+  },
+  "chromaticAberration": {
+    "redScale": 0.0028,
+    "blueScale": -0.0021,
+    "feather": 0.6
+  },
+  "colourVignette": {
+    "strength": 0.18,
+    "hue": 120,
+    "saturation": 0.35,
+    "midpoint": 0.55,
+    "feather": 0.7
+  },
+  "calibratedFrom": "test-chart",
+  "notes": "Strong magenta in corners wide-open."
+}</pre>
+
+<h3 id="s9-7">9.7 Versioning</h3>
+<p>Format version is bumped on <strong>backward-incompatible</strong> changes only. The app refuses to import a pack whose version is higher than it understands, and warns (but accepts) on packs whose version is lower (best-effort load, missing fields use defaults). See Hole #30.</p>
+
+<h2 id="holes">Holes #24–#39 (Lens Corrector)</h2>
+
+<div class="hole-item">
+  <h4>#24 — Unknown-lens state in the panel <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §4.3.</strong> When Auto from EXIF is on and no lens profile file matches, the dropdown shows empty / "Unknown lens — create one?"; the user can pick an existing file manually or hit <strong>+ New</strong> to switch to the Lens module and create a matching profile.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#25 — Multiple matches on LensMake + LensModel <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §5.2 step 3.</strong> If multiple lens entries match <code>LensMake</code> + <code>LensModel</code> and no <code>LensSerialNumber</code> disambiguates, the app prompts the user to pick. Remaining detail (whether and how the choice is remembered per-photo) is implementation polish, not a blocking gap.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#26 — Missing EXIF fallback <span class="sev high">high</span> <span class="status partial">partial</span></h4>
+  <p><strong>Partly closed by §5.3:</strong> the corrector falls back to manual mode and shows a "EXIF incomplete — choose lens and (FL, aperture) manually" notice. Remaining unspecified: whether Auto is explicitly disabled (vs silently ignored), the exact shape of the two (FL, aperture) numeric inputs in the compact Edit panel (§4.1 currently shows only Distort + Vignette sliders), and whether the correction then uses the closest profile point exactly or still interpolates from the manual coordinate. (Cross-referenced from §5.3 / §4.1.)</p>
+</div>
+
+<div class="hole-item">
+  <h4>#27 — Out-of-range visual treatment <span class="sev med">med</span></h4>
+  <p>When the photo's (FL, aperture) is outside the convex hull of profile points (§5.6), the user should see a "Far from calibration" badge on the panel. Confirm the badge's colour, position, and tooltip ("Nearest point is at 35mm f/2.8; you are at 200mm f/5.6 — consider adding a profile point here").</p>
+</div>
+
+<div class="hole-item">
+  <h4>#28 — Profile-point raw-value inspect <span class="sev med">med</span> <span class="status partial">partial</span></h4>
+  <p><strong>Partly closed by §8.3.</strong> The per-point "Inspect raw values" action opens a popover showing the JSON for that point. Remaining unspecified: whether the popover is explicitly read-only (no inline edit), and whether it has a "Copy to clipboard" button (useful for debugging and for power users who hand-edit packs).</p>
+</div>
+
+<div class="hole-item">
+  <h4>#29 — Pack-import conflict policy <span class="sev med">med</span></h4>
+  <p>Conflicts on overlapping (FL, aperture) points within an "exact match" still need a single, settled rule. §9.2 currently offers "overwrite" or "merge newer-wins" as user choices; the earlier draft here proposed a per-point prompt ("keep local" / "use imported" / "skip", default skip to preserve local work). These are not the same UX. Pick one before build and align §9.2 with this entry. (Cross-referenced from §9.2.)</p>
+</div>
+
+<div class="hole-item">
+  <h4>#30 — Pack format versioning policy <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §9.7.</strong> Format version is bumped only on backward-incompatible changes. The app refuses to import a pack whose version is higher than it understands (clear error), and warns but accepts on a lower version (best-effort load, missing fields use defaults). No automatic migration.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#31 — Pipeline interaction with "First / at start" customs <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §1.</strong> Lens correction is stage 0, ahead of all customs including phase=first (stage 1). A custom sheet with phase=first still runs <em>after</em> lens correction. Phase choice cannot skip lens correction — only the corrector panel's Enable toggle (§4.2) can bypass it.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#32 — Coverage heatmap resolution <span class="sev med">med</span></h4>
+  <p>§4.1 / §5.7 describe the coverage heatmap, which lives in the Lens module (not in the compact Edit panel). Confirm: the cells are binned (e.g. one cell per (f-stop × 5mm FL bin)), not continuous. The "current photo" cell is highlighted. Hovering a cell shows the count of profile points in that bin.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#33 — Vignetting curve interpolation across points <span class="sev med">med</span></h4>
+  <p>The vignetting curve (§3.4) is a control curve — it has its own point list. When interpolating between two profile points at different (FL, aperture), the curves have potentially different point counts. Confirm: interpolation samples each curve at a fixed set of x-values (e.g. 0, 0.1, 0.2, …, 1.0), linearly interpolates the y-values, and reconstructs a curve from the combined samples.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#34 — Per-photo override storage schema <span class="sev low">low</span></h4>
+  <p>§6.3 says per-photo overrides live on photo edit metadata, not in the lens entry. Confirm the storage shape: a flat key/value object keyed by "&lt;lens-id&gt;.&lt;parameter&gt;", e.g. <code>"9b1c…vignetting.strength": 0.05</code>. Resolves cleanly with the photo's reference to the active lens at apply time.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#35 — Calibration undo <span class="sev low">low</span></h4>
+  <p><a href="spec-v1.html#s8">v1 §8</a> defines per-sheet undo. Lens correction is not a sheet — confirm: per-photo slider changes in the panel follow the main editor's undo stack (i.e. undo/redo in the main editor undoes lens-corrector slider drags on the active photo). Calibration-screen edits (adding/editing a profile point) get their own undo inside the calibration screen, and committing the point is a single undoable step in the library.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#36 — Disabled Auto-detect behaviour <span class="sev low">low</span></h4>
+  <p>When the user turns off "Auto from EXIF", the panel should expose manual (FL, aperture) inputs. Confirm: those inputs persist as per-photo overrides (§6), so the user can deliberately assign a non-EXIF (FL, aperture) to a photo (e.g. scanned film where the photographer knows the lens used).</p>
+</div>
+
+<div class="hole-item">
+  <h4>#37 — Calibration against a non-current photo <span class="sev low">low</span></h4>
+  <p>§7.3 option 1 uses "the loaded photo". Confirm: calibration can also be run against any other photo the user picks (e.g. "I have a dedicated test-chart shot from yesterday — let me calibrate against that"). A simple file picker in the calibration screen suffices; the loaded photo remains unchanged.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#38 — Pack-author display <span class="sev low">low</span></h4>
+  <p>§9.3 says the library surfaces the pack's <code>author</code>. Confirm the display: in the lens library manager (§8), the lens entry shows a small attribution line ("profiles sourced from hugh, 2026-06-10") — not a modal, not a banner, just a quiet line under the lens name.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#39 — Per-parameter enable toggles within the corrector <span class="sev low">low</span></h4>
+  <p>Should each of the four correction groups (Distortion / Vignetting / CA / Colour Vignette) have its own enable toggle, in addition to the Edit panel's global On/Off? The Edit panel (§4) no longer exposes the four groups — only Distort + Vignette sliders — so per-group enables would live in the <strong>Lens module</strong> (on the profile / calibration screen, §7), letting the user bake "distortion on, CA off" into a profile. Confirm location and whether a per-group on/off is stored on the profile file vs applied per-photo.</p>
+</div>
+
+</main>
+</div>
+</body>
+</html>

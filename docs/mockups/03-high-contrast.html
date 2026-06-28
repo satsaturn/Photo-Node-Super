@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style 3 — High Contrast | Photo-Node-Super</title>
+<style>
+  /* ============================================================
+     Style 3: Win 11 High Contrast (accessibility)
+     - Pure black bg, bright system colour accents
+     - 2px solid borders everywhere, no blur, no gradients
+     - High contrast yellow + cyan + magenta
+     ============================================================ */
+  :root {
+    --bg: #000000;
+    --surface: #000000;
+    --surface-2: #000000;
+    --surface-3: #000000;
+    --surface-hover: #1f1f1f;
+
+    --text: #ffffff;
+    --text-2: #ffffff;
+    --text-3: #ffff00;
+    --text-disabled: #808080;
+
+    --accent: #ffff00;
+    --accent-2: #00ffff;
+    --hot: #ff00ff;
+
+    --border: #ffffff;
+    --border-2: #ffffff;
+
+    --ctrl-close-hover: #ff0000;
+
+    --t-image: #ff4040;
+    --t-number: #00ffff;
+    --t-color: #ffaa00;
+    --t-curve: #00ff80;
+    --t-bool: #ff00ff;
+    --t-enum: #ff8000;
+
+    --r: 0px; /* no rounding in HC */
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--text);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  .doc-banner {
+    background: #000;
+    color: var(--text);
+    border: 2px solid var(--text);
+    border-top: 0; border-right: 0; border-left: 0;
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 12px;
+  }
+  .doc-banner .badge {
+    background: var(--accent);
+    color: #000;
+    padding: 2px 10px;
+    font-weight: 800; letter-spacing: 0.04em;
+  }
+  .doc-banner b { color: var(--accent); }
+  .doc-banner span { color: var(--text); }
+
+  .window {
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--bg);
+    border: 3px solid var(--text);
+    display: grid;
+    grid-template-rows: 36px 1fr;
+    overflow: hidden;
+  }
+  .titlebar {
+    background: var(--bg);
+    border-bottom: 2px solid var(--text);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 18px; height: 18px; margin: 0 8px 0 12px;
+    background: var(--accent); color: #000;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+  }
+  .titlebar .tb-title { font-size: 13px; color: var(--text); flex: 1; font-weight: 600; }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 50px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); cursor: pointer;
+    border: none; background: transparent;
+    border-left: 2px solid var(--text);
+  }
+  .titlebar .tb-btn:hover { background: var(--accent); color: #000; }
+  .titlebar .tb-btn.close:hover { background: #ff0000; color: #fff; }
+  .titlebar .tb-btn svg { width: 12px; height: 12px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 50px 1fr 100px;
+    height: 100%;
+    background: var(--bg);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 12px;
+    border-bottom: 2px solid var(--text);
+    background: var(--bg);
+    gap: 6px;
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 8px;
+    font-size: 13px; color: var(--text); font-weight: 600;
+  }
+  .app-title .glyph {
+    width: 18px; height: 18px;
+    background: var(--accent);
+    border: 2px solid var(--text);
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 0; align-items: center;
+    border: 2px solid var(--text);
+  }
+  .switcher .seg {
+    padding: 6px 18px;
+    font-size: 14px;
+    color: var(--text);
+    border-right: 2px solid var(--text);
+  }
+  .switcher .seg:last-child { border-right: 0; }
+  .switcher .seg.active {
+    background: var(--accent); color: #000;
+    font-weight: 800;
+  }
+  .switcher .seg.disabled {
+    color: var(--text-disabled);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--bg),
+      var(--bg) 4px,
+      var(--text-disabled) 4px,
+      var(--text-disabled) 6px
+    );
+  }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    overflow: hidden;
+    border-top: 2px solid var(--text);
+  }
+  .canvas-zone {
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    border-right: 2px solid var(--text);
+  }
+  .canvas-toolbar {
+    height: 40px;
+    background: var(--bg);
+    border-bottom: 2px solid var(--text);
+    display: flex; align-items: center; padding: 0 12px;
+    gap: 8px;
+    color: var(--text);
+    font-size: 13px; font-weight: 600;
+  }
+  .canvas-toolbar .ddl {
+    height: 28px;
+    padding: 0 32px 0 10px;
+    background: var(--bg);
+    border: 2px solid var(--text);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px;
+    color: var(--text);
+    position: relative;
+    font-weight: 600;
+  }
+  .canvas-toolbar .ddl::after {
+    content: "▼"; position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text);
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--text);
+    color: var(--text);
+    font-weight: 800;
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--accent); color: #000; }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    position: relative;
+  }
+  .canvas .photo {
+    width: min(720px, 80%);
+    aspect-ratio: 3/2;
+    border: 3px solid var(--text);
+    background:
+      linear-gradient(180deg, #2a4d6e 0%, #6b3e3a 45%, #d68a52 100%);
+  }
+  .canvas .checkered {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(45deg, #222 25%, transparent 25%),
+      linear-gradient(-45deg, #222 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #222 75%),
+      linear-gradient(-45deg, transparent 75%, #222 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, 10px 0px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .right-panel {
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    background: var(--bg);
+    padding: 10px 12px 8px;
+    border-bottom: 2px solid var(--text);
+    height: 96px;
+  }
+  .histogram .h-title {
+    font-size: 12px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 6px; font-weight: 800;
+  }
+  .histogram .h-canvas {
+    height: 64px; position: relative;
+    background: var(--bg);
+    border: 2px solid var(--text);
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid var(--text);
+    background: var(--bg);
+  }
+  .tabs .tab {
+    padding: 10px 18px;
+    font-size: 14px; color: var(--text);
+    position: relative;
+    border-right: 2px solid var(--text);
+    font-weight: 600;
+  }
+  .tabs .tab.active {
+    background: var(--accent); color: #000;
+    font-weight: 800;
+  }
+  .tabs .tab.disabled {
+    color: var(--text-disabled);
+    background: repeating-linear-gradient(
+      45deg,
+      var(--bg),
+      var(--bg) 4px,
+      var(--text-disabled) 4px,
+      var(--text-disabled) 6px
+    );
+  }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 8px;
+    background: var(--bg);
+  }
+  .builtin {
+    background: var(--bg);
+    border: 2px solid var(--text);
+    margin-bottom: 8px;
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .builtin .label { flex: 1; font-size: 14px; font-weight: 700; color: var(--text); }
+  .builtin .icon-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); border: 2px solid var(--text);
+    font-weight: 800;
+  }
+  .builtin .icon-btn:hover { background: var(--accent); color: #000; }
+  .builtin .chev { color: var(--text); font-size: 12px; font-weight: 800; }
+  .builtin.open .controls { display: block; border-top: 2px solid var(--text); }
+  .builtin .controls { padding: 12px 14px; display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 8px;
+    margin-bottom: 12px; font-size: 13px;
+  }
+  .slider .lbl { color: var(--text); font-weight: 700; }
+  .slider .val {
+    color: var(--accent); font-variant-numeric: tabular-nums;
+    font-size: 12px; font-weight: 800;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 6px; background: var(--bg);
+    border: 2px solid var(--text);
+    position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -2px;
+    width: 14px; height: 14px;
+    background: var(--accent);
+    border: 2px solid var(--text);
+    transform: translateX(-50%);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 2px dashed var(--text);
+    padding: 18px;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 40px; height: 40px;
+    background: var(--accent); color: #000;
+    border: 2px solid var(--text);
+    font-size: 22px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+  }
+  .custom-add .add-text {
+    font-size: 13px; color: var(--text); font-weight: 700;
+  }
+
+  .filmstrip {
+    background: var(--bg);
+    border-top: 2px solid var(--text);
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filmstrip .frame {
+    width: 116px; height: 80px;
+    background: linear-gradient(135deg, #4a5d6e, #d68a52);
+    flex-shrink: 0;
+    border: 3px solid var(--text);
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: #000; color: var(--accent);
+    font-size: 11px; font-weight: 700;
+    padding: 2px 4px;
+    border-top: 2px solid var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">03</span>
+  <b>Style 3 — High Contrast</b>
+  <span>· Win 11 High Contrast · WCAG AAA · Pure black + bright yellow accent · 2px hard borders</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon">P</div>
+    <div class="tb-title">Photo-Node-Super &mdash; Edit (High Contrast mode)</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">─</button>
+      <button class="tb-btn" title="Maximize">▢</button>
+      <button class="tb-btn close" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>Photo-Node-Super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">Library</div>
+        <div class="seg active">Edit</div>
+        <div class="seg">Nodes</div>
+        <div class="seg disabled" title="Coming in a future version">Lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <div>·</div>
+          <div>1 of 248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">⛶</div>
+        </div>
+        <div class="canvas">
+          <div class="checkered"></div>
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">▣ Histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 280 60" preserveAspectRatio="none">
+              <g stroke="#ffffff" stroke-width="0.7" fill="none">
+                <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54"/>
+              </g>
+              <g fill="none" stroke-width="1.2">
+                <path d="M0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54" stroke="#ff4040"/>
+                <path d="M0 38 L20 30 L40 22 L60 18 L80 16 L100 18 L120 22 L140 28 L160 32 L180 36 L200 38 L220 40 L240 42 L260 44 L280 46" stroke="#00ffff"/>
+                <path d="M0 42 L20 36 L40 28 L60 22 L80 18 L100 14 L120 18 L140 24 L160 30 L180 36 L200 42 L220 44 L240 46 L260 48 L280 50" stroke="#00ff80"/>
+                <path d="M0 46 L40 38 L80 28 L120 24 L160 30 L200 38 L240 44 L280 50" stroke="#ff00ff"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">GLOBAL</div>
+          <div class="tab disabled" title="Coming in a future version">MASK</div>
+          <div class="tab disabled" title="Coming in a future version">CROP</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">Lens Correction</div>
+              <div class="icon-btn">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="icon-btn">▾</div>
+              <div class="label">Basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">HSL / Mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Tone Curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">ADD CUSTOM EDIT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="frame active"><div class="name">DSC_0042.RAW</div></div>
+      <div class="frame"><div class="name">DSC_0043.RAW</div></div>
+      <div class="frame"><div class="name">DSC_0044.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0045.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0046.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0047.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0048.RAW</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 — Soft Pastel | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     13 — SOFT PASTEL
+     Anchor: Cereal Magazine, Studio App, Linear (light)
+     Type: Fraunces italic (display) + Manrope (body)
+     Palette: cream, blush, sage, dusty blue
+     Layout: airy, rounded, generous spacing
+     ============================================================ */
+  :root {
+    --cream: #faf5ee;
+    --cream-2: #f4ecdf;
+    --paper: #fffdf8;
+    --ink: #3a3530;
+    --ink-2: #5c5650;
+    --ink-3: #8c857d;
+    --blush: #e8c5c0;
+    --blush-2: #d49a93;
+    --sage: #b8c4a8;
+    --sage-2: #95a783;
+    --dust: #b8c4cc;
+    --dust-2: #94a8b4;
+    --accent: #c4796e;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--cream);
+    background-image:
+      radial-gradient(at 20% 10%, var(--blush) 0%, transparent 40%),
+      radial-gradient(at 90% 80%, var(--sage) 0%, transparent 40%);
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .doc-banner {
+    background: var(--paper);
+    border-bottom: 1px solid rgba(58, 53, 48, 0.06);
+    padding: 14px 28px;
+    display: flex; align-items: center; gap: 16px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .doc-banner .badge {
+    background: var(--accent); color: var(--paper);
+    padding: 3px 12px; border-radius: 999px;
+    font-weight: 700; letter-spacing: 0.06em;
+    font-family: "Fraunces", serif; font-style: italic;
+  }
+  .doc-banner b { font-weight: 700; font-family: "Fraunces", serif; font-style: italic; }
+  .doc-banner span { color: var(--ink-3); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    background: var(--sage); color: var(--ink);
+    padding: 2px 12px; border-radius: 999px;
+    font-size: 10px; font-weight: 700;
+    font-family: "Fraunces", serif; font-style: italic;
+  }
+
+  .window {
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--paper);
+    border-radius: 18px;
+    border: 1px solid rgba(58, 53, 48, 0.08);
+    display: grid;
+    grid-template-rows: 40px 1fr;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(58, 53, 48, 0.08);
+  }
+  .titlebar {
+    background: var(--paper);
+    border-bottom: 1px solid rgba(58, 53, 48, 0.06);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 18px; height: 18px; margin: 0 10px 0 14px;
+    background: linear-gradient(135deg, var(--blush), var(--sage));
+    border-radius: 50%;
+  }
+  .titlebar .tb-title {
+    font-size: 13px; color: var(--ink-2); flex: 1;
+    font-family: "Fraunces", serif; font-style: italic;
+    font-weight: 400;
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; align-items: center; padding-right: 8px; gap: 2px; }
+  .titlebar .tb-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2); cursor: pointer;
+    border: none; background: transparent;
+    border-radius: 50%;
+  }
+  .titlebar .tb-btn:hover { background: var(--cream-2); color: var(--ink); }
+  .titlebar .tb-btn.close:hover { background: var(--accent); color: var(--paper); }
+  .titlebar .tb-btn svg { width: 9px; height: 9px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 60px 1fr 100px;
+    height: 100%;
+    background: var(--paper);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 28px;
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "Fraunces", serif; font-style: italic;
+    font-size: 18px; color: var(--ink);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .app-title .glyph {
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, var(--blush), var(--sage));
+    border-radius: 50%;
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 4px; align-items: center;
+    background: var(--cream);
+    padding: 5px;
+    border-radius: 999px;
+  }
+  .switcher .seg {
+    padding: 7px 18px;
+    font-size: 13px;
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .switcher .seg.active {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(58, 53, 48, 0.08);
+    font-weight: 700;
+  }
+  .switcher .seg.disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.6; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    overflow: hidden;
+    gap: 16px;
+    padding: 0 20px;
+  }
+  .canvas-zone {
+    background: var(--cream-2);
+    border-radius: 14px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .canvas-toolbar {
+    height: 44px;
+    padding: 0 18px;
+    display: flex; align-items: center;
+    gap: 10px;
+    color: var(--ink-2);
+    font-size: 12px;
+  }
+  .canvas-toolbar .ddl {
+    height: 28px;
+    padding: 0 30px 0 14px;
+    background: var(--paper);
+    border: 1px solid rgba(58, 53, 48, 0.08);
+    border-radius: 999px;
+    display: flex; align-items: center;
+    font-size: 12px;
+    color: var(--ink);
+    position: relative;
+    font-weight: 500;
+  }
+  .canvas-toolbar .ddl::after {
+    content: "▾"; position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-3);
+    font-size: 9px;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2);
+    border-radius: 50%;
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--paper); color: var(--ink); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 30px;
+    background:
+      radial-gradient(circle at 50% 50%, var(--paper) 0%, transparent 70%);
+  }
+  .canvas .photo {
+    width: min(680px, 80%);
+    aspect-ratio: 3/2;
+    border-radius: 8px;
+    background:
+      radial-gradient(ellipse at 30% 25%, #f4c08a 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #5d3a4a 0%, transparent 60%),
+      linear-gradient(180deg, #2a4d6e 0%, #6b3e3a 45%, #d68a52 100%);
+    box-shadow:
+      0 20px 40px rgba(58, 53, 48, 0.15),
+      0 0 0 8px var(--paper);
+  }
+
+  .right-panel {
+    background: var(--cream-2);
+    border-radius: 14px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid rgba(58, 53, 48, 0.06);
+  }
+  .histogram .h-title {
+    font-family: "Fraunces", serif; font-style: italic;
+    font-size: 13px; color: var(--ink);
+    margin-bottom: 8px; font-weight: 400;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--paper);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex; padding: 8px 8px 0;
+    gap: 4px;
+  }
+  .tabs .tab {
+    flex: 1; padding: 8px 0;
+    font-size: 12px; color: var(--ink-3);
+    text-align: center;
+    border-radius: 999px 999px 0 0;
+    font-weight: 600;
+  }
+  .tabs .tab.active {
+    color: var(--ink);
+    background: var(--paper);
+    font-family: "Fraunces", serif; font-style: italic;
+    font-weight: 400;
+  }
+  .tabs .tab.disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.5; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    background: var(--paper);
+    padding: 14px 14px 18px;
+    border-radius: 0 0 14px 14px;
+  }
+  .builtin {
+    background: var(--cream-2);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    gap: 10px;
+  }
+  .builtin .label {
+    flex: 1; font-size: 15px;
+    font-family: "Fraunces", serif; font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .builtin .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3); border-radius: 50%;
+  }
+  .builtin .icon-btn:hover { background: var(--paper); color: var(--accent); }
+  .builtin .chev { color: var(--ink-3); font-size: 10px; }
+  .builtin.open .controls { display: block; padding: 4px 18px 16px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 6px;
+    margin-bottom: 12px; font-size: 12px;
+  }
+  .slider .lbl { color: var(--ink-2); font-weight: 500; }
+  .slider .val {
+    color: var(--accent); font-variant-numeric: tabular-nums;
+    font-size: 12px; font-weight: 600;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 4px; background: rgba(58, 53, 48, 0.08);
+    border-radius: 999px; position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent);
+    transform: translateX(-50%);
+    box-shadow: 0 2px 4px rgba(196, 121, 110, 0.3);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin-top: 12px;
+    background: var(--cream-2);
+    border: 1.5px dashed rgba(58, 53, 48, 0.15);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent); color: var(--paper);
+    border: none; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+    font-weight: 300;
+    box-shadow: 0 4px 12px rgba(196, 121, 110, 0.3);
+  }
+  .custom-add .add-text {
+    font-family: "Fraunces", serif; font-style: italic;
+    font-size: 12px; color: var(--ink-2);
+  }
+
+  .filmstrip {
+    padding: 0 20px 20px;
+  }
+  .filmstrip-inner {
+    background: var(--cream-2);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filmstrip .frame {
+    width: 100px; height: 70px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4a5d6e 0%, #d68a52 100%);
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s;
+  }
+  .filmstrip .frame:hover { transform: translateY(-2px); }
+  .filmstrip .frame.active {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 4px; left: 6px; right: 6px;
+    color: var(--paper);
+    font-size: 9px;
+    font-family: "Fraunces", serif; font-style: italic;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">13</span>
+  <b>Soft Pastel</b>
+  <span>· Fraunces italic + Manrope · Cream/blush/sage · Airy rounded · Cereal Magazine reference</span>
+  <span class="skill-tag">frontend-design skill</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon"></div>
+    <div class="tb-title">photo-node-super — a quiet place to edit</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="tb-btn" title="Maximize">
+        <svg viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="tb-btn close" title="Close">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>photo-node-super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">library</div>
+        <div class="seg active">edit</div>
+        <div class="seg">nodes</div>
+        <div class="seg disabled" title="Coming in a future version">lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <div style="color:var(--ink-3)">·</div>
+          <div style="font-size:11px;color:var(--ink-3); font-variant-numeric: tabular-nums">01 / 248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="canvas">
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">a quiet histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 296 56" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hg13" x1="0" x2="1">
+                  <stop offset="0" stop-color="#e8c5c0"/>
+                  <stop offset="0.5" stop-color="#b8c4a8"/>
+                  <stop offset="1" stop-color="#b8c4cc"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L0 32 L8 30 L16 24 L24 20 L32 16 L40 12 L48 14 L56 18 L64 16 L72 12 L80 10 L88 8 L96 10 L104 14 L112 12 L120 10 L128 12 L136 16 L144 14 L152 10 L160 12 L168 16 L176 14 L184 10 L192 12 L200 16 L208 20 L216 24 L224 28 L232 32 L240 36 L248 40 L256 44 L264 48 L272 52 L280 54 L288 56 L296 56 L0 56 Z" fill="url(#hg13)" opacity="0.6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">global</div>
+          <div class="tab disabled" title="Coming in a future version">mask</div>
+          <div class="tab disabled" title="Coming in a future version">crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">lens correction</div>
+              <div class="icon-btn" title="Reserved slot">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="icon-btn">▾</div>
+              <div class="label">basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">hsl / mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">tone curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">add a custom layer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="filmstrip-inner">
+        <div class="frame active"><div class="name">DSC_0042</div></div>
+        <div class="frame"><div class="name">DSC_0043</div></div>
+        <div class="frame"><div class="name">DSC_0044</div></div>
+        <div class="frame dim"><div class="name">DSC_0045</div></div>
+        <div class="frame dim"><div class="name">DSC_0046</div></div>
+        <div class="frame dim"><div class="name">DSC_0047</div></div>
+        <div class="frame dim"><div class="name">DSC_0048</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

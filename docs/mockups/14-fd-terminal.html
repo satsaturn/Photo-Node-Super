@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 — Terminal Hacker | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     14 — TERMINAL HACKER
+     Anchor: cmatrix, classic CRT terminal, hacker aesthetic
+     Type: Fira Code (code) + IBM Plex Mono (body)
+     Palette: deep black, phosphor green, amber warnings
+     Layout: ASCII borders, scanlines, blinking cursor
+     ============================================================ */
+  :root {
+    --bg: #050a05;
+    --term: #0a120a;
+    --green: #00ff88;
+    --green-2: #00cc6e;
+    --green-dim: #008844;
+    --amber: #ffb000;
+    --red: #ff3050;
+    --grey: #506050;
+    --grey-2: #3a4a3a;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--green);
+    background: var(--bg);
+    font-family: "IBM Plex Mono", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* scanlines overlay */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 136, 0.02) 0px,
+      rgba(0, 255, 136, 0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 9999;
+  }
+  /* CRT vignette */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+    z-index: 9998;
+  }
+
+  .doc-banner {
+    background: var(--term);
+    border: 1px solid var(--green-dim);
+    border-top: 0; border-left: 0; border-right: 0;
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 11px;
+    color: var(--green);
+    position: relative;
+    z-index: 2;
+  }
+  .doc-banner::before {
+    content: "$ ";
+    color: var(--green-2);
+  }
+  .doc-banner .badge {
+    background: var(--green); color: var(--bg);
+    padding: 2px 8px;
+    font-weight: 700;
+    font-family: "Fira Code", monospace;
+  }
+  .doc-banner b { color: var(--amber); font-weight: 500; }
+  .doc-banner span { color: var(--green-dim); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    padding: 1px 8px;
+    font-size: 10px; font-weight: 600;
+    font-family: "Fira Code", monospace;
+  }
+  .doc-banner .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--green);
+    animation: blink 1s steps(2) infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  .window {
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--term);
+    border: 1px solid var(--green-dim);
+    display: grid;
+    grid-template-rows: 36px 1fr;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(0, 255, 136, 0.15);
+  }
+  .titlebar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--green-dim);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 14px; height: 14px; margin: 0 10px 0 14px;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+  .titlebar .tb-title {
+    font-size: 12px; color: var(--green); flex: 1;
+    font-family: "Fira Code", monospace;
+  }
+  .titlebar .tb-title::before { content: "user@photo-node-super:~$ "; color: var(--green-dim); }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 44px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green); cursor: pointer;
+    border: none; background: transparent;
+    border-left: 1px solid var(--green-dim);
+    font-family: monospace;
+  }
+  .titlebar .tb-btn:hover { background: var(--green); color: var(--bg); }
+  .titlebar .tb-btn.close:hover { background: var(--red); color: var(--bg); }
+  .titlebar .tb-btn svg { width: 10px; height: 10px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 40px 1fr 100px;
+    height: 100%;
+    background: var(--term);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--green-dim);
+    background: var(--bg);
+    gap: 6px;
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 8px;
+    font-size: 12px; color: var(--green);
+    font-family: "Fira Code", monospace;
+  }
+  .app-title::before { content: "┌──["; color: var(--green-dim); }
+  .app-title::after { content: "]"; color: var(--green-dim); }
+  .app-title .glyph {
+    width: 10px; height: 10px;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 0; align-items: center;
+    border: 1px solid var(--green-dim);
+  }
+  .switcher .seg {
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--green-dim);
+    border-right: 1px solid var(--green-dim);
+    font-family: "Fira Code", monospace;
+  }
+  .switcher .seg:last-child { border-right: 0; }
+  .switcher .seg.active {
+    color: var(--bg); background: var(--green);
+    font-weight: 700;
+  }
+  .switcher .seg.disabled { color: var(--grey); cursor: not-allowed; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    overflow: hidden;
+  }
+  .canvas-zone {
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--green-dim);
+  }
+  .canvas-toolbar {
+    height: 36px;
+    border-bottom: 1px solid var(--green-dim);
+    display: flex; align-items: center; padding: 0 12px;
+    gap: 8px;
+    color: var(--green);
+    font-size: 12px;
+    font-family: "Fira Code", monospace;
+  }
+  .canvas-toolbar .ddl {
+    height: 24px;
+    padding: 0 22px 0 8px;
+    background: var(--bg);
+    border: 1px solid var(--green-dim);
+    display: flex; align-items: center;
+    font-size: 12px;
+    color: var(--green);
+    position: relative;
+  }
+  .canvas-toolbar .ddl::before { content: "▶ "; color: var(--green-dim); }
+  .canvas-toolbar .ddl::after {
+    content: "▾"; position: absolute; right: 6px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--green-dim);
+    font-size: 9px;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green-dim); border: 1px solid var(--green-dim);
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--green); color: var(--bg); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 22px, rgba(0,255,136,0.03) 22px 23px);
+    position: relative;
+  }
+  .canvas .photo {
+    width: min(720px, 80%);
+    aspect-ratio: 3/2;
+    background:
+      radial-gradient(ellipse at 30% 25%, #2a5a3a 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #1a3a2a 0%, transparent 60%),
+      linear-gradient(180deg, #0a1a2a 0%, #1a3a3a 45%, #2a5a4a 100%);
+    border: 1px solid var(--green-dim);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    position: relative;
+  }
+  .canvas .photo::after {
+    content: "BUFFER_OK 7952x5304 ISO200 f/2.8";
+    position: absolute; bottom: -22px; left: 0;
+    font-size: 10px; color: var(--green-dim);
+    font-family: "Fira Code", monospace;
+  }
+  .canvas .photo::before {
+    content: "[ DSC_0042.NEF ]";
+    position: absolute; top: -22px; left: 0;
+    font-size: 10px; color: var(--amber);
+    font-family: "Fira Code", monospace;
+  }
+
+  .right-panel {
+    background: var(--term);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .panel-tag {
+    color: var(--green);
+    padding: 6px 14px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--green-dim);
+    font-family: "Fira Code", monospace;
+  }
+  .panel-tag::before { content: "## "; color: var(--green-dim); }
+  .histogram {
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--green-dim);
+  }
+  .histogram .h-title {
+    font-size: 11px; color: var(--amber);
+    margin-bottom: 6px;
+    font-family: "Fira Code", monospace;
+    font-weight: 600;
+  }
+  .histogram .h-title::before { content: "> "; }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--bg);
+    border: 1px solid var(--green-dim);
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--green-dim);
+  }
+  .tabs .tab {
+    flex: 1; padding: 10px 0;
+    font-size: 11px; color: var(--green-dim);
+    text-align: center;
+    border-right: 1px solid var(--green-dim);
+    font-family: "Fira Code", monospace;
+  }
+  .tabs .tab:last-child { border-right: 0; }
+  .tabs .tab.active {
+    color: var(--green);
+    background: var(--bg);
+    box-shadow: inset 0 -2px 0 var(--green);
+    font-weight: 700;
+  }
+  .tabs .tab.disabled { color: var(--grey); cursor: not-allowed; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 0;
+  }
+  .builtin {
+    border-bottom: 1px solid var(--green-dim);
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 9px 14px;
+    gap: 8px;
+    font-family: "Fira Code", monospace;
+  }
+  .builtin .row::before { content: "▸ "; color: var(--green-dim); }
+  .builtin.open .row::before { content: "▾ "; color: var(--green); }
+  .builtin .label {
+    flex: 1; font-size: 12px; color: var(--green);
+  }
+  .builtin .icon-btn {
+    color: var(--green-dim);
+    font-size: 11px;
+  }
+  .builtin .icon-btn:hover { color: var(--green); }
+  .builtin.open .controls { display: block; padding: 4px 16px 12px 28px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 110px 1fr 50px;
+    align-items: center; gap: 8px;
+    margin-bottom: 4px; font-size: 11px;
+    height: 22px;
+  }
+  .slider .lbl { color: var(--green-dim); }
+  .slider .val {
+    color: var(--amber); text-align: right;
+    font-weight: 500;
+  }
+  .slider .track {
+    height: 6px; background: var(--bg);
+    border: 1px solid var(--green-dim);
+    position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -1px;
+    width: 8px; height: 8px;
+    background: var(--green);
+    box-shadow: 0 0 4px var(--green);
+    transform: translateX(-50%);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin: 10px 14px;
+    border: 1px dashed var(--green-dim);
+    padding: 12px;
+    text-align: center;
+    color: var(--green-dim);
+  }
+  .custom-add::before { content: "$ add_layer --new\n"; display: block; color: var(--green); }
+  .custom-add .add-btn {
+    width: 26px; height: 26px;
+    background: transparent; color: var(--green);
+    border: 1px solid var(--green);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 6px auto 4px;
+  }
+  .custom-add .add-btn:hover { background: var(--green); color: var(--bg); }
+  .custom-add .add-text {
+    font-size: 10px; color: var(--green-dim);
+  }
+
+  .filmstrip {
+    background: var(--bg);
+    border-top: 1px solid var(--green-dim);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filmstrip .prompt {
+    font-family: "Fira Code", monospace;
+    font-size: 11px; color: var(--green-dim);
+  }
+  .filmstrip .frame {
+    width: 110px; height: 70px;
+    background: linear-gradient(135deg, #1a3a4a 0%, #3a5a4a 100%);
+    flex-shrink: 0;
+    border: 1px solid var(--green-dim);
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    border-color: var(--green);
+    box-shadow: 0 0 6px var(--green-dim);
+  }
+  .filmstrip .frame.dim { opacity: 0.4; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    color: var(--green);
+    font-size: 10px;
+    padding: 2px 6px;
+    font-family: "Fira Code", monospace;
+    border-top: 1px solid var(--green-dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .filmstrip .frame .idx {
+    position: absolute; top: 4px; left: 4px;
+    color: var(--amber);
+    font-size: 9px;
+    font-family: "Fira Code", monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">14</span>
+  <b>terminal hacker</b>
+  <span>· Fira Code + IBM Plex Mono · phosphor green · CRT scanlines · vintage terminal reference</span>
+  <span class="skill-tag">frontend-design skill</span>
+  <span class="cursor"></span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon"></div>
+    <div class="tb-title">./photo-node-super --edit DSC_0042.NEF</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">_</button>
+      <button class="tb-btn" title="Maximize">□</button>
+      <button class="tb-btn close" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>photo-node-super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">library</div>
+        <div class="seg active">edit</div>
+        <div class="seg">nodes</div>
+        <div class="seg disabled" title="Coming in a future version">lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">fit</div>
+          <div style="color:var(--green-dim)">│</div>
+          <div style="color:var(--green-dim)">frame 001/248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">⛶</div>
+        </div>
+        <div class="canvas">
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="panel-tag">edits.log</div>
+        <div class="histogram">
+          <div class="h-title">histogram.hist</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 320 56" preserveAspectRatio="none">
+              <g fill="#00ff88" stroke="none" opacity="0.7">
+                <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L288 56 L296 56 L304 56 L312 56 L320 56 L0 56 Z"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">[ GLOBAL ]</div>
+          <div class="tab disabled" title="Coming in a future version">[ MASK ]</div>
+          <div class="tab disabled" title="Coming in a future version">[ CROP ]</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">sheet_lens_correction</div>
+              <div class="icon-btn">∅</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="label">sheet_basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">exposure</span><div class="track b4"></div><span class="val">+0.40</span></div>
+              <div class="slider"><span class="lbl">contrast</span><div class="track b3"></div><span class="val">+15</span></div>
+              <div class="slider"><span class="lbl">highlights</span><div class="track b2"></div><span class="val">-20</span></div>
+              <div class="slider"><span class="lbl">shadows</span><div class="track b4"></div><span class="val">+25</span></div>
+              <div class="slider"><span class="lbl">whites</span><div class="track b3"></div><span class="val">+10</span></div>
+              <div class="slider"><span class="lbl">blacks</span><div class="track b2"></div><span class="val">-5</span></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="label">sheet_colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="label">sheet_hsl_mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="label">sheet_tone_curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="label">sheet_detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">--new</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="prompt">queue &gt;</div>
+      <div class="frame active"><div class="idx">[01]</div><div class="name">DSC_0042.NEF</div></div>
+      <div class="frame"><div class="idx">[02]</div><div class="name">DSC_0043.NEF</div></div>
+      <div class="frame"><div class="idx">[03]</div><div class="name">DSC_0044.NEF</div></div>
+      <div class="frame dim"><div class="idx">[04]</div><div class="name">DSC_0045.NEF</div></div>
+      <div class="frame dim"><div class="idx">[05]</div><div class="name">DSC_0046.NEF</div></div>
+      <div class="frame dim"><div class="idx">[06]</div><div class="name">DSC_0047.NEF</div></div>
+      <div class="frame dim"><div class="idx">[07]</div><div class="name">DSC_0048.NEF</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

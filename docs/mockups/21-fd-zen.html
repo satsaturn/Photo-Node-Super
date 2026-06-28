@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>21 — Zen | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     21 — ZEN (calm)
+     Anchor: Zen Browser
+     Type: Geist (sans) + Geist Mono (data)
+     Palette: warm off-white, soft lavender, slate
+     Background: subtle gradient mesh + fine grain
+     ============================================================ */
+  :root {
+    --bg: #f4f1ec;
+    --bg-2: #ebe7df;
+    --surface: #ffffff;
+    --surface-2: #faf8f4;
+    --surface-3: #f0ece4;
+    --text: #2a2a35;
+    --text-2: #5a5a6a;
+    --text-3: #8a8a98;
+    --text-disabled: #c0c0c8;
+    --accent: #7c6aae;
+    --accent-2: #6354a0;
+    --accent-light: rgba(124, 106, 174, 0.10);
+    --accent-2-light: rgba(124, 106, 174, 0.18);
+    --border: rgba(0, 0, 0, 0.06);
+    --border-2: rgba(0, 0, 0, 0.10);
+
+    --r-sm: 6px;
+    --r-md: 8px;
+    --r-lg: 12px;
+    --r-xl: 16px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--text);
+    background: var(--bg);
+    font-family: "Geist", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv11";
+  }
+  /* Zen-style background: gradient mesh + fine grain */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(124, 106, 174, 0.12) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 80%, rgba(140, 165, 195, 0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(220, 200, 180, 0.08) 0%, transparent 60%),
+      linear-gradient(180deg, #f4f1ec 0%, #ece8df 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.16 0 0 0 0 0.2 0 0 0 0.4 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .doc-banner {
+    position: relative; z-index: 2;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 11px;
+  }
+  .doc-banner .badge {
+    background: var(--accent); color: #fff;
+    padding: 3px 12px;
+    font-weight: 600; letter-spacing: 0.02em;
+    border-radius: 6px;
+  }
+  .doc-banner b { font-weight: 600; }
+  .doc-banner span { color: var(--text-3); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    color: var(--accent);
+    font-size: 10px; font-weight: 600;
+    background: var(--accent-light);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .window {
+    position: relative; z-index: 1;
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--surface);
+    border-radius: var(--r-xl);
+    border: 1px solid var(--border-2);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.06),
+      0 2px 6px rgba(0, 0, 0, 0.03);
+    display: grid;
+    grid-template-rows: 40px 1fr;
+    overflow: hidden;
+  }
+  .titlebar {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 16px; height: 16px; margin: 0 8px 0 14px;
+    background: linear-gradient(135deg, var(--accent), #a896d4);
+    border-radius: 5px;
+  }
+  .titlebar .tb-title {
+    font-size: 12px; color: var(--text-2); flex: 1;
+    font-weight: 500;
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 46px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-2); cursor: pointer;
+    border: none; background: transparent;
+  }
+  .titlebar .tb-btn:hover { background: rgba(0, 0, 0, 0.04); }
+  .titlebar .tb-btn.close:hover { background: #e35454; color: #fff; }
+  .titlebar .tb-btn svg { width: 10px; height: 10px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 60px 1fr 100px;
+    height: 100%;
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; color: var(--text);
+    font-weight: 600;
+  }
+  .app-title .glyph {
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, var(--accent), #a896d4);
+    border-radius: 6px;
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 2px; align-items: center;
+    background: var(--surface-3);
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .switcher .seg {
+    padding: 6px 16px;
+    font-size: 13px;
+    border-radius: 7px;
+    color: var(--text-2);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .switcher .seg.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px var(--border);
+    font-weight: 600;
+  }
+  .switcher .seg.disabled { color: var(--text-disabled); cursor: not-allowed; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    overflow: hidden;
+  }
+  .canvas-zone {
+    background: #1a1a1f;
+    display: flex; flex-direction: column;
+  }
+  .canvas-toolbar {
+    height: 40px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px;
+    gap: 8px;
+    color: var(--text-2);
+    font-size: 12px;
+  }
+  .canvas-toolbar .ddl {
+    height: 26px;
+    padding: 0 26px 0 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: 6px;
+    display: flex; align-items: center;
+    font-size: 12px;
+    color: var(--text);
+    position: relative;
+  }
+  .canvas-toolbar .ddl::after {
+    content: "▾"; position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-3);
+    font-size: 9px;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 5px; color: var(--text-2);
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--surface-3); color: var(--text); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: #0a0a0d;
+    position: relative;
+  }
+  .canvas .photo {
+    width: min(700px, 80%);
+    aspect-ratio: 3/2;
+    border-radius: 4px;
+    background:
+      radial-gradient(ellipse at 30% 25%, #f6c08a 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #5d3a4a 0%, transparent 60%),
+      linear-gradient(180deg, #2a4d6e 0%, #6b3e3a 45%, #d68a52 100%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .right-panel {
+    background: var(--surface-2);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .histogram .h-title {
+    font-size: 11px; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 8px; font-weight: 600;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--surface-3);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex; padding: 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tabs .tab {
+    padding: 11px 14px;
+    font-size: 12px; color: var(--text-2);
+    position: relative;
+    font-weight: 500;
+  }
+  .tabs .tab:hover { color: var(--text); }
+  .tabs .tab.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .tabs .tab.active::after {
+    content: ""; position: absolute;
+    left: 12px; right: 12px; bottom: 0; height: 2px;
+    background: var(--accent); border-radius: 2px;
+  }
+  .tabs .tab.disabled { color: var(--text-disabled); cursor: not-allowed; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 8px 8px 14px;
+  }
+  .builtin {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: 5px;
+    overflow: hidden;
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 9px 12px;
+    gap: 8px;
+  }
+  .builtin .label {
+    flex: 1; font-size: 13px; font-weight: 600;
+    color: var(--text);
+  }
+  .builtin .icon-btn {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-3); border-radius: 4px;
+  }
+  .builtin .icon-btn:hover { background: var(--surface-3); color: var(--text); }
+  .builtin .chev { color: var(--text-3); font-size: 9px; }
+  .builtin.open .controls { display: block; border-top: 1px solid var(--border); }
+  .builtin .controls { padding: 10px 12px 12px; display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 6px;
+    margin-bottom: 9px; font-size: 12px;
+  }
+  .slider .lbl { color: var(--text-2); }
+  .slider .val {
+    color: var(--text-3); font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    font-family: "Geist Mono", monospace;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 4px; background: var(--surface-3);
+    border-radius: 2px; position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    transform: translateX(-50%);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin-top: 10px;
+    background: var(--surface);
+    border: 1.5px dashed var(--border-2);
+    border-radius: var(--r-md);
+    padding: 14px;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent); color: #fff;
+    border: none; font-size: 16px; font-weight: 400;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 6px;
+    box-shadow: 0 2px 8px var(--accent-2-light);
+  }
+  .custom-add .add-text {
+    font-size: 11px; color: var(--text-2);
+  }
+
+  .filmstrip {
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filmstrip .frame {
+    width: 110px; height: 76px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #4a5d6e 0%, #d68a52 100%);
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+  .filmstrip .frame.dim { opacity: 0.6; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.55);
+    color: #fff; font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 0 0 4px 4px;
+    font-family: "Geist Mono", monospace;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">21</span>
+  <b>Zen — calm</b>
+  <span>· Geist + Geist Mono · warm off-white, soft lavender · gradient mesh + fine grain · Zen Browser reference</span>
+  <span class="skill-tag">frontend-design skill</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon"></div>
+    <div class="tb-title">Photo-Node-Super — Edit</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button class="tb-btn" title="Maximize">
+        <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button class="tb-btn close" title="Close">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>Photo-Node-Super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">Library</div>
+        <div class="seg active">Edit</div>
+        <div class="seg">Nodes</div>
+        <div class="seg disabled" title="Coming in a future version">Lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <div style="opacity:0.5">·</div>
+          <div style="font-size:11px;color:var(--text-3); font-family:'Geist Mono', monospace">01 / 248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="canvas">
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">Histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 280 56" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hg21" x1="0" x2="1">
+                  <stop offset="0" stop-color="#a896d4"/>
+                  <stop offset="0.5" stop-color="#7c6aae"/>
+                  <stop offset="1" stop-color="#a896d4"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L280 56 L0 56 Z" fill="url(#hg21)" opacity="0.6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">global</div>
+          <div class="tab disabled" title="Coming in a future version">mask</div>
+          <div class="tab disabled" title="Coming in a future version">crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">Lens Correction</div>
+              <div class="icon-btn" title="Reserved slot">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="icon-btn">▾</div>
+              <div class="label">Basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">HSL / Mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Tone Curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">Add custom edit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="frame active"><div class="name">DSC_0042</div></div>
+      <div class="frame"><div class="name">DSC_0043</div></div>
+      <div class="frame"><div class="name">DSC_0044</div></div>
+      <div class="frame dim"><div class="name">DSC_0045</div></div>
+      <div class="frame dim"><div class="name">DSC_0046</div></div>
+      <div class="frame dim"><div class="name">DSC_0047</div></div>
+      <div class="frame dim"><div class="name">DSC_0048</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

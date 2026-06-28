@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Editor — Copy/Link extension spec</title>
+<style>
+  :root {
+    --bg: #1a1a1f; --panel: #232329; --panel2: #2c2c34; --text: #e8e8ec;
+    --muted: #9a9aa4; --accent: #6ea8ff; --border: #3a3a44; --warn: #ffb454;
+    --future: #4ec9b0; --hole: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.55; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav { background: var(--panel); border-right: 1px solid var(--border); padding: 20px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 24px 0 8px; }
+  nav h2:first-child { margin-top: 0; }
+  nav a { display: block; color: var(--text); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  nav a:hover { background: var(--panel2); color: var(--accent); }
+  nav a.hole { color: var(--hole); }
+  main { padding: 40px 48px 80px; max-width: 920px; }
+  main a { color: var(--accent); text-decoration: underline; }
+  main a:hover { color: #a8caff; text-decoration: underline; }
+  main a[href^="spec-"] { font-weight: 600; }
+  main a[href^="spec-"]:hover { color: #b8d4ff; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .subtitle { color: var(--muted); margin: 0 0 32px; font-size: 14px; }
+  h2 { font-size: 22px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  h2:first-of-type { border-top: 0; padding-top: 0; }
+  h3 { font-size: 17px; margin: 24px 0 8px; color: var(--accent); }
+  h4 { font-size: 15px; margin: 16px 0 6px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 3px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; }
+  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; font-family: "SF Mono", Consolas, monospace; font-size: 13px; line-height: 1.4; color: var(--text); }
+  .callout { background: var(--panel); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin: 14px 0; }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.future { border-left-color: var(--future); background: rgba(78,201,176,0.06); }
+  .hole-item { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--hole); border-radius: 4px; padding: 10px 14px; margin: 10px 0; }
+  .hole-item h4 { margin: 0 0 4px; color: var(--hole); font-size: 14px; }
+  .hole-item .sev { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .sev.med { background: #d68910; color: #fff; }
+  .toc-num { color: var(--muted); margin-right: 6px; }
+  strong { color: #fff; }
+  em { color: var(--muted); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } nav { position: static; height: auto; } main { padding: 24px; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <h2>Copy/Link extension</h2>
+  <a href="#s1"><span class="toc-num">1</span>Copy / link prompt on add</a>
+  <a href="#s2"><span class="toc-num">2</span>Layer header controls added</a>
+  <a href="#s3"><span class="toc-num">3</span>Sheet settings: copy/link default</a>
+  <a href="#s4"><span class="toc-num">4</span>Phase-lock & copy-freeze semantics</a>
+  <a href="#s5"><span class="toc-num">5</span>Linked-sheet broken links & versioning</a>
+  <a href="#holes" class="hole">Holes #10–#12</a>
+  <a href="spec-v1.html">← back to v1 spec</a>
+</nav>
+<main>
+
+<h1>Copy/Link — extension spec</h1>
+<p class="subtitle">Adds the copy/link choice on add, copy snapshots, the sheet-file picker, the Pin (global panel slot), the per-sheet Copy/Link default override, and the linked-sheet broken-link / versioning UX. Not in v1; v1 ships custom sheets as linked-only with no prompt and no picker/pin.</p>
+
+<div class="callout future">
+  <strong>Depends on v1 <a href="spec-v1.html#s3">§3</a> (add flow), <a href="spec-v1.html#s5">§5</a> (layer header baseline), <a href="spec-v1.html#s6">§6</a> (phase system), <a href="spec-v1.html#s12">§12</a> (sheet settings panel), <a href="spec-v1.html#s13">§13</a> (catalog stores edit list + linked-sheet path/phase).</strong> This spec layers copy-link behaviour on top of the v1 linked-only baseline.
+</div>
+
+<h2 id="s1">1. Copy / link prompt on add</h2>
+<p>In v1, pressing <strong>+</strong> in the Custom Edits section creates a linked layer with no prompt. This extension restores the prompt:</p>
+<ul>
+  <li>Picking/creating a sheet fills the panel with that sheet's UI-node controls.</li>
+  <li>The app then asks: <strong>copy or link?</strong>
+    <ul>
+      <li><strong>Copy</strong> = safe snapshot; the sheet's current state is frozen into the photo's edit data. Later edits to the sheet file do not affect this layer.</li>
+      <li><strong>Link</strong> = live to the sheet file; editing the file updates every linked layer that references it.</li>
+    </ul>
+  </li>
+  <li>The choice is asked each time, <em>unless</em> the sheet sets a Copy/Link default override (§3) that skips the prompt.</li>
+</ul>
+
+<h2 id="s2">2. Layer header controls added</h2>
+<p>Restores the two layer-header controls dropped from v1 <a href="spec-v1.html#s5">§5</a>:</p>
+<ul>
+  <li><strong>Sheet-file picker</strong> — dropdown to swap which file this layer points to. (v1 workaround: remove the layer and re-add.) Swapping triggers the copy/link prompt for the new file, respecting the file's override.</li>
+  <li><strong>Pin</strong> icon → <strong>global panel slot</strong> (stays visible across all photos &amp; restarts; slider values still stored per photo).</li>
+</ul>
+<div class="callout warn">
+  <strong>Open (Hole #10):</strong> Pin × copy/link interaction. Pin = "global panel slot, stays visible across all photos; slider values stored per photo." But if a pinned sheet was added as a <em>copy</em> (per-photo), does the pinned slot show that one photo's copy, or the sheet file's defaults? And for a <em>linked</em> pinned sheet, do all photos share one slider-value set or per-photo values? The "stored per photo" clause conflicts with "linked = live to the file." Needs a clear rule — see Holes below.
+</div>
+
+<h2 id="s3">3. Sheet settings: copy/link default</h2>
+<p>Restores the §13.2 (v1 §12.2) bullet dropped from v1:</p>
+<ul>
+  <li><strong>Copy/Link default override</strong> — global default is "ask each time" on add; a sheet can opt to default to copy or link so it skips the prompt.</li>
+</ul>
+<p>The override lives on the sheet file's settings panel (v1 §12.2). The same mechanism is mirrored in <a href="spec-lens.html#s3-1">spec-lens §3.1</a> for lens profile files' <code>copyLinkDefault</code> field.</p>
+
+<h2 id="s4">4. Phase-lock & copy-freeze semantics</h2>
+<p>Restores the phase paragraphs dropped from v1 <a href="spec-v1.html#s6">§6</a>:</p>
+<ul>
+  <li>Phase lives on the sheet file ⇒ a <strong>linked</strong> layer's phase is locked to the file (duplicate the file to run the same sheet in a different phase).</li>
+  <li>A <strong>copied</strong> layer freezes the phase at copy time. Editing the sheet file's phase later does not change the copy's phase.</li>
+</ul>
+
+<h2 id="s5">5. Linked-sheet broken links & versioning</h2>
+<p>From <a href="spec-v1.html#s13">v1 §13.7</a> (the linked-sheet broken-link UX was deferred here):</p>
+<ul>
+  <li>A <strong>linked</strong> layer whose sheet file is missing/moved shows a broken-link badge in the layer header and offers relink. This parallels the photo missing-file/relink flow in <a href="spec-library.html#s5">spec-library §5</a>.</li>
+  <li><strong>Versioning / migration</strong> (Hole #12): editing a linked sheet updates all linked photos. What if a sheet previously had a "Warmth" slider and a new version removes it — do photos that had a Warmth value break? Is there a migration path, a "frozen at last-compatible version" fallback, or just graceful degradation? Unspecified.</li>
+</ul>
+
+<h2 id="holes">Holes #10–#12</h2>
+
+<div class="hole-item">
+  <h4>#10 — Pin × copy/link interaction <span class="sev med">med</span></h4>
+  <p>Pin = "global panel slot, stays visible across all photos; slider values stored per photo." But if a pinned sheet was added as a <em>copy</em> (per-photo), does the pinned slot show that one photo's copy, or the sheet file's defaults? And for a <em>linked</em> pinned sheet, do all photos share one slider-value set or per-photo values? The "stored per photo" clause conflicts with "linked = live to the file." Needs a clear rule.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#11 — Linked-sheet deletion / broken links <span class="sev med">med</span></h4>
+  <p>If a user deletes (or moves/renames) a sheet file from their folder, what happens to photos that link to it? Broken-link UI in the layer header (§5)? Auto-convert to copy? Greyed-out panel? Not specified beyond the §5 badge + relink affordance.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#12 — Linked-sheet versioning / migration <span class="sev med">med</span></h4>
+  <p>Editing a linked sheet updates all linked photos. What if v1 had a "Warmth" slider and v2 removes it — do photos that had a Warmth value break? Is there a migration path, a "frozen at last-compatible version" fallback, or just graceful degradation? Not specified.</p>
+</div>
+
+</main>
+</div>
+</body>
+</html>

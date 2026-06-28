@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style 2 — Fluent Dark | Photo-Node-Super</title>
+<style>
+  /* ============================================================
+     Style 2: Fluent Dark (default Win 11 dark)
+     - Dark Mica background, dark Acrylic, light text
+     - Same default blue accent (Win 11 keeps the blue in dark)
+     ============================================================ */
+  :root {
+    --mica: #202020;
+    --mica-tint: rgba(32, 32, 32, 0.6);
+    --surface: #2c2c2c;
+    --surface-2: #2b2b2b;
+    --surface-3: #1f1f1f;
+    --surface-hover: rgba(255, 255, 255, 0.06);
+    --surface-pressed: rgba(255, 255, 255, 0.10);
+    --acrylic: rgba(44, 44, 44, 0.65);
+    --acrylic-strong: rgba(40, 40, 40, 0.85);
+
+    --text: #ffffff;
+    --text-2: #d6d6d6;
+    --text-3: #a8a8a8;
+    --text-disabled: #6a6a6a;
+
+    --accent: #4cc2ff;
+    --accent-hover: #5cc8ff;
+    --accent-light: rgba(76, 194, 255, 0.14);
+    --accent-light-2: rgba(76, 194, 255, 0.22);
+
+    --border: rgba(255, 255, 255, 0.08);
+    --border-2: rgba(255, 255, 255, 0.14);
+    --border-strong: rgba(255, 255, 255, 0.22);
+
+    --ctrl-close-hover: #c42b1c;
+
+    --t-image: #ff6b6b;
+    --t-number: #4cc2ff;
+    --t-color: #f0a45a;
+    --t-curve: #6dd66d;
+    --t-bool: #b88de8;
+    --t-enum: #ff9a3c;
+
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 8px;
+    --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-2: 0 8px 24px rgba(0,0,0,0.45);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--text);
+    font-family: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    background: var(--mica);
+    background-image:
+      radial-gradient(at 0% 0%, rgba(76, 194, 255, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(176, 112, 255, 0.05) 0px, transparent 50%),
+      linear-gradient(180deg, #242424 0%, #1a1a1a 100%);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .doc-banner {
+    background: #2b2b2b;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 12px; color: var(--text-2);
+  }
+  .doc-banner .badge {
+    background: var(--accent);
+    color: #000;
+    padding: 2px 8px; border-radius: 4px;
+    font-weight: 700; letter-spacing: 0.02em;
+  }
+  .doc-banner b { color: var(--text); }
+  .doc-banner span { color: var(--text-3); }
+
+  .window {
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-2);
+    display: grid;
+    grid-template-rows: 32px 1fr;
+    overflow: hidden;
+  }
+  .titlebar {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 16px; height: 16px; margin: 0 8px 0 12px;
+    background: linear-gradient(135deg, #4cc2ff, #b88de8);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    color: #000; font-size: 10px; font-weight: 700;
+  }
+  .titlebar .tb-title { font-size: 12px; color: var(--text-2); flex: 1; }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 46px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); cursor: pointer;
+    border: none; background: transparent;
+  }
+  .titlebar .tb-btn:hover { background: var(--surface-hover); }
+  .titlebar .tb-btn.close:hover { background: var(--ctrl-close-hover); color: #fff; }
+  .titlebar .tb-btn svg { width: 10px; height: 10px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 44px 1fr 96px;
+    height: 100%;
+    background: var(--surface);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    gap: 6px;
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 8px 0 4px;
+    font-size: 12px; color: var(--text-2);
+  }
+  .app-title .glyph {
+    width: 18px; height: 18px; border-radius: 4px;
+    background: linear-gradient(135deg, #4cc2ff, #b88de8);
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 2px; align-items: center;
+    background: var(--surface-3);
+    padding: 3px;
+    border-radius: var(--r-md);
+  }
+  .switcher .seg {
+    padding: 5px 14px;
+    font-size: 13px;
+    border-radius: 4px;
+    color: var(--text-2);
+  }
+  .switcher .seg.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-1);
+    font-weight: 600;
+  }
+  .switcher .seg.disabled { color: var(--text-disabled); cursor: not-allowed; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    overflow: hidden;
+  }
+  .canvas-zone {
+    background: #0e0e0e;
+    display: flex; flex-direction: column;
+  }
+  .canvas-toolbar {
+    height: 36px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 12px;
+    gap: 6px;
+    color: var(--text-2);
+    font-size: 12px;
+  }
+  .canvas-toolbar .ddl {
+    height: 24px;
+    padding: 0 24px 0 10px;
+    background: var(--surface-3);
+    border: 1px solid var(--border-2);
+    border-radius: 4px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+    color: var(--text);
+    position: relative;
+  }
+  .canvas-toolbar .ddl::after {
+    content: ""; position: absolute; right: 8px; top: 50%;
+    border: 4px solid transparent; border-top-color: var(--text-2);
+    transform: translateY(2px);
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; color: var(--text-2);
+  }
+  .canvas-toolbar .icon-btn:hover { background: var(--surface-hover); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: #050505;
+    position: relative;
+  }
+  .canvas .photo {
+    width: min(720px, 80%);
+    aspect-ratio: 3/2;
+    border-radius: 2px;
+    background:
+      radial-gradient(ellipse at 30% 20%, #f6c981 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, #5d3a4a 0%, transparent 60%),
+      linear-gradient(180deg, #2a4d6e 0%, #6b3e3a 45%, #d68a52 100%);
+    box-shadow: 0 6px 32px rgba(0,0,0,0.7);
+  }
+  .canvas .checkered {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(45deg, #0a0a0a 25%, transparent 25%),
+      linear-gradient(-45deg, #0a0a0a 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #0a0a0a 75%),
+      linear-gradient(-45deg, transparent 75%, #0a0a0a 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, 10px 0px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .right-panel {
+    background: var(--surface-2);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    background: var(--surface-2);
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    height: 88px;
+  }
+  .histogram .h-title {
+    font-size: 11px; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--surface-3);
+    border-radius: 3px; overflow: hidden;
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex; padding: 0 6px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .tabs .tab {
+    padding: 9px 14px;
+    font-size: 13px; color: var(--text-2);
+    position: relative;
+  }
+  .tabs .tab:hover { color: var(--text); }
+  .tabs .tab.active {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .tabs .tab.active::after {
+    content: ""; position: absolute;
+    left: 12px; right: 12px; bottom: 0; height: 2px;
+    background: var(--accent); border-radius: 2px;
+  }
+  .tabs .tab.disabled { color: var(--text-disabled); cursor: not-allowed; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 8px 8px 12px;
+  }
+  .builtin {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .builtin .label { flex: 1; font-size: 13px; font-weight: 600; }
+  .builtin .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-3); border-radius: 3px;
+  }
+  .builtin .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+  .builtin .chev { color: var(--text-3); font-size: 10px; }
+  .builtin.open .controls { display: block; border-top: 1px solid var(--border); }
+  .builtin .controls { padding: 10px 12px 12px; display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 6px;
+    margin-bottom: 9px; font-size: 12px;
+  }
+  .slider .lbl { color: var(--text-2); }
+  .slider .val {
+    color: var(--text-3); font-variant-numeric: tabular-nums;
+    font-size: 11px;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 4px; background: rgba(255,255,255,0.08);
+    border-radius: 2px; position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin-top: 10px;
+    background: var(--surface-3);
+    border: 1px dashed var(--border-2);
+    border-radius: var(--r-md);
+    padding: 14px;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000; border: none; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 6px; cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(76, 194, 255, 0.18);
+  }
+  .custom-add .add-text { font-size: 12px; color: var(--text-2); }
+
+  .filmstrip {
+    background: var(--acrylic);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    padding: 8px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filmstrip .frame {
+    width: 110px; height: 76px;
+    border-radius: 4px;
+    background:
+      linear-gradient(135deg, #4a5d6e 0%, #d68a52 100%);
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active { border-color: var(--accent); }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.65);
+    color: #fff; font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 0 0 2px 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">02</span>
+  <b>Style 2 — Fluent Dark</b>
+  <span>· Win 11 dark mode · Dark Mica + Acrylic · Lighter blue accent for contrast</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon">P</div>
+    <div class="tb-title">Photo-Node-Super &mdash; Edit</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button class="tb-btn" title="Maximize">
+        <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button class="tb-btn close" title="Close">
+        <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>Photo-Node-Super</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">Library</div>
+        <div class="seg active">Edit</div>
+        <div class="seg">Nodes</div>
+        <div class="seg disabled" title="Coming in a future version">Lens</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <div style="opacity:0.6">·</div>
+          <div style="font-size:11px;color:var(--text-3)">1 of 248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 5V2h3M12 5V2H9M2 9v3h3M12 9v3H9" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="canvas">
+          <div class="checkered"></div>
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">Histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 280 56" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hg2" x1="0" x2="1">
+                  <stop offset="0" stop-color="#ff6b6b"/>
+                  <stop offset="0.33" stop-color="#6dd66d"/>
+                  <stop offset="0.66" stop-color="#4cc2ff"/>
+                  <stop offset="1" stop-color="#ff6b6b"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L280 56 L0 56 Z" fill="url(#hg2)" opacity="0.6"/>
+              <path d="M0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="0.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">global</div>
+          <div class="tab disabled" title="Coming in a future version">mask</div>
+          <div class="tab disabled" title="Coming in a future version">crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">Lens Correction</div>
+              <div class="icon-btn" title="Reserved slot">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="icon-btn">▾</div>
+              <div class="label">Basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">HSL / Mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Tone Curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="icon-btn">▸</div>
+              <div class="label">Detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">Add custom edit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="frame active"><div class="name">DSC_0042.RAW</div></div>
+      <div class="frame"><div class="name">DSC_0043.RAW</div></div>
+      <div class="frame"><div class="name">DSC_0044.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0045.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0046.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0047.RAW</div></div>
+      <div class="frame dim"><div class="name">DSC_0048.RAW</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

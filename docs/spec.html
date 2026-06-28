@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Editor — Usability Spec (v1)</title>
+<style>
+  :root {
+    --bg: #1a1a1f;
+    --panel: #232329;
+    --panel2: #2c2c34;
+    --text: #e8e8ec;
+    --muted: #9a9aa4;
+    --accent: #6ea8ff;
+    --border: #3a3a44;
+    --warn: #ffb454;
+    --hole: #ff6b6b;
+    /* data-type colours */
+    --t-image: #e53935;
+    --t-number: #3b82f6;
+    --t-color: #d4a017;
+    --t-curve: #22c55e;
+    --t-bool: #a855f7;
+    --t-enum: #f97316;
+    /* node-category tints */
+    --c-terminal: #4b5563;
+    --c-effect: #4a6fa5;
+    --c-math: #5a7a5a;
+    --c-ui: #7c5cbf;
+    /* lens-corrector accent */
+    --lens: #4ec9b0;
+    --lens2: #2a8a76;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 24px 0 8px; }
+  nav h2:first-child { margin-top: 0; }
+  nav a { display: block; color: var(--text); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  nav a:hover { background: var(--panel2); color: var(--accent); }
+  nav a.hole { color: var(--hole); }
+  main { padding: 40px 48px 80px; max-width: 920px; }
+  main a { color: var(--accent); text-decoration: underline; }
+  main a:hover { color: #a8caff; text-decoration: underline; }
+  main a[href^="spec-"] { font-weight: 600; }
+  main a[href^="spec-"]:hover { color: #b8d4ff; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .subtitle { color: var(--muted); margin: 0 0 32px; font-size: 14px; }
+  h2 { font-size: 22px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  h2:first-of-type { border-top: 0; padding-top: 0; }
+  h3 { font-size: 17px; margin: 24px 0 8px; color: var(--accent); }
+  h3.lens { color: var(--lens); }
+  h4 { font-size: 15px; margin: 16px 0 6px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 3px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; }
+  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; font-family: "SF Mono", Consolas, monospace; font-size: 13px; line-height: 1.4; color: var(--text); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(255,255,255,0.2); }
+  .swatch.round { border-radius: 50%; }
+  .swatch.square { border-radius: 2px; }
+  .swatch.tri { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .swatch.diamond { border-radius: 0; transform: rotate(45deg); }
+  .swatch.hex { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); border-radius: 0; }
+  .callout { background: var(--panel); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin: 14px 0; }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.lens { border-left-color: var(--lens); background: rgba(78,201,176,0.06); }
+  .hole-section { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.3); border-radius: 8px; padding: 8px 20px 16px; margin-top: 24px; }
+  .hole-section h2 { border-top: 0; color: var(--hole); }
+  .hole-item { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--hole); border-radius: 4px; padding: 10px 14px; margin: 10px 0; }
+  .hole-item h4 { margin: 0 0 4px; color: var(--hole); font-size: 14px; }
+  .hole-item .sev { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .sev.high { background: #c0392b; color: #fff; }
+  .sev.med { background: #d68910; color: #fff; }
+  .sev.low { background: #2e86c1; color: #fff; }
+  .status { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+  .status.resolved { background: #1e7e34; color: #fff; }
+  .status.partial { background: #5a7a5a; color: #fff; }
+  .status.deferred { background: #6c757d; color: #fff; }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: var(--panel2); color: var(--muted); margin-left: 6px; }
+  .tag.lens { background: var(--lens2); color: #fff; }
+  .deferred { color: var(--muted); font-style: italic; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .toc-num { color: var(--muted); margin-right: 6px; }
+  strong { color: #fff; }
+  em { color: var(--muted); }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; }
+    main { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <h2>Spec</h2>
+  <a href="#s1"><span class="toc-num">1</span>Core concept</a>
+  <a href="#s2"><span class="toc-num">2</span>Terminology</a>
+  <a href="#s3"><span class="toc-num">3</span>Main editor layout</a>
+  <a href="#s4"><span class="toc-num">4</span>UI node & controls</a>
+  <a href="#s5"><span class="toc-num">5</span>Layer header controls</a>
+  <a href="#s6"><span class="toc-num">6</span>Pipeline execution</a>
+  <a href="#s7"><span class="toc-num">7</span>Masks</a>
+  <a href="#s8"><span class="toc-num">8</span>Node editor (Nodes)</a>
+  <a href="#s9"><span class="toc-num">9</span>History / undo</a>
+  <a href="#s10"><span class="toc-num">10</span>Deferred</a>
+  <a href="#s11"><span class="toc-num">11</span>Node graph layout</a>
+  <a href="#s12"><span class="toc-num">12</span>Colour-coding</a>
+  <a href="#s13"><span class="toc-num">13</span>Node editor layout</a>
+  <a href="#s14"><span class="toc-num">14</span>App shell & Library</a>
+  <a href="#s15"><span class="toc-num">15</span>Software stack</a>
+  <h2>Lens Corrector</h2>
+  <a href="#s16"><span class="toc-num">16</span>Core concept & terminology</a>
+  <a href="#s17"><span class="toc-num">17</span>Profile data model</a>
+  <a href="#s18"><span class="toc-num">18</span>Edit integration (lens panel)</a>
+  <a href="#s19"><span class="toc-num">19</span>EXIF auto-detect & interpolation</a>
+  <a href="#s20"><span class="toc-num">20</span>Per-photo overrides</a>
+  <a href="#s21"><span class="toc-num">21</span>Calibration workflow (Lens module)</a>
+  <a href="#s22"><span class="toc-num">22</span>Lens library & management</a>
+  <a href="#s23"><span class="toc-num">23</span>Profile packs & JSON format</a>
+  <h2>Review</h2>
+  <a href="#holes" class="hole">Holes & missing info</a>
+</nav>
+<main>
+
+<h1>Photo Editor — Usability Spec (v1)</h1>
+<p class="subtitle">Working draft · "Lightroom-style UI with a node-graph backend that surfaces user-built sliders." Covers the core editor, the 4-way app shell (Library | Edit | Nodes | Lens), the Library module, the Lens Corrector subsystem (profile data model, Edit integration, EXIF interpolation, calibration, library, packs), and the v1 software stack decision in §15.</p>
+<div class="callout warn">
+  <strong>Note:</strong> This is the original combined spec covering all versions. <strong>The active v1 build target is <a href="spec-v1.html">spec-v1.html</a></strong>; deferred scope is split across per-feature extension specs linked from <a href="spec-v1.html#s15">spec-v1 §15</a>. This file is kept as a historical reference.
+</div>
+
+<h2 id="s1">1. Core concept</h2>
+<p>A Lightroom-style non-destructive photo editor where every edit group is a <strong>node sheet</strong> — a saved node graph. The key differentiator: each sheet contains a <strong>UI node</strong> whose vertices <em>are</em> the controls shown in the main editor, and each vertex pushes its value to every node parameter wired to it — so <strong>one slider can drive many nodes</strong>.</p>
+
+<h2 id="s2">2. Terminology</h2>
+<ul>
+  <li><strong>Node sheet / sheet</strong> — a saved node-graph file in the user's sheets folder. Reusable. Has a <strong>phase</strong> property (see §6).</li>
+  <li><strong>Layer</strong> — an instance of a sheet placed into an edit list (global or mask).</li>
+  <li><strong>UI node</strong> — special node in a sheet; its vertices are the user-facing controls.</li>
+  <li><strong>Vertex</strong> — one control on the UI node; its value flows out along all connected edges.</li>
+  <li><strong>Edit list</strong> — an ordered container of layers. Two kinds: the <strong>global edit list</strong> (one per photo) and each <strong>mask's edit list</strong>. Same structure & rules for both.</li>
+  <li><strong>Built-in sheet</strong> — a locked sheet shipped with the app (graph not user-editable). Defines phase landmarks globally.</li>
+  <li><strong>Built-in edit</strong> — a built-in entry in the edit list that is <em>not</em> a node sheet (has no node graph). The Lens Correction entry is the only built-in edit in v1: it references a lens profile file (copy or link) made in the Lens section (§18) instead of running a sheet.</li>
+</ul>
+
+<h2 id="s3">3. Main editor layout</h2>
+<h3>Centre — photo canvas</h3>
+<p>The Edit module has no left panel. The full centre is a single photo canvas showing the current-result view. No before/after in v1 (§10).</p>
+<ul>
+  <li><strong>Top toolbar</strong> — zoom dropdown (Fit, 25%, 50%, 100%, 200%) + full-screen button.</li>
+</ul>
+
+<h3>Right panel — histogram + global, mask, and crop tabs</h3>
+<p>The right panel is a tabbed container. At the very top sits a <strong>histogram</strong> (per-channel + luminance, read-only). Below it are three tabs: <strong>global</strong>, <strong>mask</strong>, and <strong>crop</strong>. The <strong>global</strong> tab shows the global edit list for the current photo. The <strong>mask</strong> tab shows the mask list and the edit list of the currently selected mask. The <strong>crop</strong> tab is a dedicated geometry panel (see §3.1). Top→bottom = visual order within each list.</p>
+<ul>
+  <li>Built-in edits always present, fixed visual order among themselves (Lens Correction → Basic → Colour → HSL/Mix → Tone Curve → Detail), Lightroom-style. Not removable. <strong>Lens Correction is a built-in edit, not a node sheet</strong> — it references a lens profile file (copy or link) made in the Lens section (§18) and exposes two basic sliders (Distort, Vignette). <strong>Visual list position ≠ execution order</strong> — see §6 and §6.1.</li>
+  <li><strong>Custom Edits section</strong> pinned at the bottom with a <strong>+</strong> button.</li>
+</ul>
+<p>Pressing <strong>+</strong> creates a custom layer header containing:</p>
+<ul>
+  <li><strong>New file</strong> button → authors a fresh sheet (opens node editor)</li>
+  <li><strong>Dropdown</strong> of existing sheets in the user's folder</li>
+  <li>Picking/creating fills the panel with that sheet's UI-node controls.</li>
+</ul>
+<p>On add, the app <strong>asks: copy or link?</strong> (copy = safe snapshot; link = live to the sheet file; choice asked each time, unless the sheet sets a Copy/Link default override — see §13.2).</p>
+<p>Main canvas: single current-result view. No before/after in v1 (§10).</p>
+<div class="callout warn">
+  <strong>Partly open:</strong> the app shell (4-way header: Library | Edit | Nodes | Lens), the shared filmstrip, and the left-panel role in Library are now defined in §14.2/§14.3. The Edit module layout is resolved above; remaining unspecified items (zoom dropdown options, histogram rendering detail) are deferred to implementation.
+</div>
+
+<h3 id="s3-1">3.1 Crop tab</h3>
+<p>The <strong>crop</strong> tab holds the photo's geometry controls. It is a dedicated panel, <strong>not a layer in the global edit list</strong>.</p>
+<ul>
+  <li><strong>Aspect ratio</strong> — presets (Original, 1:1, 4:3, 3:2, 16:9, etc.) plus a free-form option and custom width/height inputs.</li>
+  <li><strong>Straighten</strong> — angle slider to rotate the crop, with a level/straighten tool activated from the canvas toolbar.</li>
+  <li><strong>Flip</strong> — horizontal and vertical flip toggles.</li>
+  <li><strong>Reset</strong> — returns crop, angle, and flip to defaults in one action.</li>
+</ul>
+<p>The crop boundary is overlaid on the main canvas. Dragging the canvas overlay adjusts the crop; the right-panel controls update in sync. Crop runs at a fixed pipeline position — see §6.</p>
+
+<h2 id="s4">4. UI node & controls</h2>
+<ul>
+  <li>A vertex <strong>is</strong> a control. Control types: <strong>Number, Color, Curve, Boolean, Dropdown/enum</strong>.</li>
+  <li>Wire a vertex to one or more node params; the control's value is pushed to all of them (e.g. one "Warmth" slider feeding both Temperature and Tint).</li>
+  <li>Authoring controls per vertex: <strong>custom label, custom range, reorder</strong> within the panel.</li>
+  <li>Grouping = shared vertex (one vertex → one control driving N params). No separate sub-group mechanism.</li>
+  <li>Numeric conventions (Lightroom defaults): double-click value to type, double-click label to reset, Alt-drag for fine adjust.</li>
+</ul>
+
+<h2 id="s5">5. Layer header controls</h2>
+<p>Every layer, global or mask, exposes in its header:</p>
+<ul>
+  <li><strong>Enable/bypass toggle</strong> — off = identity passthrough (Image-In → Image-Out, controls ignored).</li>
+  <li><strong>Sheet-file picker</strong> — dropdown to swap which file this layer points to.</li>
+  <li><strong>Reorder handle</strong> — drag within the Custom Edits section (sets execution order within a phase bucket — see §6).</li>
+  <li><strong>Pin</strong> icon → <strong>global panel slot</strong> (stays visible across all photos & restarts; slider values still stored per photo).</li>
+  <li><strong>Edit</strong> button → opens the node editor for that sheet.</li>
+</ul>
+
+<h2 id="s6">6. Pipeline execution order</h2>
+<p>Customs always <em>display</em> at the bottom, but execution is by <strong>phase</strong> — a property of the sheet file. Four phase buckets, with built-ins defining the boundaries:</p>
+<table>
+  <thead><tr><th>Order</th><th>Bucket</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td><strong>Lens correction</strong> <span class="tag lens">stage 0</span></td><td>Lens Correction built-in edit referencing a lens profile file (copy or link, §18). Distortion + vignetting + CA + colour vignette, interpolated from the referenced file's active lens profile (§19). Runs before crop, all customs, and all other built-ins.</td></tr>
+    <tr><td>1</td><td><strong>Crop</strong></td><td>Crop / straighten / flip from the Crop tab (§3.1). Defines the working frame for everything downstream. Not a layer in the edit list.</td></tr>
+    <tr><td>2</td><td><strong>First / at start</strong></td><td>customs with phase=first</td></tr>
+    <tr><td>3</td><td>(built-in)</td><td><strong>Basic</strong> — Exposure, Contrast, Highlights, Shadows, Whites, Blacks</td></tr>
+    <tr><td>4</td><td><strong>After exposure correction</strong></td><td>customs with phase=after-exposure</td></tr>
+    <tr><td>5</td><td>(built-in)</td><td><strong>Colour</strong> (Temp/Tint/Vibrance/Saturation), <strong>HSL / Colour Mix</strong>, <strong>Tone Curve</strong></td></tr>
+    <tr><td>6</td><td><strong>After colour</strong></td><td>customs with phase=after-colour</td></tr>
+    <tr><td>7</td><td>(built-in)</td><td><strong>Detail</strong> — Sharpen, Luminance + Colour Noise</td></tr>
+    <tr><td>8</td><td><strong>At end</strong></td><td>customs with phase=at-end</td></tr>
+  </tbody>
+</table>
+<div class="callout"><strong>Lens correction is stage 0; crop is stage 1.</strong> Lens correction runs first because geometric distortion changes the image geometry, so anything downstream (cropping, transforms, masks, blur kernels) needs the corrected coordinates. Crop then defines the working frame before any custom or built-in edit runs. The broader rule still holds everywhere else — <em>visual order ≠ execution order</em> (customs execute by phase, not by panel position).</div>
+<ul>
+  <li><strong>Tie-break within a bucket:</strong> panel position within the Custom Edits section (drag to reorder = sets execution order among same-phase sheets).</li>
+  <li>Built-ins are fixed in both panel and pipeline; their positions <em>are</em> the phase landmarks.</li>
+  <li>Phase lives on the sheet file ⇒ a <strong>linked</strong> layer's phase is locked to the file (duplicate the file to run the same sheet in a different phase). A <strong>copied</strong> layer freezes the phase at copy time.</li>
+  <li>The 4 buckets exist in <em>every</em> edit list even if a built-in is absent — an empty slot just means its bucket has no built-in; customs still run in bucket order.</li>
+</ul>
+
+<h3 id="s6-1">6.1 Lens-correction pipeline integration</h3>
+<p>The lens-correction panel in Edit runs as the <strong>very first stage of the pipeline</strong> (order 0 in the table above), before crop, any built-in sheet, or any custom sheet. Rationale: geometric distortion changes the image geometry, so anything downstream (cropping, transforms, masks, blur kernels) needs the corrected coordinates. Vignetting and CA are pixel-value corrections, but keeping them in the same first stage means the corrector is a single, atomic module the user toggles. The panel references a lens profile file (copy or link, §18.6); a <strong>linked</strong> panel re-interpolates whenever the file is edited in the Lens section.</p>
+<p>The Lens Correction stage is "phase 0". Crop follows at stage 1 (§3.1). The four custom-sheet phases above are unchanged — they describe the custom pipeline, and both lens correction and crop are upstream of all of them. See Hole #31 for how this affects existing copy/link semantics on the first custom phase.</p>
+
+<h4>Bypass</h4>
+<p>The panel's <strong>Enable toggle</strong> (§18.2) bypasses the entire corrector: the photo enters the rest of the pipeline uncorrected. Identical semantics to a layer's enable toggle in the main editor (§5).</p>
+
+<h4>Edge cases</h4>
+<ul>
+  <li><strong>No lens matched</strong> (EXIF unknown, Auto from EXIF off) → corrector shows an empty state and outputs the image unmodified. User can still pick a lens manually or create one.</li>
+  <li><strong>Lens has zero profile points</strong> → corrector shows an empty state and outputs the image unmodified. A "+ New" CTA switches to the Lens section to start calibrating.</li>
+  <li><strong>One profile point</strong> → that point's values are used directly (no interpolation).</li>
+  <li><strong>Two or more points</strong> → linear interpolation per §19.</li>
+</ul>
+
+<h2 id="s7">7. Masks</h2>
+<ul>
+  <li>A <strong>mask</strong> = a shape (radial/linear/brush/luminance/etc.) wrapping its own <strong>edit list</strong>.</li>
+  <li>A mask's edit list is structurally identical to the global one: same built-in sheets available, same 4-phase system, same +/-/dropdown/new-file flow.</li>
+  <li><strong>Masks start empty</strong>; user adds only the built-ins/customs wanted for that local adjustment (e.g. local exposure = mask containing the Basic sheet).</li>
+  <li>Principle: <strong>a node sheet is identical whether used globally or locally</strong> — its phase means the same thing in any edit list, relative to that list's built-ins.</li>
+  <li>Mask-local edits apply only within the masked area.</li>
+</ul>
+
+<h3>7.1 Mask panel location</h3>
+<p>In the <strong>Edit</strong> module, the mask panel lives as a tab switcher at the top of the right panel, next to the <strong>global</strong> tab:</p>
+<pre>┌─ [global]  [mask]  [crop] ─────────────────────┐
+│  ＋ New mask  [radial ▾]                        │
+│  ───────────────────────────────────────────── │
+│  ☑  Radial 1          · radial   [shape][dup][×]│
+│  ☑  Brush sky         · brush    [shape][dup][×]│
+│  ☐  Linear grad       · linear   [shape][dup][×]│
+│  ───────────────────────────────────────────── │
+│  Edit list · Radial 1                            │
+│  (same structure as the global edit list)        │
+└──────────────────────────────────────────────────┘</pre>
+
+<h3>7.2 Mask list</h3>
+<ul>
+  <li><strong>New mask</strong> — a dropdown/picker at the top of the mask tab lists the available mask shapes (radial, linear, brush, luminance, depth, subject, etc.). Choosing one creates an empty mask with a default name and adds it to the list.</li>
+  <li><strong>Enable toggle</strong> — each mask row has a toggle to enable/disable the mask; disabled masks do not contribute to the result.</li>
+  <li><strong>Name</strong> — default names are generated from the shape type ("Radial 1", "Brush sky", etc.). The name is editable inline.</li>
+  <li><strong>Type badge</strong> — shows the mask shape (radial / linear / brush / luminance / …).</li>
+  <li><strong>Edit shape</strong> — opens the mask-drawing controls for that mask on the photo canvas.</li>
+  <li><strong>Duplicate</strong> — creates a copy of the mask including its current shape and edit list.</li>
+  <li><strong>Delete</strong> — removes the mask after confirmation.</li>
+  <li><strong>Reorder handle</strong> — drag to reorder masks in the list; order affects compositing when masks overlap.</li>
+</ul>
+
+<h3>7.3 Selected mask edit list</h3>
+<p>Selecting a mask in the list loads its edit list beneath the mask list. The edit list has the same structure and rules as the global edit list (§3): built-ins in fixed order, Custom Edits section at the bottom, layer header controls per §5, and the same 4-phase execution rules per §6.</p>
+
+<h2 id="s8">8. Node editor (authoring) — the Nodes section</h2>
+<ul>
+  <li><strong>A header section</strong> (Nodes), not a full-screen toggle inside Edit. Entered from the header, or via a layer's <strong>Edit</strong> button in the Edit module (switches to Nodes with that sheet loaded). Works with no photo loaded.</li>
+  <li>No-photo state: <strong>blank graph</strong>; header ops let you open an existing sheet or start new. Image-In shows nothing; thumbnails stay blank until the sheet is applied to a real photo. <strong>No sample-image concept exists.</strong></li>
+  <li>Canvas: <strong>per-node output thumbnails</strong> on each node body + <strong>main canvas shows final sheet output</strong> (on Image-Out).</li>
+  <li>Built-in sheets are locked — openable for inspection/thumbnail-scrub but graph not editable.</li>
+</ul>
+
+<h2 id="s9">9. History / undo</h2>
+<ul>
+  <li><strong>Per-sheet undo:</strong> each layer keeps its own undo stack (slider drags + graph edits for that sheet), not one global timeline.</li>
+</ul>
+
+<h2 id="s10">10. Deferred</h2>
+<h3>Editor</h3>
+<ul>
+  <li class="deferred">Before/after compare (v1 later).</li>
+</ul>
+<h3 class="lens">Lens</h3>
+<ul>
+  <li class="deferred">Auto-calibration from a single photo (corner detection against a uniform subject). v1 is manual sliders on a test chart.</li>
+  <li class="deferred">Cross-lens "similar lens" suggestions when EXIF matches no library entry (e.g. "you have no profile for X, but your Y is similar — use it as a starting point?").</li>
+  <li class="deferred">Cloud-synced lens library (sync packs across devices). v1 is local-only with import/export.</li>
+  <li class="deferred">Third-party pack repositories / in-app browse.</li>
+  <li class="deferred">Optical (longitudinal) CA correction — v1 covers lateral CA only.</li>
+  <li class="deferred">Diffraction correction at small apertures (e.g. f/16+). Distinct from lens correction; may belong in Detail.</li>
+  <li class="deferred">Profile-point confidence weighting (some samples are more reliable than others — e.g. tripod vs handheld).</li>
+</ul>
+<p style="color:var(--muted)">Library-module deferred items (albums, keywords, ratings, batch operations, etc.) are listed in §14.8.</p>
+
+<h2 id="s11">11. Node graph layout</h2>
+<p>A sheet is a single canvas holding <strong>two coexisting planes</strong>, distinguished by edge type/colour.</p>
+
+<h3>11.1 Image plane (edges carry <em>Image</em>)</h3>
+<ul>
+  <li><strong>Image-In</strong> — terminal source node. Represents the photo arriving at this sheet's phase. Shows the input image as its on-node thumbnail.</li>
+  <li><strong>Effect nodes</strong> — each has an Image-In port, an Image-Out port, plus param ports. The chain may branch and merge (e.g. split into a luminance chain + a colour chain, recombine via a Blend node).</li>
+  <li><strong>Image-Out</strong> — terminal sink node. The sheet's final result; its thumbnail is what the main canvas displays.</li>
+  <li><strong>Arity:</strong> exactly one Image-In and one Image-Out per sheet (v1).</li>
+  <li><strong>Topology:</strong> acyclic (DAG) — non-destructive editing is feed-forward.</li>
+</ul>
+
+<h3>11.2 Control plane (edges carry <em>Number | Color | Curve | Bool | Enum</em>)</h3>
+<ul>
+  <li><strong>UI node</strong> — zero or one per sheet (zero = fixed transform, no controls). Its vertices are the controls shown in the main panel. Each vertex is typed. <strong>A vertex is the source of its value; the value pushes out</strong> along all connected edges to effect-node params. <em>No on/off switch on the UI node itself.</em></li>
+  <li><strong>Math/utility nodes</strong> (minimal v1 set): <code>Number constant</code>, <code>Math</code> (add/mul/sub/div), <code>Remap/clamp</code>, <code>Curve-from-number</code>, <code>Color constant</code>. These sit between UI vertices and effect params so a slider's value can be sculpted before reaching a node.</li>
+  <li><strong>Effect-node param ports are sinks.</strong> A param is either <em>bound</em> (driven by a UI vertex, possibly via math nodes) or <em>free</em> (uses the node's own default, set inside the node editor).</li>
+</ul>
+
+<h3>11.3 Binding gesture & semantics</h3>
+<ul>
+  <li>Drag from an effect node's param port to the UI node → creates/attaches a typed vertex matching the param's type and binds that param to it.</li>
+  <li>One vertex may bind multiple params (one control → many nodes).</li>
+  <li>A bound param ignores its node default; an unbound param uses its node default.</li>
+  <li>Vertex authoring controls (per §4): custom label, custom range, reorder within the panel.</li>
+</ul>
+
+<h3>11.4 Bypass</h3>
+<p>The layer's enable/bypass toggle (header, §5) makes the sheet act as identity: Image-In passes straight to Image-Out, controls and graph ignored.</p>
+
+<h3>11.5 Authoring with no photo</h3>
+<p>When the Nodes section is opened with no photo loaded, the graph starts <strong>blank</strong>; Image-In shows nothing (or a neutral placeholder), and effect-node thumbnails + the final canvas render stay blank until the sheet is applied to a real photo. Users author by topology and parameter values alone, then see results once the sheet is placed on a photo. No sample-image concept exists.</p>
+
+<h2 id="s12">12. Colour-coding & visual language</h2>
+
+<h3>12.1 Data-type palette (edges + ports + UI vertices)</h3>
+<p>Colour applies to the <strong>wire</strong>, the <strong>port</strong> on a node, and — for the UI node — <strong>each vertex is tinted by the control type it exposes</strong>.</p>
+<table>
+  <thead><tr><th>Data type</th><th>Colour</th><th>Port shape</th></tr></thead>
+  <tbody>
+    <tr><td>Image</td><td><span class="swatch round" style="background:var(--t-image)"></span> Red</td><td>Circle</td></tr>
+    <tr><td>Number</td><td><span class="swatch round" style="background:var(--t-number)"></span> Blue</td><td>Circle</td></tr>
+    <tr><td>Color</td><td><span class="swatch square" style="background:var(--t-color)"></span> Gold / amber</td><td>Square</td></tr>
+    <tr><td>Curve</td><td><span class="swatch tri" style="background:var(--t-curve)"></span> Green</td><td>Triangle</td></tr>
+    <tr><td>Boolean</td><td><span class="swatch diamond" style="background:var(--t-bool)"></span> Purple</td><td>Diamond</td></tr>
+    <tr><td>Dropdown/enum</td><td><span class="swatch hex" style="background:var(--t-enum)"></span> Orange</td><td>Hexagon</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>Image wires rendered <strong>thicker</strong> than control wires for at-a-glance scan.</li>
+  <li>Hover any port/edge → tooltip with the type name.</li>
+</ul>
+
+<h3>12.2 Node-header tints (by category)</h3>
+<table>
+  <thead><tr><th>Node category</th><th>Header tint</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td><span class="swatch" style="background:var(--c-terminal)"></span> Terminal</td><td>Dark slate</td><td>Image-In, Image-Out</td></tr>
+    <tr><td><span class="swatch" style="background:var(--c-effect)"></span> Effect</td><td>Steel blue</td><td>Exposure, Curves, Channel Mixer, Blend</td></tr>
+    <tr><td><span class="swatch" style="background:var(--c-math)"></span> Math / utility</td><td>Grey-green</td><td>Number const, Math, Remap/clamp, Curve-from-number, Color const</td></tr>
+    <tr><td><span class="swatch" style="background:var(--c-ui)"></span> UI</td><td>Violet</td><td>UI node</td></tr>
+  </tbody>
+</table>
+
+<h3>12.3 Accessibility</h3>
+<p>Colour is never the sole signal: distinct port shapes (circle/square/triangle/diamond/hexagon) + hover type labels + the category header tint keep the graph legible for colour-blind users.</p>
+
+<h2 id="s13">13. Node editor layout</h2>
+<pre>┌──────────────────────────────┬─────────────────────┐
+│  [canvas toolbar]            │  Node sheet settings │  <- right top
+│──────────────────────────────│  (name, phase,       │
+│                              │   notes, author/ts,  │
+│                              │   copy/link default) │
+│                              │─────────────────────│
+│        Graph canvas          │                      │
+│   (Image-In/-Out, effect     │  Node palette        │  <- right bottom
+│    nodes, UI node, math;     │  (search +           │
+│    per-node thumbnails;      │   collapsible        │
+│    final output on Image-Out)│   categories)        │
+│                              │                      │
+└──────────────────────────────┴─────────────────────┘
+        draggable ⟷            draggable ⟷</pre>
+
+<h3>13.1 Left — canvas zone</h3>
+<ul>
+  <li><strong>Canvas toolbar:</strong> zoom in/out, fit-to-view, 1:1; <strong>thumbnail toggle</strong> (show/hide per-node output thumbnails).</li>
+  <li><strong>Graph canvas</strong> holds the two planes (image + control), per §11. Image-Out's thumbnail is the final sheet output shown on the main canvas when not in the node editor.</li>
+</ul>
+
+<h3>13.2 Right top — node sheet settings</h3>
+<ul>
+  <li><strong>Sheet name</strong> — editable; shown in the main-editor layer header and the sheet-file dropdown.</li>
+  <li><strong>Execution phase</strong> — dropdown: First / After exposure / After colour / At end (§6).</li>
+  <li><strong>Description / notes</strong> — free text; shown as a tooltip in the sheet-file dropdown so users recall what a saved sheet does.</li>
+  <li><strong>Author / last-saved timestamp</strong> — for managing a growing library.</li>
+  <li><strong>Copy/Link default override</strong> — global default is "ask each time" on add; a sheet can opt to default to copy or link so it skips the prompt.</li>
+  <li><strong>Header ops</strong> (from §8): Save, Save As, Rename, Duplicate, Delete — applied to the open sheet.</li>
+</ul>
+
+<h3>13.3 Right bottom — node palette</h3>
+<ul>
+  <li><strong>Search box</strong> at the top — filter-as-you-type across node names.</li>
+  <li><strong>Collapsible category sections</strong> below: Terminals / Effects / Math-utility / UI.</li>
+  <li><strong>Add gesture:</strong> drag a node from the palette onto the canvas, OR click to drop it at the canvas centre / last-click position.</li>
+  <li>Categories collapse to save vertical space; search filters across all categories regardless of collapse state.</li>
+</ul>
+
+<h3>13.4 Resizing</h3>
+<ul>
+  <li>The canvas | right-panel vertical split is draggable.</li>
+  <li>The settings | palette split inside the right panel is also draggable.</li>
+   <li>Both remember their proportions across sessions.</li>
+ </ul>
+
+<h2 id="s14">14. App shell & Library module</h2>
+<p class="subtitle">Closes Hole #7 (photo import / library / catalog); partially closes #6 (app shell); records #8 (batch) as deferred. §14.2 defines the 4-way header (Library | Edit | Nodes | Lens); the rest of this section covers the Library module only. Scope of the Library pass: <strong>import + browse + select</strong> — the minimum to get photos into the app and pick one to edit. Organising (albums, keywords, ratings) and batch operations are explicitly deferred (§14.8).</p>
+
+<h3>14.1 Catalog &amp; storage model</h3>
+<ul>
+  <li>A <strong>catalog</strong> (a SQLite file in app-local storage) is the source of truth for: the list of known photos, each photo's on-disk path, metadata (EXIF/IPTC), the per-photo <strong>edit list</strong> (§2/§3, global + per-mask), and the preview/thumbnail index.</li>
+  <li>Photo <strong>files stay on disk where the user put them</strong> — referenced in place, never copied on import. The catalog stores an absolute path plus a light identity tuple (file size + mtime) to detect moves/mismatches; an optional content-hash check is available at import (§14.4) but not stored as the key.</li>
+  <li><strong>Previews</strong> — one thumbnail and one standard preview per photo — are generated at import and cached in app-local storage (not as DB blobs). The full-resolution file is read on demand by the Edit module for canvas rendering.</li>
+  <li><strong>Edits live in the catalog DB</strong> as each photo's edit list. A <strong>Write XMP sidecars</strong> command exports the current edit list to a <code>.xmp</code>-style file beside the original for interop/backup. <strong>Read XMP on import</strong> is an import-dialog checkbox (off by default) that seeds a photo's edit list from an existing sidecar. Sidecars are never the source of truth; the DB is.</li>
+  <li>One catalog per user profile in v1. Multi-catalog support, catalog switching, and a backup/restore UI are deferred (§14.8); in v1 the DB file can be copied manually for backup.</li>
+</ul>
+
+<h3>14.2 Module switcher (Library | Edit | Nodes | Lens)</h3>
+<ul>
+  <li>A top-level <strong>Library | Edit | Nodes | Lens</strong> switcher sits at the top-right of the window (Lightroom-style). The four sections are <strong>peer modules</strong> in one app, switched via the header — none is nested inside another.
+    <ul>
+      <li><strong>Library</strong> — browse / organise / import (§14.3).</li>
+      <li><strong>Edit</strong> — the photo editor from §3. Right panel = a tabbed container with <strong>global</strong>, <strong>mask</strong>, and <strong>crop</strong> tabs. The global tab shows the edit list: built-in edits (Lens Correction → Basic → Colour → HSL → Tone Curve → Detail) and the Custom Edits section. The mask tab shows the mask list and the selected mask's edit list (§7). The crop tab holds the dedicated geometry panel (§3.1). The Lens Correction built-in edit references a lens profile file made in the Lens section (§18) and exposes basic Distort / Vignette sliders. Centre = photo canvas.</li>
+      <li><strong>Nodes</strong> — the node editor (§8 / §13): the authoring tool for sheet files. Reached from the header, or from a layer's <strong>Edit</strong> button (switches to Nodes with that sheet loaded).</li>
+      <li><strong>Lens</strong> — the lens-corrector tool (§21 / §22): the authoring / calibration / library tool for lens profile files. Reached from the header, or from the Edit lens-correction built-in's <strong>+ New</strong> button (switch to Lens).</li>
+    </ul>
+  </li>
+  <li><strong>File relationship is the same for both authoring tools:</strong> a sheet file made in Nodes is referenced (copy or link) by a layer in Edit; a lens profile file made in Lens is referenced (copy or link) by the lens-correction panel in Edit. Edit never authors files — it consumes them.</li>
+  <li>Switching sections preserves the <strong>current photo</strong> and the <strong>current selection</strong>. Opening a photo in Edit = double-click in Library → switch to Edit with that photo loaded.</li>
+  <li>The <strong>no-photo state</strong> in §8 (Nodes with blank graph) and in §21.6 (Lens with the built-in grid) is resolved: the user picks a photo in Library first. Edit with no photo selected shows an empty-state prompt to go to Library. Nodes and Lens can still be opened with no photo for pure authoring (blank graph / test grid).</li>
+  <li>The <strong>bottom filmstrip is shared</strong> across all four sections and shows the current source/selection; clicking a filmstrip frame loads that photo into the active section. This fills the filmstrip slot referenced in Hole #6.</li>
+</ul>
+
+<h3>14.3 Library layout</h3>
+<pre>┌───────────────┬───────────────────────────────┬───────────────┐
+│  [Import]  [sort ▾] [size]  [filename search]   ← top toolbar │
+├───────────────┼───────────────────────────────┼───────────────┤
+│               │                               │               │
+│  Source list  │       Thumbnail grid          │   Metadata    │
+│  (All Photos  │   (adjustable thumb size,     │  (read-only:  │
+│   + folder    │    sort, multi-select,        │   filename,   │
+│   tree)       │    double-click → Edit)       │   path, dims, │
+│               │                               │   camera/lens,│
+│               │                               │   capture /   │
+│               │                               │   import date)│
+├───────────────┴───────────────────────────────┴───────────────┤
+│                   Filmstrip (shared with Edit)                │
+└─────────────────────────────────────────────────────────────────┘</pre>
+<ul>
+  <li><strong>Left — source list:</strong> "All Photos" virtual node + a folder tree mirroring the on-disk paths of imported roots. No albums/keywords in v1 (§14.8). Selecting a source filters the grid. This fills the left-panel slot referenced in Hole #6.</li>
+  <li><strong>Centre — thumbnail grid:</strong> adjustable thumbnail size, sort by Capture date (default) / Import date / File name, with ascending/descending. Multi-select per §14.5.</li>
+  <li><strong>Right — metadata panel:</strong> read-only in v1 — filename, full path, pixel dimensions, camera, lens, focal length, ISO/shutter/aperture (where EXIF provides), capture date, import date. Editable IPTC is deferred.</li>
+  <li><strong>Top toolbar:</strong> Import button (§14.4), sort dropdown, view-size control, filename search box.</li>
+  <li><strong>Bottom — filmstrip:</strong> shared with the Edit module (§14.2); shows the current source's photos in order; the loaded/selected photo is highlighted.</li>
+</ul>
+<div class="callout warn">
+  <strong>Still open (Edit module):</strong> the photo-canvas <em>top toolbar</em> and <em>histogram</em> placement inside Edit are not specified here — those are an Edit-module concern, not a Library one. See Hole #6 (narrowed).
+</div>
+
+<h3>14.4 Import flow</h3>
+<ul>
+  <li>The <strong>Import</strong> button (top toolbar) opens the import dialog.</li>
+  <li>Dialog fields:
+    <ul>
+      <li><strong>Source folder</strong> picker (a single root; a recursive checkbox is on by default).</li>
+      <li><strong>Candidate list</strong> — every supported image file under the root, each with an include checkbox (all on by default) and a small size/date preview.</li>
+      <li><strong>Duplicate handling</strong> — file <em>path</em> is the unique key. Paths already in the catalog are shown greyed with an "already imported" badge and excluded by default. An optional <strong>"detect duplicates by content"</strong> checkbox (off by default, for speed) marks same-content-different-path files with a "duplicate" badge and excludes them by default.</li>
+      <li><strong>Read edits from XMP sidecar</strong> checkbox (off by default) — if a <code>.xmp</code>-style sidecar exists beside a file, seed that photo's edit list from it instead of starting empty.</li>
+    </ul>
+  </li>
+  <li><strong>Preview generation</strong> — one thumbnail and one standard preview are built per file at import.</li>
+  <li><strong>Progress</strong> — a progress bar with per-file status (EXIF scan → thumbnail → preview), a running count, and a <strong>Cancel</strong> button (cancel stops remaining files; already-imported files stay in the catalog).</li>
+  <li><strong>Supported formats</strong> — common still formats (JPEG, PNG, TIFF) plus camera RAW via the platform decoder. The exact format list and RAW coverage are implementation/stack and remain deferred (§10).</li>
+  <li>On completion the new photos appear in <strong>All Photos</strong> and under their folder in the source tree; the most-recently imported photo is selected.</li>
+</ul>
+
+<h3>14.5 Browse &amp; select</h3>
+<ul>
+  <li><strong>Single select:</strong> click a thumbnail → loads it into the metadata panel; double-click → switches to Edit with that photo loaded.</li>
+  <li><strong>Multi-select:</strong> Ctrl/Cmd-click toggles individual photos; Shift-click extends a range. The selection persists across module switches and is the foundation for the later batch operations (§14.8 / Hole #8).</li>
+  <li><strong>Keyboard:</strong> arrow keys move focus/selection in the grid; Enter opens in Edit; Esc clears the selection.</li>
+  <li><strong>Search:</strong> the toolbar search box filters by filename (substring, case-insensitive) within the current source. Advanced filters (date/camera/lens/etc.) are deferred (§14.8).</li>
+  <li><strong>Sort:</strong> Capture date (default) / Import date / File name, with ascending/descending.</li>
+</ul>
+
+<h3>14.6 Missing files &amp; relink</h3>
+<p>Because files are referenced in place, a file moved/renamed/deleted outside the app becomes <strong>missing</strong>:</p>
+<ul>
+  <li>Missing photos show a <code>?</code> badge on the thumbnail and are greyed in the grid; the metadata panel shows "File not found at &lt;path&gt;."</li>
+  <li><strong>Per-photo relink:</strong> a "Find missing file" command opens a file picker; choosing the new location updates the catalog path for that photo.</li>
+  <li><strong>Folder relink:</strong> a "Find missing folder" command on a missing folder in the source tree re-roots all its descendant paths in one action (the common case — a whole shoot moved).</li>
+  <li>Missing photos keep their edit list and previews; they are <strong>not</strong> deleted from the catalog automatically.</li>
+</ul>
+
+<h3>14.7 Relationship to the edit list &amp; sheets</h3>
+<ul>
+  <li>The catalog is where each photo's <strong>edit list</strong> (global + per-mask, §2/§3) is persisted. The Edit module reads and writes the edit list through the catalog; nothing about the edit list itself changes from §3–§7.</li>
+  <li><strong>Sheet files stay separate</strong> — they live in the user's sheets folder (§2) and are <em>not</em> part of the catalog. The catalog stores, for each layer in each photo's edit list: the sheet file path, its phase (§6), and whether it is a copy or link (plus the copied snapshot, if copy).</li>
+  <li>A <strong>linked</strong> layer whose sheet file is missing/moved behaves the same way as a missing photo: the layer header shows a broken-link badge and offers relink (parallels §14.6). The full linked-sheet broken-link and versioning UX stays in the holes list (#11, #12).</li>
+</ul>
+
+<h3>14.8 Deferred (Library module)</h3>
+<ul>
+  <li class="deferred">Albums / collections / smart collections.</li>
+  <li class="deferred">Keywords / tags / ratings / flags / colour labels.</li>
+  <li class="deferred">Faces / people; GPS / map view.</li>
+  <li class="deferred"><strong>Batch &amp; multi-photo operations</strong> (Hole #8): apply a sheet to many photos, copy/paste edits, Lightroom's "previous edit" / sync, paste a single sheet layer vs the whole stack. The §14.5 selection model is the foundation these build on.</li>
+  <li class="deferred">Advanced filters: by date range, camera, lens, focal length, ISO, flag/rating (once those exist).</li>
+  <li class="deferred">Folder-watch / auto-import.</li>
+  <li class="deferred">Tethered capture.</li>
+  <li class="deferred">Preview-size policy &amp; on-demand re-render tiers (implementation detail).</li>
+  <li class="deferred">Editable metadata / IPTC editing.</li>
+  <li class="deferred">Multi-catalog support / catalog switching / catalog backup &amp; restore UI.</li>
+</ul>
+
+<h2 id="s15">15. Software stack</h2>
+<p class="subtitle">Implementation details resolved for v1. <strong>v1 is a personal project that runs on Windows 10 21H2+ and Windows 11.</strong> No installer, auto-update, code signing, or distribution packaging is in scope. <strong>The stack (Electron, React, React Flow, better-sqlite3, libvips, LibRaw, SQLite) is cross-platform in principle, and a Linux port is a long-term personal goal &mdash; not scheduled, not committed &mdash; so app logic avoids Windows-only APIs but the codebase is not specifically structured around portability.</strong> GPU acceleration is intentionally deferred; the architecture is designed so the renderer can be swapped in a later version without changing the UI, catalog, or saved edit data.</p>
+
+<h3>15.1 Desktop shell &amp; UI</h3>
+<ul>
+  <li><strong>Electron</strong> — cross-platform desktop wrapper (Chromium + Node.js). Provides the native window, file-system access, and OS integration while the UI is built as a web app.</li>
+  <li><strong>React + TypeScript</strong> — the main UI framework for panels, sliders, the library grid, and the node editor.</li>
+  <li><strong>Tailwind CSS</strong> — utility-first styling.</li>
+</ul>
+
+<h3>15.2 Node graph canvas</h3>
+<ul>
+  <li><strong>React Flow</strong> — provides the node graph canvas, drag-to-connect wiring, pan/zoom, and per-node thumbnails. The visual language and data types in §12 map directly onto React Flow nodes and edges.</li>
+</ul>
+
+<h3>15.3 Catalog &amp; storage</h3>
+<ul>
+  <li><strong>SQLite</strong> via <code>better-sqlite3</code> — one local catalog file per user profile, exactly as described in §14.1. Stores photo records, paths, metadata, edit lists, and mask data.</li>
+  <li>Photo files remain referenced in place; previews are cached in app-local storage.</li>
+</ul>
+
+<h3>15.4 Image processing (v1)</h3>
+<ul>
+  <li><strong>Sharp</strong> (libvips bindings) — handles standard formats (JPEG, PNG, TIFF), resizing, colour adjustments, blending, curves, and export.</li>
+  <li><strong>LibRaw</strong> — decodes camera RAW files to a working image that Sharp can process.</li>
+  <li><strong>CPU-only in v1.</strong> No GPU acceleration in the first version; all effect math runs through Sharp on the CPU.</li>
+</ul>
+
+<h3>15.5 Rendering strategy</h3>
+<ul>
+  <li><strong>Two render paths:</strong>
+    <ul>
+      <li><strong>Fast preview path</strong> — operates on a downsampled copy of the image while the user is dragging a slider or scrubbing a control, so the UI feels responsive.</li>
+      <li><strong>Full-resolution path</strong> — operates on the full source image and is used for the idle editor view and 100% zoom. Triggered when the user releases a control.</li>
+    </ul>
+  </li>
+  <li>The main canvas always shows the best available render: full-res when idle, low-res only during active interaction.</li>
+  <li>100% pixel zoom displays a crop from the most recent full-resolution render.</li>
+</ul>
+
+<h3>15.6 Renderer abstraction for future GPU support</h3>
+<ul>
+  <li>Each effect node exposes a single interface: <code>render(inputImage, params) → outputImage</code>.</li>
+  <li>The rest of the app — UI, catalog, undo, saved sheets — talks to nodes only through this interface and never calls Sharp directly.</li>
+  <li><strong>v2 GPU path:</strong> the v2 implementation renders effect nodes via <strong>WebGPU</strong> (preferred, with a WebGL 2 fallback) inside the existing Electron renderer. Chromium's WebGPU gives compute-shader support and direct access to the GPU without leaving the existing process model. If a future version needs features WebGPU cannot express (e.g. vendor-specific extensions or off-process compute), the alternative is a small <strong>native addon</strong> (Rust + <code>wgpu</code>, or NAPI) that exposes the same <code>render(inputImage, params) → outputImage</code> interface. The interface contract is what protects the node graph, catalog, undo, and saved sheets across both paths.</li>
+</ul>
+
+<h3 id="s15-7">15.7 Personal-project build model</h3>
+<ul>
+  <li><strong>v1 is a personal project.</strong> The app runs from a local dev checkout (<code>npm start</code>) or a portable build folder produced by <code>npm run build</code> (or the Electron-builder <code>dir</code> target &mdash; produces an unpacked folder, not an installer). No installer, auto-update, code-signing, or distribution packaging is in scope.</li>
+  <li>If the project is ever released beyond the author's own machines, this section is the place to revisit installer choice, signing, and update strategy.</li>
+</ul>
+
+<h3 id="s15-8">15.8 Windows-specific concerns</h3>
+<ul>
+  <li><strong>High-DPI / per-monitor v2 scaling.</strong> Electron handles this natively; verify at 100%, 125%, 150%, 175%, and 200% scales, and across monitors with different scale factors (drag the window between them).</li>
+  <li><strong>File dialogs.</strong> Native IFileDialog via Electron's <code>dialog.showOpenDialog</code> / <code>showSaveDialog</code>. The app remembers the last-used folder per dialog type (Open, Import Folder, Export, Open Lens Pack) under the catalog directory in the storage locations below.</li>
+  <li><strong>Path handling.</strong> The catalog stores canonical absolute paths; the importer strips any <code>\\?\</code> long-path prefix the OS may insert and normalises for comparison. The exporter writes XMP sidecars with backslash separators so paths round-trip through the Windows shell.</li>
+  <li><strong>Explorer integration.</strong>
+    <ul>
+      <li><strong>Drag-drop from Explorer</strong> into the Library grid &mdash; single file, multi-file, or one-level folder recursion over supported extensions &mdash; is in scope.</li>
+      <li>A <strong>"Open with Photo-Node-Super"</strong> shell verb is registered for common image and RAW extensions: <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.tif</code>, <code>.tiff</code>, <code>.dng</code>, <code>.cr2</code>, <code>.cr3</code>, <code>.nef</code>, <code>.arw</code>, <code>.raf</code>, <code>.orf</code>, <code>.rw2</code>.</li>
+      <li><strong>Out of scope for v1:</strong> Explorer thumbnail provider, preview handler, "Edit" context-menu verb, and jump lists.</li>
+    </ul>
+  </li>
+  <li><strong>Keyboard.</strong> Standard Windows shortcuts throughout: Ctrl+O, Ctrl+Shift+O, Ctrl+S, Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z, F1, F11, Esc. Alt-key mnemonics on menus. <strong>Win+Arrow</strong> snap layouts are handled by Windows natively; the app supports arbitrary window sizes from 800&times;600 up to maximised.</li>
+  <li><strong>Storage locations (Windows).</strong> Per the catalog model in &sect;14.1:
+    <ul>
+      <li>Catalog DB: <code>%APPDATA%\Photo-Node-Super\catalog.sqlite</code> (roaming profile, per-user).</li>
+      <li>Preview cache and thumbnails: <code>%LOCALAPPDATA%\Photo-Node-Super\cache\</code>.</li>
+      <li>User-installed lens packs: <code>%APPDATA%\Photo-Node-Super\lens-packs\</code>.</li>
+      <li>User-authored node sheets: <code>%APPDATA%\Photo-Node-Super\node-sheets\</code>.</li>
+      <li>Logs: <code>%LOCALAPPDATA%\Photo-Node-Super\logs\</code>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="s16">16. Lens Corrector — core concept &amp; terminology</h2>
+<p class="subtitle">The Lens Corrector is the subsystem behind the <strong>Lens</strong> header module and the <strong>Lens Correction</strong> built-in edit in the Edit module. Per-lens profile files are tagged by (focal length, aperture), with linear interpolation between profile points. The lens-correction math (distortion, vignetting, CA, colour vignette) runs on the same CPU stack as the rest of the app (§15).</p>
+
+<p>Raw editors typically apply <strong>one static lens-correction profile per lens</strong>. But a lens's distortion and vignetting change with <strong>focal length</strong> and <strong>aperture</strong>, so a single profile <em>over-corrects one image and under-corrects another</em> shot on the same lens. The Lens Corrector fixes this by storing <strong>multiple profile points per lens</strong> — each tagged with a (focal length, aperture) pair — and <strong>linearly interpolating</strong> between the nearest points for every photo. The more points the user adds, the more accurate the result becomes. The system <strong>auto-detects</strong> the lens and shooting parameters from EXIF and applies the interpolated correction as the first step in the pipeline (§6.1). Profiles are <strong>shareable as JSON packs</strong> so communities can distribute calibration data.</p>
+
+<div class="callout lens">
+  <strong>Design intent:</strong> treat lens correction not as a single dial but as a <em>surface</em> across focal length × aperture. The user's job is to populate that surface with points; the app's job is to read the surface smoothly. Calibration is a first-class workflow, not a one-time setup.
+</div>
+
+<h3>16.1 Why it matters</h3>
+<ul>
+  <li><strong>Real lenses are not uniform.</strong> A 24–70mm f/2.8 zoom has dramatically different barrel distortion at 24mm vs 70mm, and vignetting at f/2.8 is much heavier than at f/8. A single-profile correction must average — and therefore mis-corrects most frames.</li>
+  <li><strong>Calibration improves with use.</strong> Unlike most edits, a lens profile gets <em>better</em> the more the user shoots with that lens. Every photo at a new (FL, aperture) is an opportunity to fill in the surface.</li>
+  <li><strong>Community scales calibration.</strong> Once one user calibrates a popular lens, sharing the pack saves every other owner hours of work.</li>
+</ul>
+
+<h3 class="lens">16.2 Terminology</h3>
+<ul>
+  <li><strong>Lens entry</strong> — one physical lens in the user's library. Identified by make + model (and optional serial / variant notes).</li>
+  <li><strong>Lens profile file</strong> — a file in the user's lens folder holding one lens entry. Authored in the <strong>Lens</strong> module (§21 / §22). Referenced (copy or link) by the Edit lens-correction panel (§18), the same way a node-sheet file is referenced by a layer in Edit. A <strong>profile pack</strong> (below) is the multi-lens export / import container.</li>
+  <li><strong>Profile point</strong> — a single calibration sample at a specific (focal length, aperture) pair, holding correction values for all four parameter types.</li>
+  <li><strong>Profile surface</strong> — the implicit 2D function over (focal length, aperture) defined by the lens's profile points and the interpolation rule. What gets applied to a photo.</li>
+  <li><strong>Calibration</strong> — the act of creating or refining a profile point by adjusting sliders against a reference image.</li>
+  <li><strong>Profile pack</strong> — a JSON file containing one or more lens entries for export / import.</li>
+  <li><strong>Active lens</strong> — the lens entry the corrector is currently using for the loaded photo (auto-detected or manually chosen).</li>
+  <li><strong>Coverage</strong> — a visual indicator of how well the profile surface is sampled across the (FL, aperture) range the lens actually supports.</li>
+</ul>
+
+<h2 id="s17">17. Lens profile data model</h2>
+
+<h3 id="s17-1">17.1 Lens entry</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>id</code></td><td>UUID</td><td>Stable internal identifier. Survives renames.</td></tr>
+    <tr><td><code>make</code></td><td>string</td><td>Lens manufacturer. Matched against EXIF <code>LensMake</code>.</td></tr>
+    <tr><td><code>model</code></td><td>string</td><td>Lens model name. Matched against EXIF <code>LensModel</code>.</td></tr>
+    <tr><td><code>variant</code></td><td>string?</td><td>Optional free text (e.g. "Mark II", "serial 12345").</td></tr>
+    <tr><td><code>focalLengthRange</code></td><td>[min, max] mm</td><td>Zoom range if a zoom. Fixed [n, n] for a prime.</td></tr>
+    <tr><td><code>apertureRange</code></td><td>[min, max] f-number</td><td>Available aperture range (widest to narrowest).</td></tr>
+    <tr><td><code>profilePoints</code></td><td>ProfilePoint[]</td><td>All calibrated samples (see §17.2).</td></tr>
+    <tr><td><code>copyLinkDefault</code></td><td>"ask" | "copy" | "link"</td><td>Default copy/link behaviour when this profile is referenced from Edit. "ask" = prompt each time (default). Mirrors the sheet-file override in §13.2.</td></tr>
+    <tr><td><code>notes</code></td><td>string?</td><td>User notes (purchase date, sample variation, etc.).</td></tr>
+    <tr><td><code>createdAt</code> / <code>updatedAt</code></td><td>ISO timestamp</td><td>For library management.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s17-2">17.2 Profile point</h3>
+<p>One sample of the lens's behaviour at a specific (FL, aperture) pair. Carries the four correction parameter types.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>focalLength</code></td><td>number (mm)</td><td>Tagged focal length for this point.</td></tr>
+    <tr><td><code>aperture</code></td><td>number (f-number)</td><td>Tagged aperture for this point.</td></tr>
+    <tr><td><code>distortion</code></td><td>Distortion</td><td>Geometric correction (see §17.3).</td></tr>
+    <tr><td><code>vignetting</code></td><td>Vignetting</td><td>Brightness falloff correction (see §17.4).</td></tr>
+    <tr><td><code>chromaticAberration</code></td><td>CA</td><td>Lateral colour fringe correction (see §17.5).</td></tr>
+    <tr><td><code>colourVignette</code></td><td>ColourVignette</td><td>Radial colour cast correction (see §17.6).</td></tr>
+    <tr><td><code>calibratedFrom</code></td><td>string?</td><td>Photo filename or "test-chart" for traceability.</td></tr>
+    <tr><td><code>notes</code></td><td>string?</td><td>Per-point notes.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s17-3">17.3 Distortion (geometry)</h3>
+<p>Brown–Conrady-style radial polynomial correction. Multi-order so the user can correct complex lens curves, not just a single barrel/pincushion term.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>k1</code></td><td>number</td><td>typically −0.20 … +0.20</td><td>Primary radial term. Negative = pincushion correction of barrel; positive = barrel correction of pincushion.</td></tr>
+    <tr><td><code>k2</code></td><td>number</td><td>typically −0.50 … +0.50</td><td>Secondary term. Corrects mid-radius residual after k1.</td></tr>
+    <tr><td><code>k3</code></td><td>number</td><td>typically −1.0 … +1.0</td><td>Tertiary term. Fine-tuning at extreme radii (wide rectilinears, fisheye-ish). Default 0.</td></tr>
+    <tr><td><code>scale</code></td><td>number</td><td>0.5 … 1.5</td><td>Uniform scale applied after un-distort, to keep the output frame size consistent.</td></tr>
+  </tbody>
+</table>
+<p>UI surfaces k1, k2, k3 as three sliders grouped under "Distortion", and a "Scale" slider beneath them. Reset per slider (double-click label).</p>
+
+<h3 id="s17-4">17.4 Vignetting (brightness)</h3>
+<p>Radial brightness compensation. Modelled as a smooth curve the user shapes, not a single multiplier — real lens falloff is rarely a clean radial function.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>strength</code></td><td>number</td><td>0.0 … 2.0</td><td>Overall correction intensity. 0 = off.</td></tr>
+    <tr><td><code>curve</code></td><td>Curve</td><td>—</td><td>Falloff shape from centre (0.0) to corner (1.0). Same Curve control type as the main editor's vertex curves (Hole #14). Brightness multiplier on the Y axis.</td></tr>
+    <tr><td><code>midpoint</code></td><td>number</td><td>0.0 … 1.0</td><td>Where the falloff curve's "knee" sits along the radius.</td></tr>
+    <tr><td><code>feather</code></td><td>number</td><td>0.0 … 1.0</td><td>Softness of the falloff edge at the knee.</td></tr>
+  </tbody>
+</table>
+<p>UI: strength slider, then an editable falloff curve widget, then midpoint and feather sliders.</p>
+
+<h3 id="s17-5">17.5 Chromatic aberration (lateral)</h3>
+<p>Lateral (transverse) CA: per-channel radial offset that causes coloured fringes towards the edges. Resolved with a per-channel scale around the optical centre.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>redScale</code></td><td>number</td><td>−0.05 … +0.05</td><td>Red channel radial scale. Negative pulls red inward.</td></tr>
+    <tr><td><code>blueScale</code></td><td>number</td><td>−0.05 … +0.05</td><td>Blue channel radial scale. Positive pushes blue outward.</td></tr>
+    <tr><td><code>feather</code></td><td>number</td><td>0.0 … 1.0</td><td>How smoothly the offset ramps with radius.</td></tr>
+  </tbody>
+</table>
+<p>UI: two sliders "R scale" and "B scale" + "Feather". G is implicit (the reference channel).</p>
+
+<h3 id="s17-6">17.6 Colour vignette (radial colour cast)</h3>
+<p>Distinct from brightness vignetting: a colour cast that varies with radius (e.g. green corners on older lenses, magenta on some wide-angles).</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Range</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>strength</code></td><td>number</td><td>0.0 … 1.0</td><td>How much correction to apply. 0 = off.</td></tr>
+    <tr><td><code>hue</code></td><td>number (degrees)</td><td>0 … 360</td><td>Colour to push toward (or away from) at the corners.</td></tr>
+    <tr><td><code>saturation</code></td><td>number</td><td>0.0 … 1.0</td><td>How saturated the corner cast is.</td></tr>
+    <tr><td><code>midpoint</code> / <code>feather</code></td><td>numbers</td><td>0.0 … 1.0</td><td>Same role as brightness vignette — where the colour change begins and how softly it ramps.</td></tr>
+  </tbody>
+</table>
+<p>UI: a colour swatch (clicking opens the standard colour picker per Hole #14) + sliders for strength, saturation, midpoint, feather.</p>
+
+<h2 id="s18">18. Edit integration (the lens-correction built-in)</h2>
+<p>The Lens Corrector ships as two pieces: the <strong>Lens module</strong> (the authoring / calibration / library tool — see §21 / §22), and a <strong>lens-correction built-in edit inside Edit's edit list</strong> that references a lens profile file made in the Lens module. This mirrors the node-editor relationship: a sheet file made in Nodes is referenced (copy or link) by a layer in Edit; a lens profile file made in Lens is referenced (copy or link) by the lens-correction built-in edit in Edit. <strong>Edit never authors lens profiles — it consumes them.</strong></p>
+<p>The lens-correction entry is the first built-in in the edit list (Lens Correction → Basic → Colour → HSL/Mix → Tone Curve → Detail, §3). It is a built-in edit (§2), <strong>not a node sheet</strong> — it has no node graph; instead it references a lens profile file and exposes two basic sliders (Distort, Vignette). It runs as the <strong>very first stage of the pipeline</strong> (§6.1), before any other built-in or custom sheet. <strong>Visual list position ≠ execution order</strong>: it displays at the top of the built-in list and also executes first; the broader principle (customs execute by phase, not by panel position — §6) still holds for every other entry. With no lens profile file referenced, the panel shows an empty / unknown-lens state (Hole #24) until one is picked or auto-detected from EXIF.</p>
+
+<h3 id="s18-1">18.1 Panel layout</h3>
+<pre>┌─ Lens Correction  (built-in edit) ─────────────────┐
+│ [On/Off]  [Auto EXIF ✓]  Profile: … ▾   [+ New ▸]  │
+│───────────────────────────────────────────────────│
+│  Distort    ────●──────────                        │
+│  Vignette   ──────●────────                        │
+└───────────────────────────────────────────────────┘</pre>
+<p>A compact built-in entry, not a rich four-group panel. The header row carries the on/off toggle, the Auto-from-EXIF checkbox, the profile dropdown, and the <strong>+ New</strong> button (switches to the Lens module, §18.5). Below the header are just two basic sliders (§18.4). Everything else — coverage map, full per-parameter calibration, lens library — lives in the Lens module (§21 / §22).</p>
+
+<h3 id="s18-2">18.2 Header controls</h3>
+<ul>
+  <li><strong>On/Off toggle</strong> — off = identity passthrough (no correction). Like a layer's enable toggle (§5). Toggles the whole lens-correction built-in edit.</li>
+  <li><strong>Auto from EXIF</strong> — checkbox. On (default) = system reads EXIF on photo load and auto-selects the matching lens profile file in the dropdown (§19). Off = user picks a profile manually.</li>
+  <li><strong>Profile dropdown</strong> — pick which lens profile file this photo references (copy or link, §18.6). Lists the lens profile files in the user's lens folder; a one-line summary under the selection shows variant (if any) + profile-point count.</li>
+  <li><strong>+ New button</strong> — switches to the <strong>Lens</strong> module to author a new lens profile file (§18.5). The lens library manager, pack import / export, and calibration all live in the Lens module — not behind a menu here.</li>
+</ul>
+
+<h3 id="s18-3">18.3 Unknown-lens state</h3>
+<p>When Auto from EXIF is on and no lens profile file matches the photo's <code>LensMake</code> + <code>LensModel</code>, the dropdown shows empty / "Unknown lens — create one?" (Hole #24). The user can pick an existing file manually, or hit <strong>+ New</strong> to switch to the Lens module and create a matching profile.</p>
+
+<h3 id="s18-4">18.4 Basic sliders (Distort &amp; Vignette)</h3>
+<p>Below the header, the panel exposes just two basic sliders: <strong>Distort</strong> and <strong>Vignette</strong>. These are <strong>per-photo overrides</strong> (§20) on top of the referenced profile's interpolated correction — a quick nudge without leaving Edit. The full per-parameter correction (k1/k2/k3/scale, falloff curve, chromatic aberration, colour vignette) is authored in the Lens module (§21), not exposed here.</p>
+<ul>
+  <li><strong>Distort</strong> — a single slider that offsets the profile's overall distortion correction for this photo.</li>
+  <li><strong>Vignette</strong> — a single slider that scales the profile's vignetting correction for this photo.</li>
+  <li>Sliders match the main editor's numeric conventions (double-click value to type, double-click label to reset, Alt-drag for fine adjust — §4).</li>
+</ul>
+
+<h3 id="s18-5">18.5 Add new profile</h3>
+<p>The <strong>+ New</strong> button in the panel header switches to the <strong>Lens module</strong> to author a new lens profile file (§21). On creation, the new file is referenced by this panel (copy or link per §18.6). All profile authoring, calibration, and profile-point editing happens in the Lens module — never in Edit.</p>
+
+<h3 id="s18-6">18.6 Copy / link semantics</h3>
+<ul>
+  <li>The lens-correction panel references a <strong>lens profile file</strong> from the user's lens folder. On adding / swapping a file, the app asks <strong>copy or link?</strong> — the same prompt as a custom sheet layer (§3).
+    <ul>
+      <li><strong>Copy</strong> — a snapshot of the lens profile file is frozen into the photo's edit data; later edits to the file in the Lens module do not affect this photo.</li>
+      <li><strong>Link</strong> — the panel stays live to the lens profile file; editing the file in the Lens module updates this photo's correction. A linked panel whose file is missing / moved shows a broken-link badge (parallels §14.6 / §14.7).</li>
+    </ul>
+  </li>
+  <li>A lens profile file can set a <strong>copy/link default</strong> (§17.1) to skip the prompt — the same override mechanism as a sheet file (§13.2). The default is "ask" unless the profile file specifies otherwise.</li>
+  <li><strong>Auto from EXIF</strong> (§18.2) auto-selects which lens profile file to reference by matching <code>LensMake</code> + <code>LensModel</code>; the resulting reference follows the same copy / link default. If no file matches, the panel shows the unknown-lens state (Hole #24).</li>
+  <li>Per-photo overrides (§20) live on the photo's edit data, on top of the referenced file's interpolated values — independent of copy / link.</li>
+</ul>
+
+<h2 id="s19">19. EXIF auto-detect &amp; interpolation</h2>
+
+<h3 id="s19-1">19.1 EXIF fields read</h3>
+<table>
+  <thead><tr><th>EXIF tag</th><th>Used for</th></tr></thead>
+  <tbody>
+    <tr><td><code>Make</code> + <code>Model</code> (camera)</td><td>Sanity check / display.</td></tr>
+    <tr><td><code>LensMake</code> + <code>LensModel</code></td><td>Match a lens entry in the library.</td></tr>
+    <tr><td><code>FocalLength</code></td><td>Tag the active point on the (FL, aperture) surface.</td></tr>
+    <tr><td><code>FNumber</code></td><td>Tag the active point on the (FL, aperture) surface.</td></tr>
+    <tr><td><code>LensSerialNumber</code> (if present)</td><td>Disambiguate multiple copies of the same lens model.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="s19-2">19.2 Match algorithm</h3>
+<ol>
+  <li>Read <code>LensMake</code> + <code>LensModel</code> from the photo.</li>
+  <li>Find lens entries where <code>make</code> + <code>model</code> match (case-insensitive, trimmed).</li>
+  <li>If multiple matches, prefer the one with a matching <code>LensSerialNumber</code>; otherwise prompt the user to pick (Hole #25).</li>
+  <li>Read the photo's <code>FocalLength</code> and <code>FNumber</code> → these define the (FL, aperture) coordinate on the lens's profile surface.</li>
+  <li>Compute the interpolated correction (see §19.4).</li>
+  <li>Apply it as the first pipeline stage (§6.1).</li>
+</ol>
+
+<h3 id="s19-3">19.3 Missing EXIF</h3>
+<p>If the photo lacks <code>LensModel</code> or <code>FocalLength</code> (scanned images, heavily cropped JPEGs), the corrector falls back to manual mode and shows a notice: "EXIF incomplete — choose lens and (FL, aperture) manually." See Hole #26.</p>
+
+<h3 id="s19-4">19.4 Interpolation rule</h3>
+<p>When a photo is at a (FL, aperture) coordinate that doesn't exactly match a profile point, the corrector finds the <strong>nearest profile points</strong> in (FL, aperture) space and <strong>linearly interpolates</strong> their parameter values. Linear is the chosen model: simple, predictable, and behaves well with sparse data — a user with one or two points gets sensible corrections, and the surface refines gracefully as more points are added.</p>
+
+<h3 id="s19-5">19.5 How neighbours are found</h3>
+<ol>
+  <li>Compute the photo's (FL, aperture) coordinate.</li>
+  <li>For each profile point, compute a distance. Default metric: weighted Euclidean with weights that emphasise focal length — empirically, distortion varies more sharply with zoom than with aperture.
+    <pre>  d = sqrt( ( (FL - FL_p) / FL_range )² + ( (A - A_p) / A_range )² )</pre>
+  </li>
+  <li>Take the <strong>two nearest profile points</strong> (or one if only one exists; or zero if none exist).</li>
+  <li>Weight each by inverse distance (with epsilon against division-by-zero at exact match).</li>
+  <li>Linearly combine the per-parameter values: distortion, vignetting, CA, colour vignette — <em>each interpolated independently</em> (no cross-parameter coupling).</li>
+</ol>
+
+<h3 id="s19-6">19.6 Out-of-range behaviour</h3>
+<p>If the photo's (FL, aperture) is outside the convex hull of the lens's profile points, the corrector uses the <strong>single nearest profile point</strong> with a "Far from calibration" badge on the panel (no extrapolation). See Hole #27 for the visual treatment.</p>
+
+<h3 id="s19-7">19.7 Coverage indicator</h3>
+<p>The coverage heatmap lives in the <strong>Lens module</strong> (calibration screen §21 / library manager §22), not in the compact Edit panel. It shows density of profile points across (FL, aperture) for the active lens:</p>
+<ul>
+  <li><strong>Empty cells</strong> = no nearby points. Photos at those coordinates will use the nearest point only.</li>
+  <li><strong>Dense cells</strong> = many points; interpolation is most accurate here.</li>
+  <li><strong>Current photo's cell</strong> is highlighted so the user can see at a glance how well-supported the current shot is.</li>
+</ul>
+<p>The indicator's job is to <em>motivate</em> the user to fill gaps in the surface.</p>
+
+<h2 id="s20">20. Per-photo overrides</h2>
+<p>Even with a well-calibrated surface, a particular photo may need a tweak (a focus shift, an off-calibration sample). The two basic sliders in the Edit panel (§18.4 — Distort, Vignette) <strong>act as per-photo overrides</strong> on top of the referenced profile's interpolated correction. The full per-parameter surface (k1/k2/k3, falloff curve, CA, colour vignette) is edited in the Lens module on the profile file, not per-photo in Edit.</p>
+
+<h3 id="s20-1">20.1 How overrides combine with interpolation</h3>
+<p>For each parameter, the corrector stores a per-photo override value (default = identity / "use interpolation"). The final value applied is:</p>
+<pre>final = interpolated(profile surface) ⊕ per-photo override</pre>
+<p>where <code>⊕</code> is parameter-appropriate combination:</p>
+<ul>
+  <li><strong>Distort slider</strong> — scales the profile's overall distortion correction for this photo (additive offset on the combined k1/k2/k3/scale result).</li>
+  <li><strong>Vignette slider</strong> — scales the profile's vignetting correction for this photo (multiplicative; a 0.1 nudge = 10% more / less correction).</li>
+</ul>
+<p>CA and colour vignette are not per-photo adjustable in v1 — they follow the referenced profile's interpolated values exactly. Exposing them per-photo is deferred (§10).</p>
+
+<h3 id="s20-2">20.2 Override affordances</h3>
+<ul>
+  <li>When a slider is at its default (no override), it shows in the "interpolated" state — no badge.</li>
+  <li>When the user moves it, a small <strong>badge</strong> appears next to the slider label: "overridden".</li>
+  <li>Double-clicking the label resets the override to "use interpolation" (back to interpolated state).</li>
+  <li>A <strong>"Reset all overrides"</strong> link at the bottom of the panel clears every per-photo adjustment in one click.</li>
+</ul>
+
+<h3 id="s20-3">20.3 Storing overrides</h3>
+<p>Per-photo overrides live on the photo's edit metadata, not in the lens entry. Editing the lens profile does not overwrite a photo's overrides, and removing a photo's overrides does not affect the lens profile. They are independent layers of state.</p>
+
+<h2 id="s21">21. Calibration workflow (Lens module)</h2>
+<p>Calibration is the main workspace of the <strong>Lens module</strong> (the way the node editor is the Nodes section, §8). Entered from the Lens header, or from the Edit lens-correction built-in edit's <strong>+ New</strong> button (§18.5, which switches to the Lens module).</p>
+
+<h3 id="s21-1">21.1 Entry points</h3>
+<ul>
+  <li><strong>+ New</strong> (Edit lens-correction built-in edit, §18.5) — switches to the Lens module and starts a new lens profile file; if a photo is loaded, calibration opens against it at the current (FL, aperture).</li>
+  <li><strong>Lens header</strong> — works with no photo loaded; opens calibration against a neutral test pattern (see §21.3). Also the entry point for editing an existing profile or adding points to an existing lens.</li>
+  <li><strong>Lens library manager</strong> (§22) — calibrate-any-existing-point picker.</li>
+</ul>
+
+<h3 id="s21-2">21.2 Calibration screen layout</h3>
+<pre>┌──────────────────────────────────┬────────────────────┐
+│  [Canvas toolbar]               │  Profile point     │
+│  [Grid overlay toggle]          │  settings          │
+│  [Grid opacity ────●──]         │  ─────────────     │
+│──────────────────────────────────│  Lens:             │
+│                                  │  Canon RF 24-70…   │
+│        Calibration canvas        │  Focal length:     │
+│  (photo or test pattern          │  [   35   ] mm     │
+│   + grid overlay, with           │  Aperture:         │
+│   live distortion / vignetting / │  [   2.8  ] f      │
+│   CA / colour vignette applied   │  ─────────────     │
+│   in real time)                  │  Source image:     │
+│                                  │  [photo filename]  │
+│                                  │  ─────────────     │
+│                                  │  Correction groups │
+│                                  │  (same 4 groups    │
+│                                  │   as §17)          │
+│                                  │                    │
+│                                  │  [Save point]      │
+│                                  │  [Discard]         │
+└──────────────────────────────────┴────────────────────┘</pre>
+
+<h3 id="s21-3">21.3 Reference image</h3>
+<p>Calibration can be run on:</p>
+<ol>
+  <li><strong>The loaded photo</strong> — if a photo is loaded, the canvas shows it. Best for "I have a shot of a grid at 24mm f/2.8, let me dial in corrections for that exact (FL, aperture)."</li>
+  <li><strong>A neutral test pattern</strong> — if no photo is loaded (or the user explicitly wants a clean reference), the app shows a synthetic <strong>built-in grid pattern</strong>: regular orthogonal lines on a neutral grey background, filling the frame. The user adjusts sliders against this known geometry, which is the most reliable way to correct distortion.</li>
+</ol>
+<p>Either way, the canvas applies the current corrections in real time so the user sees the grid undistort / brighten as they adjust.</p>
+
+<h3 id="s21-4">21.4 Grid overlay</h3>
+<p>A separate <strong>overlay layer</strong> the user can toggle on/off and adjust opacity for. Two modes:</p>
+<ul>
+  <li><strong>On top of the photo / test pattern</strong> — fine orthogonal lines the user aligns against known straight features (door frames, horizons, architectural edges in the photo).</li>
+  <li><strong>Standalone</strong> — the full grid is the canvas, used as the reference in §21.3 option 2.</li>
+</ul>
+<p>Controls: <strong>toggle</strong>, <strong>opacity slider</strong>, and a <strong>spacing dropdown</strong> (fine / medium / coarse) for the grid line frequency.</p>
+
+<h3 id="s21-5">21.5 Calibrating each parameter</h3>
+<p>The four correction groups behave differently during calibration:</p>
+<table>
+  <thead><tr><th>Group</th><th>How the user calibrates</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Distortion</strong></td><td>Adjust k1/k2/k3 until grid lines in the photo / test pattern are perfectly straight. Distortion is the easiest to "see" against a grid.</td></tr>
+    <tr><td><strong>Vignetting</strong></td><td>Adjust strength + shape the falloff curve until corner brightness matches centre brightness on a uniform subject. The curve widget is the primary control here.</td></tr>
+    <tr><td><strong>Chromatic aberration</strong></td><td>Zoom in on high-contrast edges near the corners. Adjust R/B scale until the colour fringes disappear.</td></tr>
+    <tr><td><strong>Colour vignette</strong></td><td>Adjust hue + saturation + strength until the corners are colour-neutral.</td></tr>
+  </tbody>
+</table>
+<p>The user can work through the groups in any order. The Save button at the bottom commits the current values as a new profile point (or updates the existing one being edited).</p>
+
+<h3 id="s21-6">21.6 No-photo / no-lens state</h3>
+<p>Same principle as the node editor (§11.5): the user can author profile points with no photo loaded. In that case, the canvas shows the built-in grid pattern at a neutral focal length / aperture, and the user must set the (FL, aperture) explicitly in the right-panel settings before saving. No "sample image" concept — just the grid.</p>
+
+<h2 id="s22">22. Lens library &amp; management</h2>
+<p>The <strong>Lens Library Manager</strong> lives in the <strong>Lens module</strong> (entered from the Lens header, or from the Edit lens-correction panel's ⚙ menu which switches to Lens), separate from the per-photo panel in Edit.</p>
+
+<h3 id="s22-1">22.1 Layout</h3>
+<pre>┌──────────────────────────────────────────────────┐
+│  Lens Library                    [Import pack]  │
+│                                   [Export pack]  │
+│  [Search ───────────────────]   [+ New lens]    │
+│──────────────────────────────────────────────────│
+│  ▸ Canon RF 24-70mm f/2.8 L IS USM    12 pts    │
+│       serial 12345  ·  updated 2026-06-10        │
+│       ▸ 24mm  f/2.8  2026-06-01  test-chart      │   <- expandable
+│       ▸ 24mm  f/5.6  2026-06-01  test-chart      │     list of
+│       ▸ 35mm  f/2.8  2026-06-03  photo:DSC_0001  │     profile
+│       ▸ …                                          │     points
+│  ▸ Sony FE 50mm f/1.4 GM               3 pts     │
+│  ▸ Sigma 35mm f/1.4 DG DN Art          0 pts     │   <- empty lens
+│  …                                                │
+└──────────────────────────────────────────────────┘</pre>
+
+<h3 id="s22-2">22.2 Per-lens actions</h3>
+<ul>
+  <li><strong>Expand</strong> → show all profile points with their (FL, aperture) and source.</li>
+  <li><strong>Edit</strong> → open calibration for the closest point to the current photo, or a chosen point.</li>
+  <li><strong>Add profile point</strong> → open calibration with a blank new point at the current photo's (FL, aperture).</li>
+  <li><strong>Rename / change variant / change range</strong>.</li>
+  <li><strong>Duplicate</strong> (for "I bought a second copy of the same lens, calibrate separately").</li>
+  <li><strong>Delete</strong> — with confirm; warns if any photo currently uses it.</li>
+  <li><strong>Export pack</strong> — writes a JSON pack containing this lens (or all lenses — see §23).</li>
+</ul>
+
+<h3 id="s22-3">22.3 Per-profile-point actions</h3>
+<ul>
+  <li><strong>Edit</strong> → open calibration on this point.</li>
+  <li><strong>Duplicate</strong> (e.g. "duplicate at 35mm f/2.8 → set to 35mm f/4").</li>
+  <li><strong>Delete</strong> — with confirm.</li>
+  <li><strong>Inspect raw values</strong> → a popover showing the JSON for this point (Hole #28).</li>
+</ul>
+
+<h3 id="s22-4">22.4 Search &amp; filter</h3>
+<p>Filter-as-you-type across make + model + variant + notes. Lens entries that match show with all their points; non-matches collapse away. An empty search shows everything.</p>
+
+<h2 id="s23">23. Profile packs &amp; JSON format</h2>
+<p>Lens data can be <strong>exported as JSON packs</strong> and <strong>imported</strong> from packs. This is how communities share calibration data.</p>
+
+<h3 id="s23-1">23.1 Export</h3>
+<ul>
+  <li><strong>Per-lens export</strong> — one lens, all its points. File: <code>{lens-slug}.lenspack.json</code>.</li>
+  <li><strong>Whole-library export</strong> — all lenses, all points. File: <code>all-lenses.lenspack.json</code>.</li>
+  <li><strong>Selective multi-lens export</strong> — checkboxes in the library manager; file: <code>{n}-lenses.lenspack.json</code>.</li>
+</ul>
+
+<h3 id="s23-2">23.2 Import</h3>
+<ul>
+  <li>File picker accepts one or more <code>.lenspack.json</code> files.</li>
+  <li>For each lens in the pack, the app compares make + model + variant against the local library:
+    <ul>
+      <li><strong>No match</strong> → import as a new lens entry.</li>
+      <li><strong>Exact match</strong> (same make + model + variant) → merge profile points: points whose (FL, aperture) is new are added; existing points are left untouched unless the user picks "overwrite" or "merge newer-wins" (see Hole #29).</li>
+    </ul>
+  </li>
+  <li>Author and notes from the pack are preserved as metadata on the lens entry; users can see "sourced from hugh's pack, 2026-06-10".</li>
+</ul>
+
+<h3 id="s23-3">23.3 Pack provenance</h3>
+<p>Every pack carries an <code>author</code> field and per-point <code>calibratedFrom</code> + <code>notes</code>. The lens library surfaces this in the manager (§22) so users know where a profile came from. The point of a community is knowing which calibrations to trust.</p>
+
+<h3 id="s23-4">23.4 JSON pack format — top-level</h3>
+<pre>{
+  "format": "lens-profile-pack",
+  "version": 1,
+  "author": "hugh",
+  "exportedAt": "2026-06-25T14:30:00Z",
+  "notes": "Calibrated on DNG test charts, 2m subject distance.",
+  "lenses": [ /* LensEntry, see §23.5 */ ]
+}</pre>
+
+<h3 id="s23-5">23.5 JSON pack format — lens entry</h3>
+<pre>{
+  "id": "9b1c…",
+  "make": "Canon",
+  "model": "RF 24-70mm f/2.8 L IS USM",
+  "variant": "serial 12345",
+  "focalLengthRange": [24, 70],
+  "apertureRange": [2.8, 22],
+  "notes": "Sample 1, bought 2024-03.",
+  "profilePoints": [ /* ProfilePoint, see §23.6 */ ]
+}</pre>
+
+<h3 id="s23-6">23.6 JSON pack format — profile point</h3>
+<pre>{
+  "focalLength": 35,
+  "aperture": 2.8,
+  "distortion": {
+    "k1": -0.048,
+    "k2": 0.012,
+    "k3": 0.0,
+    "scale": 1.02
+  },
+  "vignetting": {
+    "strength": 0.42,
+    "curve": [
+      { "x": 0.0, "y": 1.00 },
+      { "x": 0.5, "y": 0.95 },
+      { "x": 0.8, "y": 0.78 },
+      { "x": 1.0, "y": 0.62 }
+    ],
+    "midpoint": 0.6,
+    "feather": 0.8
+  },
+  "chromaticAberration": {
+    "redScale": 0.0028,
+    "blueScale": -0.0021,
+    "feather": 0.6
+  },
+  "colourVignette": {
+    "strength": 0.18,
+    "hue": 120,
+    "saturation": 0.35,
+    "midpoint": 0.55,
+    "feather": 0.7
+  },
+  "calibratedFrom": "test-chart",
+  "notes": "Strong magenta in corners wide-open."
+}</pre>
+
+<h3 id="s23-7">23.7 Versioning</h3>
+<p>Format version is bumped on <strong>backward-incompatible</strong> changes only. The app refuses to import a pack whose version is higher than it understands, and warns (but accepts) on packs whose version is lower (best-effort load, missing fields use defaults). See Hole #30.</p>
+
+ <!-- ============ HOLES ============ -->
+<div class="hole-section" id="holes">
+<h2>Holes & missing info</h2>
+<p style="color:var(--muted)">Gaps, contradictions, and unspecified details found while compiling this spec. Severity: <span class="sev high">high</span> blocks v1; <span class="sev med">med</span> needs an answer before build; <span class="sev low">low</span> can wait.</p>
+
+<div class="hole-item">
+  <h4>#1 — Effect-node set for the palette <span class="sev high">high</span></h4>
+  <p>Built-in <em>sheets</em> are defined (Basic, Colour, HSL, Tone Curve, Detail), but the individual effect <em>nodes</em> available in the node palette to build custom sheets are not. What nodes ship in v1? (Exposure, Curves, Channel Mixer, Blend, HSL, Split Tone, Sharpen, Noise, Vignette, …?) The §13.3 palette lists categories but no contents. Without this, users can't build anything.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#2 — Free-param editing UX <span class="sev high">high</span></h4>
+  <p>When an effect-node param is <em>free</em> (not bound to a UI vertex), where/how is its value set inside the node editor? Options: inline field on the node body, a separate node-properties panel, double-click the node to open a param sheet. Not specified — and it's the most common authoring action.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#3 — UI vertex authoring details <span class="sev high">high</span></h4>
+  <p>§4/§11.3 say vertices support "custom label, custom range, reorder" but don't say <em>where</em> those are edited. Is there a vertex-properties panel? Inline edit on the UI node? How do you set a Dropdown/enum's option list? How do you define a Curve vertex's default curve? This is core to the killer feature.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#4 — Mask panel UI & creation <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §7.1–§7.3.</strong> The mask panel lives as a <strong>global | mask | crop</strong> tab switcher at the top of the Edit module's right panel. The mask tab contains a <strong>＋ New mask</strong> shape picker, a mask list with enable/name/type/actions, and the selected mask's edit list. Mask shape editing is triggered by an "Edit shape" action per mask, which activates the mask-drawing controls on the photo canvas.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#5 — Mask list management <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §7.2.</strong> The mask list supports multiple masks per photo, default names with inline rename, drag-to-reorder, duplicate, delete, and enable/disable toggles. Inverting and feathering are handled per mask shape in the shape-editing UI.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#6 — Main editor left/centre not specified <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §3:</strong> the Edit module has no left panel. The centre is a single photo canvas with a top toolbar (zoom dropdown + full-screen button). The right panel places the histogram at the very top, above the global/mask/crop tabs. The shared filmstrip and 4-way module switcher are defined in §14.2/§14.3.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#7 — Photo import / library / catalog <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §14.</strong> The Library module is now specified: a SQLite catalog (source of truth for photos, paths, metadata, edit lists, preview index), photos referenced in place (never copied), a 4-way Library | Edit | Nodes | Lens module switcher, a folder-mirroring source list + thumbnail grid + read-only metadata panel, a full import dialog (source folder, recursive, duplicate handling by path with optional content-hash, optional XMP read, progress + cancel), browse/select with multi-select, and missing-file/folder relink. Scope of this pass was import + browse + select; organising (albums, keywords, ratings) and batch operations are recorded as deferred in §14.8.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#8 — Multi-photo &amp; batch operations <span class="sev med">med</span> <span class="status deferred">deferred</span></h4>
+  <p>Can you select multiple photos and apply a sheet to all? Copy/paste edits between photos (Lightroom's "previous edit" / sync)? Paste a single sheet layer vs the whole stack? Not specified. <strong>Note:</strong> the multi-select model these operations need is now defined in §14.5; the batch operations themselves remain deferred (§14.8) and will be specced in a later pass.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#9 — Node-editor wiring interactions <span class="sev med">med</span></h4>
+  <p>Deferred earlier. Pan/zoom gestures, drag-to-connect from port to port, delete an edge, reconnect (drag endpoint vs redraw), multi-select nodes, copy/paste nodes, delete nodes, align/snap, keyboard modifiers. All unspecified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#10 — Pin × copy/link interaction <span class="sev med">med</span></h4>
+  <p>Pin = "global panel slot, stays visible across all photos; slider values stored per photo." But if a pinned sheet was added as a <em>copy</em> (per-photo), does the pinned slot show that one photo's copy, or the sheet file's defaults? And for a <em>linked</em> pinned sheet, do all photos share one slider-value set or per-photo values? The "stored per photo" clause conflicts with "linked = live to the file." Needs a clear rule.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#11 — Linked-sheet deletion / broken links <span class="sev med">med</span></h4>
+  <p>If a user deletes (or moves/renames) a sheet file from their folder, what happens to photos that link to it? Broken-link UI in the layer header? Auto-convert to copy? Greyed-out panel? Not specified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#12 — Linked-sheet versioning / migration <span class="sev med">med</span></h4>
+  <p>Editing a linked sheet updates all linked photos. What if v1 had a "Warmth" slider and v2 removes it — do photos that had a Warmth value break? Is there a migration path, a "frozen at last-compatible version" fallback, or just graceful degradation? Not specified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#13 — Built-in sheet duplication <span class="sev low">low</span></h4>
+  <p>Built-ins are locked (not editable), but can a user <em>duplicate</em> a built-in to start a custom sheet from it ("Duplicate Basic → tweak")? Natural workflow; currently unaddressed. The header ops in §8 (Save As / Duplicate) apply to the open sheet — does "Duplicate a locked built-in" produce an unlocked copy?</p>
+</div>
+
+<div class="hole-item">
+  <h4>#14 — Curve / Color / Dropdown control rendering <span class="sev low">low</span></h4>
+  <p>A Curve vertex shows in the main panel as an editable curve widget — points? Bezier? RGB vs luminance? A Color vertex — swatch + picker (RGB/HSV/hex/native OS)? A Dropdown — how are its options defined in the node editor? All unspecified but low-risk to fill in later.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#15 — Free-param visibility in main editor <span class="sev low">low</span></h4>
+  <p>If a param is free, is its value shown anywhere in the main editor, or only inside the node editor? Probably the latter (only bound controls surface), but worth confirming so users aren't confused why a sheet "does something" they can't see a slider for.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#16 — Sheet library manager <span class="sev low">low</span></h4>
+  <p>§13.2 (header ops) and §8 cover the sheet's own header operations (Save, Save As, Rename, Duplicate, Delete) applied to the currently open sheet. But there's no way to manage sheets you're <em>not</em> currently editing (rename/delete/duplicate/categorise/organise) except by opening each one. A small library manager is implied but unspecified — the lens library manager (§22) is the analogue to copy.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#17 — Reorder-handle scope <span class="sev low">low</span></h4>
+  <p>§5 says "Reorder handle — drag within the Custom Edits section." §6 says customs always display at the bottom. Confirm: the handle cannot drag a custom above a built-in in the panel (only reorders within the custom section), and phase is what decides actual pipeline position. Worth a sentence to prevent confusion.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#18 — Nested sheets / sheet-as-node <span class="sev low">low</span></h4>
+  <p>Can a sheet reference another sheet as a node (nested sheets / sub-graphs)? §6 chose "stacked layers, not master graph with sub-graphs," which implies no — but it's a natural power-user feature. Confirm "no nested sheets in v1" explicitly.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#19 — Sheet name collisions <span class="sev low">low</span></h4>
+  <p>Two sheets with the same display name in the folder — how does the dropdown disambiguate (show filename? author? timestamp)? What happens on duplicate save?</p>
+</div>
+
+<div class="hole-item">
+  <h4>#20 — Error states <span class="sev low">low</span></h4>
+  <p>When a node fails (bad param values, unsupported bit depth, evaluation error), what does the user see? Red node? Warning badge? Fallback to last good output? Not specified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#21 — Keyboard shortcuts <span class="sev low">low</span></h4>
+  <p>None defined. At minimum: node-editor toggle, fit-view, delete selection, undo/redo, add-node quick-search. Can wait.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#22 — Slider tooltips & value display <span class="sev low">low</span></h4>
+  <p>Hover a slider in the main editor — show current value? Range? Unit? Lightroom shows value on hover + while dragging. Confirm we match.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#23 — Phase naming vs built-in contents <span class="sev low">low</span></h4>
+  <p>Phase bucket is "After exposure correction" but the built-in there is "Basic" which does Exposure <em>and</em> Contrast/Highlights/Shadows/Whites/Blacks. Minor naming mismatch — "After Basic" might read clearer than "After exposure correction." Cosmetic but worth aligning.</p>
+</div>
+
+<h3 class="lens" style="margin-top:28px">Lens Corrector holes</h3>
+
+<div class="hole-item">
+  <h4>#24 — Unknown-lens state in the panel <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §18.3.</strong> When Auto from EXIF is on and no lens profile file matches, the dropdown shows empty / "Unknown lens — create one?"; the user can pick an existing file manually or hit <strong>+ New</strong> to switch to the Lens module and create a matching profile. The three original candidates (empty-state CTA, pre-filled dropdown, generic banner) collapse to the chosen one.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#25 — Multiple matches on LensMake + LensModel <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §19.2 step 3.</strong> If multiple lens entries match <code>LensMake</code> + <code>LensModel</code> and no <code>LensSerialNumber</code> disambiguates, the app prompts the user to pick. Remaining detail (whether and how the choice is remembered per-photo) is implementation polish, not a blocking gap.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#26 — Missing EXIF fallback <span class="sev high">high</span> <span class="status partial">partial</span></h4>
+  <p><strong>Partly closed by §19.3:</strong> the corrector falls back to manual mode and shows a "EXIF incomplete — choose lens and (FL, aperture) manually" notice. Remaining unspecified: whether Auto is explicitly disabled (vs silently ignored), the exact shape of the two (FL, aperture) numeric inputs in the compact Edit panel (§18.1 currently shows only Distort + Vignette sliders), and whether the correction then uses the closest profile point exactly or still interpolates from the manual coordinate. (Cross-referenced from §19.3 / §18.1.)</p>
+</div>
+
+<div class="hole-item">
+  <h4>#27 — Out-of-range visual treatment <span class="sev med">med</span></h4>
+  <p>When the photo's (FL, aperture) is outside the convex hull of profile points (§19.6), the user should see a "Far from calibration" badge on the panel. Confirm the badge's colour, position, and tooltip ("Nearest point is at 35mm f/2.8; you are at 200mm f/5.6 — consider adding a profile point here").</p>
+</div>
+
+<div class="hole-item">
+  <h4>#28 — Profile-point raw-value inspect <span class="sev med">med</span> <span class="status partial">partial</span></h4>
+  <p><strong>Partly closed by §22.3.</strong> The per-point "Inspect raw values" action opens a popover showing the JSON for that point. Remaining unspecified: whether the popover is explicitly read-only (no inline edit), and whether it has a "Copy to clipboard" button (useful for debugging and for power users who hand-edit packs).</p>
+</div>
+
+<div class="hole-item">
+  <h4>#29 — Pack-import conflict policy <span class="sev med">med</span></h4>
+  <p>Conflicts on overlapping (FL, aperture) points within an "exact match" still need a single, settled rule. §23.2 currently offers "overwrite" or "merge newer-wins" as user choices; the earlier draft here proposed a per-point prompt ("keep local" / "use imported" / "skip", default skip to preserve local work). These are not the same UX. Pick one before build and align §23.2 with this entry. (Cross-referenced from §23.2.)</p>
+</div>
+
+<div class="hole-item">
+  <h4>#30 — Pack format versioning policy <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §23.7.</strong> Format version is bumped only on backward-incompatible changes. The app refuses to import a pack whose version is higher than it understands (clear error), and warns but accepts on a lower version (best-effort load, missing fields use defaults). No automatic migration in v1.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#31 — Pipeline interaction with "First / at start" customs <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §6.1.</strong> Lens correction is stage 0, ahead of all customs including phase=first (stage 1). A custom sheet with phase=first still runs <em>after</em> lens correction. Phase choice cannot skip lens correction — only the corrector panel's Enable toggle (§18.2) can bypass it.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#32 — Coverage heatmap resolution <span class="sev med">med</span></h4>
+  <p>§18.1 / §19.7 describe the coverage heatmap, which lives in the Lens module (not in the compact Edit panel). Confirm: the cells are binned (e.g. one cell per (f-stop × 5mm FL bin)), not continuous. The "current photo" cell is highlighted. Hovering a cell shows the count of profile points in that bin.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#33 — Vignetting curve interpolation across points <span class="sev med">med</span></h4>
+  <p>The vignetting curve (§17.4) is a control curve — it has its own point list. When interpolating between two profile points at different (FL, aperture), the curves have potentially different point counts. Confirm: interpolation samples each curve at a fixed set of x-values (e.g. 0, 0.1, 0.2, …, 1.0), linearly interpolates the y-values, and reconstructs a curve from the combined samples.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#34 — Per-photo override storage schema <span class="sev low">low</span></h4>
+  <p>§20.3 says per-photo overrides live on photo edit metadata, not in the lens entry. Confirm the storage shape: a flat key/value object keyed by "&lt;lens-id&gt;.&lt;parameter&gt;", e.g. <code>"9b1c…vignetting.strength": 0.05</code>. Resolves cleanly with the photo's reference to the active lens at apply time.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#35 — Calibration undo <span class="sev low">low</span></h4>
+  <p>§9 defines per-sheet undo. Lens correction is not a sheet — confirm: per-photo slider changes in the panel follow the main editor's undo stack (i.e. undo/redo in the main editor undoes lens-corrector slider drags on the active photo). Calibration-screen edits (adding/editing a profile point) get their own undo inside the calibration screen, and committing the point is a single undoable step in the library.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#36 — Disabled Auto-detect behaviour <span class="sev low">low</span></h4>
+  <p>When the user turns off "Auto from EXIF", the panel should expose manual (FL, aperture) inputs. Confirm: those inputs persist as per-photo overrides (§20), so the user can deliberately assign a non-EXIF (FL, aperture) to a photo (e.g. scanned film where the photographer knows the lens used).</p>
+</div>
+
+<div class="hole-item">
+  <h4>#37 — Calibration against a non-current photo <span class="sev low">low</span></h4>
+  <p>§21.3 option 1 uses "the loaded photo". Confirm: calibration can also be run against any other photo the user picks (e.g. "I have a dedicated test-chart shot from yesterday — let me calibrate against that"). A simple file picker in the calibration screen suffices; the loaded photo remains unchanged.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#38 — Pack-author display <span class="sev low">low</span></h4>
+  <p>§23.3 says the library surfaces the pack's <code>author</code>. Confirm the display: in the lens library manager (§22), the lens entry shows a small attribution line ("profiles sourced from hugh, 2026-06-10") — not a modal, not a banner, just a quiet line under the lens name.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#39 — Per-parameter enable toggles within the corrector <span class="sev low">low</span></h4>
+  <p>Should each of the four correction groups (Distortion / Vignetting / CA / Colour Vignette) have its own enable toggle, in addition to the Edit panel's global On/Off? The Edit panel (§18) no longer exposes the four groups — only Distort + Vignette sliders — so per-group enables would live in the <strong>Lens module</strong> (on the profile / calibration screen, §21), letting the user bake "distortion on, CA off" into a profile. Confirm location and whether a per-group on/off is stored on the profile file vs applied per-photo.</p>
+</div>
+
+</div>
+
+</main>
+</div>
+</body>
+</html>

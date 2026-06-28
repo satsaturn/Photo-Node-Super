@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Editor — v1 Spec</title>
+<style>
+  :root {
+    --bg: #1a1a1f;
+    --panel: #232329;
+    --panel2: #2c2c34;
+    --text: #e8e8ec;
+    --muted: #9a9aa4;
+    --accent: #6ea8ff;
+    --border: #3a3a44;
+    --warn: #ffb454;
+    --hole: #ff6b6b;
+    --future: #4ec9b0;
+    --t-image: #e53935;
+    --t-number: #3b82f6;
+    --t-color: #d4a017;
+    --t-curve: #22c55e;
+    --t-bool: #a855f7;
+    --t-enum: #f97316;
+    --c-terminal: #4b5563;
+    --c-effect: #4a6fa5;
+    --c-math: #5a7a5a;
+    --c-ui: #7c5cbf;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 24px 0 8px; }
+  nav h2:first-child { margin-top: 0; }
+  nav a { display: block; color: var(--text); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  nav a:hover { background: var(--panel2); color: var(--accent); }
+  nav a.hole { color: var(--hole); }
+  nav a.future { color: var(--future); }
+  main { padding: 40px 48px 80px; max-width: 920px; }
+  main a { color: var(--accent); text-decoration: underline; }
+  main a:hover { color: #a8caff; text-decoration: underline; }
+  main a[href^="spec-"] { font-weight: 600; }
+  main a[href^="spec-"]:hover { color: #b8d4ff; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .subtitle { color: var(--muted); margin: 0 0 32px; font-size: 14px; }
+  h2 { font-size: 22px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  h2:first-of-type { border-top: 0; padding-top: 0; }
+  h3 { font-size: 17px; margin: 24px 0 8px; color: var(--accent); }
+  h4 { font-size: 15px; margin: 16px 0 6px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 3px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; }
+  pre { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; font-family: "SF Mono", Consolas, monospace; font-size: 13px; line-height: 1.4; color: var(--text); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(255,255,255,0.2); }
+  .swatch.round { border-radius: 50%; }
+  .swatch.square { border-radius: 2px; }
+  .swatch.tri { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .swatch.diamond { border-radius: 0; transform: rotate(45deg); }
+  .swatch.hex { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); border-radius: 0; }
+  .callout { background: var(--panel); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin: 14px 0; }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.future { border-left-color: var(--future); background: rgba(78,201,176,0.06); }
+  .hole-section { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.3); border-radius: 8px; padding: 8px 20px 16px; margin-top: 24px; }
+  .hole-section h2 { border-top: 0; color: var(--hole); }
+  .hole-item { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--hole); border-radius: 4px; padding: 10px 14px; margin: 10px 0; }
+  .hole-item h4 { margin: 0 0 4px; color: var(--hole); font-size: 14px; }
+  .hole-item .sev { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .sev.high { background: #c0392b; color: #fff; }
+  .sev.med { background: #d68910; color: #fff; }
+  .sev.low { background: #2e86c1; color: #fff; }
+  .status { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+  .status.resolved { background: #1e7e34; color: #fff; }
+  .status.moved { background: var(--future); color: #fff; }
+  .deferred { color: var(--muted); font-style: italic; }
+  .toc-num { color: var(--muted); margin-right: 6px; }
+  strong { color: #fff; }
+  em { color: var(--muted); }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; }
+    main { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <h2>v1 Spec</h2>
+  <a href="#s1"><span class="toc-num">1</span>Core concept</a>
+  <a href="#s2"><span class="toc-num">2</span>Terminology</a>
+  <a href="#s3"><span class="toc-num">3</span>Main editor layout</a>
+  <a href="#s4"><span class="toc-num">4</span>UI node & controls</a>
+  <a href="#s5"><span class="toc-num">5</span>Layer header controls</a>
+  <a href="#s6"><span class="toc-num">6</span>Pipeline execution</a>
+  <a href="#s7"><span class="toc-num">7</span>Node editor (Nodes)</a>
+  <a href="#s8"><span class="toc-num">8</span>History / undo</a>
+  <a href="#s9"><span class="toc-num">9</span>Deferred</a>
+  <a href="#s10"><span class="toc-num">10</span>Node graph layout</a>
+  <a href="#s11"><span class="toc-num">11</span>Colour-coding</a>
+  <a href="#s12"><span class="toc-num">12</span>Node editor layout</a>
+  <a href="#s13"><span class="toc-num">13</span>App shell & Library</a>
+  <a href="#s14"><span class="toc-num">14</span>Software stack</a>
+  <a href="#s15"><span class="toc-num">15</span>Settings (v1 stub)</a>
+  <a href="#s16"><span class="toc-num">16</span>Future extensions</a>
+  <a href="#holes" class="hole">Holes</a>
+</nav>
+<main>
+
+<h1>Photo Editor — v1 Spec</h1>
+<p class="subtitle">The active build target. v1 is a personal project — no installer, no distribution, one user. This spec is self-contained. The original combined spec lives in <a href="spec.html">spec.html</a> (historical reference). Each deferred feature has its own extension spec, listed in <a href="#s16">§16</a>.</p>
+
+<div class="callout warn">
+  <strong>v1 scope summary.</strong> Library (basic: import + grid + filmstrip only) + Edit (global edit list only; mask and crop tabs are disabled placeholders) + Nodes (full authoring). The Lens tab in the header is a disabled placeholder. A <strong>gear icon</strong> in the header opens an empty Settings dialog (§15). Custom sheets are <strong>linked-only</strong> (no copy snapshot, no copy/link prompt). The canonical mockup for the Edit module view is <code>docs/mockups/final-mockup.html</code>; other modules share the same shell, header, and filmstrip but have their own module bodies.
+</div>
+
+<h2 id="s1">1. Core concept</h2>
+<p>A Lightroom-style non-destructive photo editor where every edit group is a <strong>node sheet</strong> — a saved node graph. The key differentiator: each sheet contains a <strong>UI node</strong> whose vertices <em>are</em> the controls shown in the main editor, and each vertex pushes its value to every node parameter wired to it — so <strong>one slider can drive many nodes</strong>.</p>
+
+<h2 id="s2">2. Terminology</h2>
+<ul>
+  <li><strong>Node sheet / sheet</strong> — a saved node-graph file in the user's sheets folder. Reusable. Has a <strong>phase</strong> property (see §6).</li>
+  <li><strong>Layer</strong> — an instance of a sheet placed into an edit list (global or mask).</li>
+  <li><strong>UI node</strong> — special node in a sheet; its vertices are the user-facing controls.</li>
+  <li><strong>Vertex</strong> — one control on the UI node; its value flows out along all connected edges.</li>
+  <li><strong>Edit list</strong> — an ordered container of layers. Two kinds: the <strong>global edit list</strong> (one per photo) and each <strong>mask's edit list</strong> (deferred — masks are not in v1; see <a href="spec-masks.html">spec-masks</a>). Same structure & rules for both.</li>
+  <li><strong>Built-in sheet</strong> — a locked sheet shipped with the app (graph not user-editable). Defines phase landmarks globally.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-lens.html">spec-lens</a>:</strong> the "built-in edit" term (a non-sheet entry like Lens Correction) is not used in v1 — the Lens Correction built-in slot is reserved/empty in v1.
+</div>
+
+<h2 id="s3">3. Main editor layout</h2>
+<p>The Edit module has no left panel. The full centre is a single photo canvas showing the current-result view. No before/after in v1 (§9). The module view follows the v1 visual language described in §11 — light grey canvas with a grain texture, dark UI surfaces floating on top, 12px gaps between the image and every floating element.</p>
+<ul>
+  <li><strong>Top toolbar</strong> — zoom dropdown (Fit, 25%, 50%, 100%, 200%) + <strong>recenter</strong> button (crosshair icon; refits the image to the current available canvas area — the only way to recover the default fit after manual pan/zoom) + full-screen button.</li>
+</ul>
+
+<h3>Right panel — two-card floating layout</h3>
+<p>The right side of the Edit module holds two <strong>independently-positioned cards</strong> stacked vertically: a <strong>histogram card</strong> on top and an <strong>edit-panel card</strong> below it. Both float over the canvas, and the 12px gap rule (§3.1) is honoured at every resize.</p>
+<ul>
+  <li><strong>Histogram card</strong> — per-channel + luminance, read-only. Two-box structure: a small header pill labelled "HISTOGRAM" and a dark canvas showing the curve. Resizable height 130–360px via a bottom handle; the edit-panel card's top handle drags the histogram's top edge.</li>
+  <li><strong>Edit-panel card</strong> — tabbed container with three tabs: <strong>global</strong> (active in v1), <strong>mask</strong> and <strong>crop</strong> (disabled placeholders, greyed out with a "coming in a future version" tooltip). The <strong>global</strong> tab shows the global edit list for the current photo. Top→bottom = visual order within the list.</li>
+  <li>Built-in edits always present, fixed visual order among themselves (Lens Correction → Basic → Colour → HSL/Mix → Tone Curve → Detail), Lightroom-style. Not removable. <strong>The Lens Correction slot is reserved/empty in v1</strong> — it executes as identity until the Lens module ships (see <a href="spec-lens.html">spec-lens</a>). <strong>Visual list position ≠ execution order</strong> — see §6.</li>
+  <li><strong>Custom Edits section</strong> pinned at the bottom with a <strong>+</strong> button.</li>
+</ul>
+<p>Pressing <strong>+</strong> creates a custom layer header containing:</p>
+<ul>
+  <li><strong>New file</strong> button → authors a fresh sheet (opens node editor)</li>
+  <li><strong>Dropdown</strong> of existing sheets in the user's folder</li>
+  <li>Picking/creating fills the panel with that sheet's UI-node controls.</li>
+</ul>
+<p>In v1, the new layer is added as <strong>linked-only</strong> — no copy/link prompt is shown. See <a href="#s5">§5</a> for the trimmed layer header.</p>
+
+<h3 id="s3-1">3.1 Canvas &amp; panel interactions</h3>
+<p>The Edit module view is interactive — the image, the right column, the histogram, the edit panel, and the filmstrip all have drag-to-resize and (for the image) drag-to-pan + wheel-to-zoom gestures. Bounds, gaps, and behaviour are documented here so the build has a single reference.</p>
+<ul>
+  <li><strong>Image pan.</strong> Click-drag on the image moves it; cursor <code>grab</code> → <code>grabbing</code>. Implementation uses <code>transform-origin: 0 0</code> and a <code>translate(x,y) scale(s)</code> transform; the initial cursor offset is captured on mousedown to avoid jitter.</li>
+  <li><strong>Image zoom.</strong> Mouse wheel over the image, 1.1× per tick, clamped 0.05–20×. Zoom centres on the cursor — the point under the cursor stays stationary in image space. Default fit never scales the image up (fit scale ≤ 1).</li>
+  <li><strong>Fit-to-canvas.</strong> Computes the available rectangle from the live <code>getBoundingClientRect()</code> of the toolbar (top boundary), right column (right boundary), filmstrip (bottom boundary), and a 12px gap from the left edge; centres the image within that rectangle. Called on initial load and on Recenter.</li>
+  <li><strong>Right column width.</strong> Draggable via a left-edge handle on the right column. Clamped 240–640px. Dragging also updates the filmstrip's <code>right</code> offset to <code>columnWidth + 24</code> to keep the 12px gap.</li>
+  <li><strong>Histogram height.</strong> Draggable via a bottom handle on the histogram card. Clamped 130–360px. The edit-panel card's top handle also resizes the histogram — it drags the histogram's top edge (uses <code>−dy</code> so drag-down makes the histogram shorter).</li>
+  <li><strong>Filmstrip height.</strong> Draggable via a top handle. Clamped 74–200px. Frame size scales with the strip height: <code>frameH = max(48, stripH − 26)</code>, <code>frameW = frameH × 1.5</code> (3:2 aspect maintained). Minimum frame height 48px.</li>
+  <li><strong>Filmstrip right handle.</strong> A secondary control for the right column's width (same 240–640 clamp, same <code>columnWidth + 24</code> formula for the filmstrip's right offset). The right column's own left handle and the filmstrip's right handle are equivalent — drag either to resize the right column.</li>
+  <li><strong>12px gap rule.</strong> The image never touches any floating element. Fit-to-canvas and every resize gesture honour the 12px gap; the right column's left edge sits 12px to the right of the image, the toolbar's bottom edge sits 12px above it, and the filmstrip's top edge sits 12px below it.</li>
+</ul>
+<h4>Z-stack</h4>
+<ul>
+  <li><strong>z-0</strong> — grain overlay (fixed, pointer-events none).</li>
+  <li><strong>z-1</strong> — main canvas / image.</li>
+  <li><strong>z-2</strong> — right column, filmstrip.</li>
+  <li><strong>z-3</strong> — header, toolbar, every resize handle.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred:</strong>
+  <ul>
+    <li>The <strong>crop tab</strong> (geometry controls) → <a href="spec-crop.html">spec-crop</a>.</li>
+    <li>The <strong>mask tab</strong> (mask list + mask edit list) → <a href="spec-masks.html">spec-masks</a>.</li>
+    <li>The <strong>copy/link prompt</strong> on add + copy snapshots + Pin → <a href="spec-copy-link.html">spec-copy-link</a>.</li>
+  </ul>
+</div>
+
+<h2 id="s4">4. UI node & controls</h2>
+<ul>
+  <li>A vertex <strong>is</strong> a control. Control types: <strong>Number, Color, Curve, Boolean, Dropdown/enum</strong>.</li>
+  <li>Wire a vertex to one or more node params; the control's value is pushed to all of them (e.g. one "Warmth" slider feeding both Temperature and Tint).</li>
+  <li>Authoring controls per vertex: <strong>custom label, custom range, reorder</strong> within the panel.</li>
+  <li>Grouping = shared vertex (one vertex → one control driving N params). No separate sub-group mechanism.</li>
+  <li>Numeric conventions (Lightroom defaults): double-click value to type, double-click label to reset, Alt-drag for fine adjust.</li>
+</ul>
+
+<h2 id="s5">5. Layer header controls</h2>
+<p>Every layer in v1 exposes in its header:</p>
+<ul>
+  <li><strong>Enable/bypass toggle</strong> — off = identity passthrough (Image-In → Image-Out, controls ignored).</li>
+  <li><strong>Reorder handle</strong> — drag within the Custom Edits section (sets execution order within a phase bucket — see §6).</li>
+  <li><strong>Edit</strong> button → opens the node editor for that sheet.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-copy-link.html">spec-copy-link</a>:</strong>
+  <ul>
+    <li><strong>Sheet-file picker</strong> — dropdown to swap which file this layer points to. In v1 a layer is permanently linked to one sheet; to swap, remove the layer and re-add.</li>
+    <li><strong>Pin</strong> icon → global panel slot (stays visible across all photos &amp; restarts; slider values still stored per photo).</li>
+  </ul>
+</div>
+
+<h2 id="s6">6. Pipeline execution order</h2>
+<p>Customs always <em>display</em> at the bottom, but execution is by <strong>phase</strong> — a property of the sheet file. Four phase buckets, with built-ins defining the boundaries:</p>
+<table>
+  <thead><tr><th>Order</th><th>Bucket</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td><strong>Lens correction</strong></td><td><em>Reserved in v1 — identity passthrough.</em> Lens Correction built-in slot ships empty; the Lens module and its profile files are deferred (see <a href="spec-lens.html">spec-lens</a>).</td></tr>
+    <tr><td>1</td><td><strong>Crop</strong></td><td><em>Deferred in v1 — identity passthrough.</em> Crop / straighten / flip → <a href="spec-crop.html">spec-crop</a>.</td></tr>
+    <tr><td>2</td><td><strong>First / at start</strong></td><td>customs with phase=first</td></tr>
+    <tr><td>3</td><td>(built-in)</td><td><strong>Basic</strong> — Exposure, Contrast, Highlights, Shadows, Whites, Blacks</td></tr>
+    <tr><td>4</td><td><strong>After exposure correction</strong></td><td>customs with phase=after-exposure</td></tr>
+    <tr><td>5</td><td>(built-in)</td><td><strong>Colour</strong> (Temp/Tint/Vibrance/Saturation), <strong>HSL / Colour Mix</strong>, <strong>Tone Curve</strong></td></tr>
+    <tr><td>6</td><td><strong>After colour</strong></td><td>customs with phase=after-colour</td></tr>
+    <tr><td>7</td><td>(built-in)</td><td><strong>Detail</strong> — Sharpen, Luminance + Colour Noise</td></tr>
+    <tr><td>8</td><td><strong>At end</strong></td><td>customs with phase=at-end</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li><strong>Tie-break within a bucket:</strong> panel position within the Custom Edits section (drag to reorder = sets execution order among same-phase sheets).</li>
+  <li>Built-ins are fixed in both panel and pipeline; their positions <em>are</em> the phase landmarks.</li>
+  <li>The 4 buckets exist in <em>every</em> edit list even if a built-in is absent — an empty slot just means its bucket has no built-in; customs still run in bucket order.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-copy-link.html">spec-copy-link</a>:</strong> phase-lock-on-file (a linked layer's phase is locked to the file) and copy-vs-link phase-freeze semantics. In v1 all layers are linked-only with no copy snapshot, so phase is always the file's phase — no freeze complexity.
+</div>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-lens.html">spec-lens</a>:</strong> §6.1 Lens-correction pipeline integration (lens correction as atomic stage 0 with interpolation/edge cases). v1 ships with the Lens Correction bucket as identity.
+</div>
+
+<h2 id="s7">7. Node editor (authoring) — the Nodes section</h2>
+<ul>
+  <li><strong>A header section</strong> (Nodes), not a full-screen toggle inside Edit. Entered from the header, or via a layer's <strong>Edit</strong> button in the Edit module (switches to Nodes with that sheet loaded). Works with no photo loaded.</li>
+  <li>No-photo state: <strong>blank graph</strong>; header ops let you open an existing sheet or start new. Image-In shows nothing; thumbnails stay blank until the sheet is applied to a real photo. <strong>No sample-image concept exists.</strong></li>
+  <li>Canvas: <strong>per-node output thumbnails</strong> on each node body + <strong>main canvas shows final sheet output</strong> (on Image-Out).</li>
+  <li>Built-in sheets are locked — openable for inspection/thumbnail-scrub but graph not editable.</li>
+</ul>
+
+<h2 id="s8">8. History / undo</h2>
+<ul>
+  <li><strong>Per-sheet undo:</strong> each layer keeps its own undo stack (slider drags + graph edits for that sheet), not one global timeline.</li>
+</ul>
+
+<h2 id="s9">9. Deferred</h2>
+<h3>Editor</h3>
+<ul>
+  <li class="deferred">Before/after compare (v1 later).</li>
+</ul>
+<h3>Moved to extension specs</h3>
+<ul>
+  <li class="deferred">Crop tab (all geometry) → <a href="spec-crop.html">spec-crop</a>.</li>
+  <li class="deferred">Masks (all shapes) → <a href="spec-masks.html">spec-masks</a>.</li>
+  <li class="deferred">Lens Corrector subsystem (Lens module, profile files, calibration, packs) → <a href="spec-lens.html">spec-lens</a>.</li>
+  <li class="deferred">Copy snapshots, sheet-file picker, Pin, linked-sheet versioning/broken-link handling → <a href="spec-copy-link.html">spec-copy-link</a>.</li>
+  <li class="deferred">GPU/WebGPU renderer abstraction → <a href="spec-gpu.html">spec-gpu</a>.</li>
+  <li class="deferred">Windows shell integration (Open-with verb, Explorer drag-drop recursion) → <a href="spec-windows.html">spec-windows</a>.</li>
+  <li class="deferred">Settings UI (themes, density, storage, performance, keyboard, defaults, EXIF display, workspace prefs) → <a href="spec-settings.html">spec-settings</a>. v1 ships only the gear icon + empty dialog stub (§15).</li>
+</ul>
+<h3>Library module (moved to <a href="spec-library.html">spec-library</a>)</h3>
+<ul>
+  <li class="deferred">Albums / collections / smart collections.</li>
+  <li class="deferred">Keywords / tags / ratings / flags / colour labels.</li>
+  <li class="deferred">Faces / people; GPS / map view.</li>
+  <li class="deferred"><strong>Batch &amp; multi-photo operations</strong> — apply a sheet to many photos, copy/paste edits, Lightroom's "previous edit" / sync.</li>
+  <li class="deferred">Advanced filters: by date range, camera, lens, focal length, ISO, flag/rating (once those exist).</li>
+  <li class="deferred">Folder-watch / auto-import.</li>
+  <li class="deferred">Tethered capture.</li>
+  <li class="deferred">Editable metadata / IPTC editing.</li>
+  <li class="deferred">Multi-catalog support / catalog switching / catalog backup &amp; restore UI.</li>
+  <li class="deferred">Missing-file &amp; folder relink.</li>
+  <li class="deferred">Duplicate detection by content.</li>
+  <li class="deferred">XMP sidecar read on import / write on demand.</li>
+  <li class="deferred">Source-tree folder list, sort dropdown, filename search, multi-select, metadata panel.</li>
+</ul>
+
+<h2 id="s10">10. Node graph layout</h2>
+<p>A sheet is a single canvas holding <strong>two coexisting planes</strong>, distinguished by edge type/colour.</p>
+
+<h3>10.1 Image plane (edges carry <em>Image</em>)</h3>
+<ul>
+  <li><strong>Image-In</strong> — terminal source node. Represents the photo arriving at this sheet's phase. Shows the input image as its on-node thumbnail.</li>
+  <li><strong>Effect nodes</strong> — each has an Image-In port, an Image-Out port, plus param ports. The chain may branch and merge (e.g. split into a luminance chain + a colour chain, recombine via a Blend node).</li>
+  <li><strong>Image-Out</strong> — terminal sink node. The sheet's final result; its thumbnail is what the main canvas displays.</li>
+  <li><strong>Arity:</strong> exactly one Image-In and one Image-Out per sheet (v1).</li>
+  <li><strong>Topology:</strong> acyclic (DAG) — non-destructive editing is feed-forward.</li>
+</ul>
+
+<h3>10.2 Control plane (edges carry <em>Number | Color | Curve | Bool | Enum</em>)</h3>
+<ul>
+  <li><strong>UI node</strong> — zero or one per sheet (zero = fixed transform, no controls). Its vertices are the controls shown in the main panel. Each vertex is typed. <strong>A vertex is the source of its value; the value pushes out</strong> along all connected edges to effect-node params. <em>No on/off switch on the UI node itself.</em></li>
+  <li><strong>Math/utility nodes</strong> (minimal v1 set): <code>Number constant</code>, <code>Math</code> (add/mul/sub/div), <code>Remap/clamp</code>, <code>Curve-from-number</code>, <code>Color constant</code>. These sit between UI vertices and effect params so a slider's value can be sculpted before reaching a node.</li>
+  <li><strong>Effect-node param ports are sinks.</strong> A param is either <em>bound</em> (driven by a UI vertex, possibly via math nodes) or <em>free</em> (uses the node's own default, set inside the node editor).</li>
+</ul>
+
+<h3>10.3 Binding gesture & semantics</h3>
+<ul>
+  <li>Drag from an effect node's param port to the UI node → creates/attaches a typed vertex matching the param's type and binds that param to it.</li>
+  <li>One vertex may bind multiple params (one control → many nodes).</li>
+  <li>A bound param ignores its node default; an unbound param uses its node default.</li>
+  <li>Vertex authoring controls (per §4): custom label, custom range, reorder within the panel.</li>
+</ul>
+
+<h3>10.4 Bypass</h3>
+<p>The layer's enable/bypass toggle (header, §5) makes the sheet act as identity: Image-In passes straight to Image-Out, controls and graph ignored.</p>
+
+<h3>10.5 Authoring with no photo</h3>
+<p>When the Nodes section is opened with no photo loaded, the graph starts <strong>blank</strong>; Image-In shows nothing (or a neutral placeholder), and effect-node thumbnails + the final canvas render stay blank until the sheet is applied to a real photo. Users author by topology and parameter values alone, then see results once the sheet is placed on a photo. No sample-image concept exists.</p>
+
+<h2 id="s11">11. Visual language</h2>
+<p>v1 has one theme (light grey with a grain texture) and a small set of geometry / typography conventions shared by every module view. The data-type palette and node-header tints in §11.1–11.3 then add colour-coding on top of this baseline for the node editor.</p>
+
+<h3>v1 default theme &amp; surface style</h3>
+<p>The v1 build target is a <strong>light grey theme with a grain texture</strong>.</p>
+<ul>
+  <li><strong>Canvas background</strong> — light grey <code>#e8e8ea</code> with a grain overlay (SVG <code>feTurbulence</code>, 240×240 tile, opacity 0.6, dark color matrix). The grain is the background; no separate background image.</li>
+  <li><strong>Floating pills</strong> (header, toolbar, tabs, icon cells) — solid <code>#2a2a30</code> (<code>--hdr-pill</code>). Used for chrome that sits above the canvas with no grain showing through.</li>
+  <li><strong>Floating cards</strong> (histogram, edit panel, section, custom layer, filmstrip) — translucent <code>rgba(42,42,48,0.75)</code> (<code>--panel</code>) so the grain shows through. 1px border in <code>--panel-border</code> (<code>#4a4a52</code>).</li>
+  <li><strong>Section header / tabs background</strong> — <code>--panel-section</code> (<code>#34343c</code>), one shade lighter than cards, for a clear header strip inside a card.</li>
+  <li><strong>Accent</strong> — <code>--accent</code> (<code>#6ea8ff</code>) for active tabs, the layer enable toggle, the slider knob, and the active filmstrip frame border.</li>
+</ul>
+
+<h4>Geometry convention</h4>
+<ul>
+  <li><strong>Pills</strong> (tabs, dropdowns, toolbar buttons, icon cells) — <code>border-radius: 999px</code>.</li>
+  <li><strong>Cards</strong> (histogram, edit panel, section, custom layer, filmstrip) — <code>border-radius: 12px</code>.</li>
+  <li><strong>No shadows</strong> anywhere in the v1 build.</li>
+</ul>
+
+<h4>Typography</h4>
+<ul>
+  <li>Font stack: <code>-apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif</code>.</li>
+  <li>Tabs pill: 11px, 0.08em letter-spacing, uppercase.</li>
+  <li>Section / layer header: 12px, weight 600, <code>--panel-text</code> on <code>--panel-section</code>.</li>
+  <li>Slider label: 11px <code>--panel-text-2</code>; slider value: 10px <code>--panel-text-3</code> with tabular-nums.</li>
+</ul>
+
+<h3>11.1 Data-type palette (edges + ports + UI vertices)</h3>
+<p>Colour applies to the <strong>wire</strong>, the <strong>port</strong> on a node, and — for the UI node — <strong>each vertex is tinted by the control type it exposes</strong>.</p>
+<table>
+  <thead><tr><th>Data type</th><th>Colour</th><th>Port shape</th></tr></thead>
+  <tbody>
+    <tr><td>Image</td><td><span class="swatch round" style="background:var(--t-image)"></span> Red</td><td>Circle</td></tr>
+    <tr><td>Number</td><td><span class="swatch round" style="background:var(--t-number)"></span> Blue</td><td>Circle</td></tr>
+    <tr><td>Color</td><td><span class="swatch square" style="background:var(--t-color)"></span> Gold / amber</td><td>Square</td></tr>
+    <tr><td>Curve</td><td><span class="swatch tri" style="background:var(--t-curve)"></span> Green</td><td>Triangle</td></tr>
+    <tr><td>Boolean</td><td><span class="swatch diamond" style="background:var(--t-bool)"></span> Purple</td><td>Diamond</td></tr>
+    <tr><td>Dropdown/enum</td><td><span class="swatch hex" style="background:var(--t-enum)"></span> Orange</td><td>Hexagon</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>Image wires rendered <strong>thicker</strong> than control wires for at-a-glance scan.</li>
+  <li>Hover any port/edge → tooltip with the type name.</li>
+</ul>
+
+<h3>11.2 Node-header tints (by category)</h3>
+<table>
+  <thead><tr><th>Node category</th><th>Header tint</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td><span class="swatch" style="background:var(--c-terminal)"></span> Terminal</td><td>Dark slate</td><td>Image-In, Image-Out</td></tr>
+    <tr><td><span class="swatch" style="background:var(--c-effect)"></span> Effect</td><td>Steel blue</td><td>Exposure, Curves, Channel Mixer, Blend</td></tr>
+    <tr><td><span class="swatch" style="background:var(--c-math)"></span> Math / utility</td><td>Grey-green</td><td>Number const, Math, Remap/clamp, Curve-from-number, Color const</td></tr>
+    <tr><td><span class="swatch" style="background:var(--c-ui)"></span> UI</td><td>Violet</td><td>UI node</td></tr>
+  </tbody>
+</table>
+
+<h3>11.3 Accessibility</h3>
+<p>Colour is never the sole signal: distinct port shapes (circle/square/triangle/diamond/hexagon) + hover type labels + the category header tint keep the graph legible for colour-blind users.</p>
+
+<h2 id="s12">12. Node editor layout</h2>
+<pre>┌──────────────────────────────┬─────────────────────┐
+│  [canvas toolbar]            │  Node sheet settings │  <- right top
+│──────────────────────────────│  (name, phase,       │
+│                              │   notes, author/ts)  │
+│                              │─────────────────────│
+│        Graph canvas          │                      │
+│   (Image-In/-Out, effect     │  Node palette        │  <- right bottom
+│    nodes, UI node, math;     │  (search +           │
+│    per-node thumbnails;      │   collapsible        │
+│    final output on Image-Out)│   categories)       │
+│                              │                      │
+└──────────────────────────────┴─────────────────────┘
+        draggable ⟷            draggable ⟷</pre>
+
+<h3>12.1 Left — canvas zone</h3>
+<ul>
+  <li><strong>Canvas toolbar:</strong> zoom in/out, fit-to-view, 1:1; <strong>thumbnail toggle</strong> (show/hide per-node output thumbnails).</li>
+  <li><strong>Graph canvas</strong> holds the two planes (image + control), per §10. Image-Out's thumbnail is the final sheet output shown on the main canvas when not in the node editor.</li>
+</ul>
+
+<h3>12.2 Right top — node sheet settings</h3>
+<ul>
+  <li><strong>Sheet name</strong> — editable; shown in the main-editor layer header and the sheet-file dropdown.</li>
+  <li><strong>Execution phase</strong> — dropdown: First / After exposure / After colour / At end (§6).</li>
+  <li><strong>Description / notes</strong> — free text; shown as a tooltip in the sheet-file dropdown so users recall what a saved sheet does.</li>
+  <li><strong>Author / last-saved timestamp</strong> — for managing a growing library.</li>
+  <li><strong>Header ops</strong> (from §7): Save, Save As, Rename, Duplicate, Delete — applied to the open sheet.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-copy-link.html">spec-copy-link</a>:</strong> the "Copy/Link default override" sheet setting (v1 has no copy, so no per-sheet override is needed).
+</div>
+
+<h3>12.3 Right bottom — node palette</h3>
+<ul>
+  <li><strong>Search box</strong> at the top — filter-as-you-type across node names.</li>
+  <li><strong>Collapsible category sections</strong> below: Terminals / Effects / Math-utility / UI.</li>
+  <li><strong>Add gesture:</strong> drag a node from the palette onto the canvas, OR click to drop it at the canvas centre / last-click position.</li>
+  <li>Categories collapse to save vertical space; search filters across all categories regardless of collapse state.</li>
+</ul>
+
+<h3>12.4 Resizing</h3>
+<ul>
+  <li>The canvas | right-panel vertical split is draggable.</li>
+  <li>The settings | palette split inside the right panel is also draggable.</li>
+  <li>Both remember their proportions across sessions.</li>
+</ul>
+
+<h2 id="s13">13. App shell & Library module</h2>
+<p class="subtitle">v1 Library scope: <strong>import + browse + select</strong> — the minimum to get photos into the app and pick one to edit. Everything else is deferred to <a href="spec-library.html">spec-library</a>.</p>
+
+<h3>13.1 Catalog & storage model</h3>
+<ul>
+  <li>A <strong>catalog</strong> (a SQLite file in app-local storage) is the source of truth for: the list of known photos, each photo's on-disk path, metadata (EXIF), the per-photo <strong>edit list</strong> (§2/§3, global), and the preview/thumbnail index.</li>
+  <li>Photo <strong>files stay on disk where the user put them</strong> — referenced in place, never copied on import. The catalog stores an absolute path plus a light identity tuple (file size + mtime) to detect moves/mismatches.</li>
+  <li><strong>Previews</strong> — one thumbnail and one standard preview per photo — are generated at import and cached in app-local storage (not as DB blobs). The full-resolution file is read on demand by the Edit module for canvas rendering.</li>
+  <li><strong>Edits live in the catalog DB</strong> as each photo's edit list. One catalog per user profile in v1; the DB file can be copied manually for backup (multi-catalog support is deferred — §9 / <a href="spec-library.html">spec-library</a>).</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-library.html">spec-library</a>:</strong> the optional content-hash duplicate-detection check, <strong>Write / Read XMP sidecars</strong>, and multi-catalog backup/restore UI.
+</div>
+
+<h3>13.2 Module switcher (Library | Edit | Nodes | Lens)</h3>
+<ul>
+  <li>A top-level <strong>Library | Edit | Nodes | Lens</strong> switcher sits at the top-right of the window (Lightroom-style). The four sections are <strong>peer modules</strong> in one app, switched via the header — none is nested inside another.
+    <ul>
+      <li><strong>Library</strong> — browse / import (§13.3).</li>
+      <li><strong>Edit</strong> — the photo editor from §3. Right panel = a tabbed container with <strong>global</strong>, <strong>mask</strong>, and <strong>crop</strong> tabs. Only <strong>global</strong> is active in v1; mask and crop are disabled placeholders. Centre = photo canvas.</li>
+      <li><strong>Nodes</strong> — the node editor (§7 / §12): the authoring tool for sheet files. Reached from the header, or from a layer's <strong>Edit</strong> button (switches to Nodes with that sheet loaded).</li>
+      <li><strong>Lens</strong> — <strong>disabled placeholder in v1.</strong> The lens-corrector tool (calibration / library / packs) is deferred to <a href="spec-lens.html">spec-lens</a>.</li>
+    </ul>
+  </li>
+  <li><strong>File relationship for custom sheets:</strong> a sheet file made in Nodes is referenced by a layer in Edit. In v1 the reference is <strong>linked-only</strong> (no copy snapshot). Edit never authors files — it consumes them.</li>
+  <li>Switching sections preserves the <strong>current photo</strong> and the <strong>current selection</strong>. Opening a photo in Edit = double-click in Library → switch to Edit with that photo loaded.</li>
+  <li><strong>Bottom filmstrip is shared</strong> across all four sections and shows the current source/selection; clicking a filmstrip frame loads that photo into the active section.</li>
+</ul>
+
+<h3 id="s13-2-1">13.2.1 Filmstrip behaviour</h3>
+<ul>
+  <li><strong>Height</strong> — user-resizable via a top handle on the strip, clamped 74–200px. Frame size scales with the strip height: <code>frameH = max(48, stripH − 26)</code>, <code>frameW = frameH × 1.5</code> (3:2 aspect maintained). Minimum frame height 48px.</li>
+  <li><strong>Right-edge handle</strong> — a secondary control for the right column's width (same 240–640 clamp as the right column's own left handle, see §3.1). Dragging it updates the filmstrip's <code>right</code> offset to <code>columnWidth + 24</code> to keep the 12px gap. The right column's left handle and the filmstrip's right handle are equivalent — drag either to resize the right column.</li>
+  <li><strong>Click a frame</strong> to set it as the active selection (singleton — only one frame is active at a time). The active frame gets the <code>--accent</code> border.</li>
+  <li><strong>Layout</strong> — outer container has <code>overflow: visible</code> (so the resize handles aren't clipped) and 12px radius; inner frame list has <code>overflow-x: auto, overflow-y: hidden</code> and matches the 12px radius so scroll corners stay rounded.</li>
+</ul>
+
+<h3>13.3 Library layout</h3>
+<pre>┌───────────────────────────────────────────────────┐
+│  [Import]                                         │  ← top toolbar
+├───────────────────────────────────────────────────┤
+│                                                   │
+│              Thumbnail grid                       │
+│   (adjustable thumb size,                         │
+│    double-click → Edit)                            │
+│                                                   │
+├───────────────────────────────────────────────────┤
+│              Filmstrip (shared with Edit)          │
+└───────────────────────────────────────────────────┘</pre>
+<ul>
+  <li><strong>Centre — thumbnail grid:</strong> adjustable thumbnail size, double-click → Edit. No sort, no search, no multi-select in v1.</li>
+  <li><strong>Top toolbar:</strong> Import button (§13.4) only.</li>
+  <li><strong>Bottom — filmstrip:</strong> shared with the Edit module (§13.2); the loaded/selected photo is highlighted.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-library.html">spec-library</a>:</strong>
+  <ul>
+    <li><strong>Left — source list</strong> (folder tree mirroring on-disk paths).</li>
+    <li><strong>Right — metadata panel</strong> (read-only EXIF display).</li>
+    <li><strong>Sort dropdown</strong>, <strong>filename search</strong>, <strong>multi-select</strong>.</li>
+  </ul>
+</div>
+
+<h3>13.4 Import flow</h3>
+<ul>
+  <li>The <strong>Import</strong> button (top toolbar) opens the import dialog.</li>
+  <li>Dialog fields:
+    <ul>
+      <li><strong>Source folder</strong> picker (a single root; a recursive checkbox is on by default).</li>
+      <li><strong>Candidate list</strong> — every supported image file under the root, each with an include checkbox (all on by default) and a small size/date preview.</li>
+      <li>Paths already in the catalog are shown greyed with an "already imported" badge and excluded by default.</li>
+    </ul>
+  </li>
+  <li><strong>Preview generation</strong> — one thumbnail and one standard preview are built per file at import.</li>
+  <li><strong>Progress</strong> — a progress bar with per-file status (EXIF scan → thumbnail → preview), a running count, and a <strong>Cancel</strong> button (cancel stops remaining files; already-imported files stay in the catalog).</li>
+  <li><strong>Supported formats</strong> — common still formats (JPEG, PNG, TIFF) plus camera RAW via the platform decoder. The exact format list and RAW coverage are implementation/stack and remain deferred (§9).</li>
+  <li>On completion the new photos appear in <strong>All Photos</strong>; the most-recently imported photo is selected.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-library.html">spec-library</a>:</strong>
+  <ul>
+    <li><strong>Duplicate detection by content</strong> (same-content-different-path → "duplicate" badge).</li>
+    <li><strong>Read edits from XMP sidecar</strong> checkbox on import.</li>
+  </ul>
+</div>
+
+<h3>13.5 Browse & select</h3>
+<ul>
+  <li><strong>Single select:</strong> click a thumbnail → loads it into the filmstrip selection; double-click → switches to Edit with that photo loaded.</li>
+  <li><strong>Keyboard:</strong> arrow keys move focus/selection in the grid; Enter opens in Edit; Esc clears the selection.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-library.html">spec-library</a>:</strong> multi-select (Ctrl/Cmd-click, Shift-click), filename search, sort (by Capture/Import/File name ±).
+</div>
+
+<h3>13.6 Relationship to the edit list & sheets</h3>
+<ul>
+  <li>The catalog is where each photo's <strong>edit list</strong> (global, §2/§3) is persisted. The Edit module reads and writes the edit list through the catalog; nothing about the edit list itself changes from §3–§7.</li>
+  <li><strong>Sheet files stay separate</strong> — they live in the user's sheets folder (§2) and are <em>not</em> part of the catalog. The catalog stores, for each layer in each photo's edit list: the sheet file path and its phase (§6). In v1 every layer is a <strong>link</strong> — no copy snapshot is stored.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-copy-link.html">spec-copy-link</a>:</strong> the linked-sheet broken-link / versioning UX (a linked layer whose sheet file is missing/moved shows a broken-link badge + relink).
+</div>
+
+<h2 id="s14">14. Software stack</h2>
+<p class="subtitle">Implementation details resolved for v1. <strong>v1 is a personal project that runs on Windows 10 21H2+ and Windows 11.</strong> No installer, auto-update, code signing, or distribution packaging is in scope. <strong>The stack (Electron, React, React Flow, better-sqlite3, libvips, LibRaw, SQLite) is cross-platform in principle, and a Linux port is a long-term personal goal &mdash; not scheduled, not committed.</strong> GPU acceleration is intentionally deferred; the architecture is designed so the renderer can be swapped in a later version without changing the UI, catalog, or saved edit data.</p>
+
+<h3>14.1 Desktop shell & UI</h3>
+<ul>
+  <li><strong>Electron</strong> — cross-platform desktop wrapper (Chromium + Node.js). Provides the native window, file-system access, and OS integration while the UI is built as a web app.</li>
+  <li><strong>React + TypeScript</strong> — the main UI framework for panels, sliders, the library grid, and the node editor.</li>
+  <li><strong>Tailwind CSS</strong> — utility-first styling.</li>
+</ul>
+
+<h3>14.2 Node graph canvas</h3>
+<ul>
+  <li><strong>React Flow</strong> — provides the node graph canvas, drag-to-connect wiring, pan/zoom, and per-node thumbnails. The visual language and data types in §11 map directly onto React Flow nodes and edges.</li>
+</ul>
+
+<h3>14.3 Catalog & storage</h3>
+<ul>
+  <li><strong>SQLite</strong> via <code>better-sqlite3</code> — one local catalog file per user profile, exactly as described in §13.1. Stores photo records, paths, metadata, edit lists.</li>
+  <li>Photo files remain referenced in place; previews are cached in app-local storage.</li>
+</ul>
+
+<h3>14.4 Image processing (v1)</h3>
+<ul>
+  <li><strong>Sharp</strong> (libvips bindings) — handles standard formats (JPEG, PNG, TIFF), resizing, colour adjustments, blending, curves, and export.</li>
+  <li><strong>LibRaw</strong> — decodes camera RAW files to a working image that Sharp can process.</li>
+  <li><strong>CPU-only in v1.</strong> No GPU acceleration in the first version; all effect math runs through Sharp on the CPU.</li>
+</ul>
+
+<h3>14.5 Rendering strategy</h3>
+<ul>
+  <li><strong>Two render paths:</strong>
+    <ul>
+      <li><strong>Fast preview path</strong> — operates on a downsampled copy of the image while the user is dragging a slider or scrubbing a control, so the UI feels responsive.</li>
+      <li><strong>Full-resolution path</strong> — operates on the full source image and is used for the idle editor view and 100% zoom. Triggered when the user releases a control.</li>
+    </ul>
+  </li>
+  <li>The main canvas always shows the best available render: full-res when idle, low-res only during active interaction.</li>
+  <li>100% pixel zoom displays a crop from the most recent full-resolution render.</li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-gpu.html">spec-gpu</a>:</strong> the renderer abstraction for future GPU support (WebGPU preferred, WebGL 2 fallback, native-addon option). Each effect node currently exposes <code>render(inputImage, params) → outputImage</code>; the abstraction that lets v2 swap in a GPU path without touching UI/catalog/saved data is detailed in <a href="spec-gpu.html">spec-gpu</a>.
+</div>
+
+<h3 id="s14-7">14.6 Personal-project build model</h3>
+<ul>
+  <li><strong>v1 is a personal project.</strong> The app runs from a local dev checkout (<code>npm start</code>) or a portable build folder produced by <code>npm run build</code> (or the Electron-builder <code>dir</code> target &mdash; produces an unpacked folder, not an installer). No installer, auto-update, code-signing, or distribution packaging is in scope.</li>
+  <li>If the project is ever released beyond the author's own machines, this section is the place to revisit installer choice, signing, and update strategy.</li>
+</ul>
+
+<h3 id="s14-8">14.7 Windows-specific concerns</h3>
+<ul>
+  <li><strong>High-DPI / per-monitor v2 scaling.</strong> Electron handles this natively; verify at 100%, 125%, 150%, 175%, and 200% scales, and across monitors with different scale factors (drag the window between them).</li>
+  <li><strong>File dialogs.</strong> Native IFileDialog via Electron's <code>dialog.showOpenDialog</code> / <code>showSaveDialog</code>. The app remembers the last-used folder per dialog type (Open, Import Folder, Export) under the catalog directory in the storage locations below.</li>
+  <li><strong>Path handling.</strong> The catalog stores canonical absolute paths; the importer strips any <code>\\?\</code> long-path prefix the OS may insert and normalises for comparison.</li>
+  <li><strong>Keyboard.</strong> Standard Windows shortcuts throughout: Ctrl+O, Ctrl+Shift+O, Ctrl+S, Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z, F1, F11, Esc. Alt-key mnemonics on menus. <strong>Win+Arrow</strong> snap layouts are handled by Windows natively; the app supports arbitrary window sizes from 800&times;600 up to maximised.</li>
+  <li><strong>Storage locations (Windows).</strong> Per the catalog model in §13.1:
+    <ul>
+      <li>Catalog DB: <code>%APPDATA%\Photo-Node-Super\catalog.sqlite</code> (roaming profile, per-user).</li>
+      <li>Preview cache and thumbnails: <code>%LOCALAPPDATA%\Photo-Node-Super\cache\</code>.</li>
+      <li>User-authored node sheets: <code>%APPDATA%\Photo-Node-Super\node-sheets\</code>.</li>
+      <li>Logs: <code>%LOCALAPPDATA%\Photo-Node-Super\logs\</code>.</li>
+    </ul>
+  </li>
+</ul>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-windows.html">spec-windows</a>:</strong>
+  <ul>
+    <li><strong>Explorer integration:</strong> "Open with Photo-Node-Super" shell verb registered for 12 image/RAW extensions; drag-drop from Explorer (single/multi-file/one-level folder recursion); plus the out-of-v1 list (thumbnail provider, preview handler, "Edit" context-menu verb, jump lists).</li>
+    <li><strong>Lens pack storage location</strong> (<code>%APPDATA%\Photo-Node-Super\lens-packs\</code>) — arrives with <a href="spec-lens.html">spec-lens</a>.</li>
+  </ul>
+</div>
+
+<h2 id="s15">15. Settings (v1 stub)</h2>
+<p>v1 ships a <strong>Settings button</strong> — a gear icon in the window header, immediately next to the 4-way <strong>Library | Edit | Nodes | Lens</strong> module switcher (§13.2). Clicking it opens a Settings modal/overlay.</p>
+<p>In v1 the Settings dialog is <strong>essentially empty</strong> — a short "Settings will arrive in a future version" message with a link to the planned categories. No functional settings ship in v1. The v1 defaults are baked in: the light grey theme with grain texture (see §11), the current panel density, the storage locations from §14.7, and the keyboard shortcuts from the same section.</p>
+<p>The gear is visible from day one so the framework is in place when the Settings UI is filled in.</p>
+<div class="callout future">
+  <strong>Deferred to <a href="spec-settings.html">spec-settings</a>:</strong> the full Settings UI — themes, UI density &amp; typography, storage &amp; catalog management, performance &amp; rendering, keyboard shortcuts editor, default phase / new-sheet preferences, EXIF / metadata display prefs, workspace &amp; window prefs. The extension spec lists each category as a one-line placeholder; none have depth yet and will be revisited later.
+</div>
+
+<h2 id="s16">16. Future extensions</h2>
+<p>Each deferred feature has its own self-contained extension spec. Open the file for full detail. Each extension opens with a "Depends on v1 §X" callout so the relationship is explicit.</p>
+<table>
+  <thead><tr><th>File</th><th>What it adds</th></tr></thead>
+  <tbody>
+    <tr><td><a href="spec-crop.html">spec-crop.html</a></td><td>The crop tab — geometry controls (aspect ratio, straighten, flip, reset).</td></tr>
+    <tr><td><a href="spec-masks.html">spec-masks.html</a></td><td>The mask tab — mask list + per-mask edit list, all shapes (radial, linear, brush, luminance, depth, subject).</td></tr>
+    <tr><td><a href="spec-lens.html">spec-lens.html</a></td><td>The Lens module + Lens Correction built-in — profile files, calibration, library, EXIF interpolation, JSON packs.</td></tr>
+    <tr><td><a href="spec-copy-link.html">spec-copy-link.html</a></td><td>Copy snapshots, sheet-file picker, Pin, linked-sheet broken-link / versioning, per-sheet Copy/Link default.</td></tr>
+    <tr><td><a href="spec-library.html">spec-library.html</a></td><td>Library extras — metadata panel, source tree, sort, search, multi-select, relink, duplicate detection, XMP, batch ops, albums/keywords/ratings.</td></tr>
+    <tr><td><a href="spec-gpu.html">spec-gpu.html</a></td><td>GPU renderer abstraction — WebGPU preferred, WebGL2 fallback, native-addon option.</td></tr>
+    <tr><td><a href="spec-windows.html">spec-windows.html</a></td><td>Windows shell integration — "Open with" verb, Explorer drag-drop, out-of-scope list.</td></tr>
+    <tr><td><a href="spec-settings.html">spec-settings.html</a></td><td>Settings UI — themes, UI density &amp; typography, storage &amp; catalog management, performance &amp; rendering, keyboard shortcuts editor, default phase / new-sheet preferences, EXIF / metadata display prefs, workspace &amp; window prefs. (Placeholder — no depth yet.)</td></tr>
+  </tbody>
+</table>
+
+<h2 id="holes">Holes & missing info</h2>
+<p style="color:var(--muted)">Gaps and unspecified details that affect v1. Severity: <span class="sev high">high</span> blocks v1; <span class="sev med">med</span> needs an answer before build; <span class="sev low">low</span> can wait. Holes #4, #5, #8, #10, #11, #12, and #24–#39 have been moved to the relevant extension specs (see <a href="#s16">§16</a>).</p>
+
+<div class="hole-item">
+  <h4>#1 — Effect-node set for the palette <span class="sev high">high</span></h4>
+  <p>Built-in <em>sheets</em> are defined (Basic, Colour, HSL, Tone Curve, Detail), but the individual effect <em>nodes</em> available in the node palette to build custom sheets are not. What nodes ship in v1? (Exposure, Curves, Channel Mixer, Blend, HSL, Split Tone, Sharpen, Noise, Vignette, …?) The §12.3 palette lists categories but no contents. Without this, users can't build anything.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#2 — Free-param editing UX <span class="sev high">high</span></h4>
+  <p>When an effect-node param is <em>free</em> (not bound to a UI vertex), where/how is its value set inside the node editor? Options: inline field on the node body, a separate node-properties panel, double-click the node to open a param sheet. Not specified — and it's the most common authoring action.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#3 — UI vertex authoring details <span class="sev high">high</span></h4>
+  <p>§4/§10.3 say vertices support "custom label, custom range, reorder" but don't say <em>where</em> those are edited. Is there a vertex-properties panel? Inline edit on the UI node? How do you set a Dropdown/enum's option list? How do you define a Curve vertex's default curve? This is core to the killer feature.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#6 — Main editor left/centre not specified <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §3:</strong> the Edit module has no left panel. The centre is a single photo canvas with a top toolbar (zoom dropdown + full-screen button). The right panel places the histogram at the very top, above the global/mask/crop tabs (mask and crop disabled in v1). The shared filmstrip and 4-way module switcher are defined in §13.2/§13.3.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#7 — Photo import / library / catalog <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §13.</strong> The Library module is now specified for v1: a SQLite catalog (source of truth for photos, paths, metadata, edit lists, preview index), photos referenced in place (never copied), a 4-way Library | Edit | Nodes | Lens module switcher (Lens disabled), a thumbnail grid + Import dialog (source folder, recursive, candidate checkboxes, progress + cancel) + shared filmstrip, browse/select with single-click + double-click-to-Edit + keyboard arrows. Scope of this pass was import + browse + select; everything else is deferred to <a href="spec-library.html">spec-library</a>.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#9 — Node-editor wiring interactions <span class="sev med">med</span></h4>
+  <p>Deferred earlier. Pan/zoom gestures, drag-to-connect from port to port, delete an edge, reconnect (drag endpoint vs redraw), multi-select nodes, copy/paste nodes, delete nodes, align/snap, keyboard modifiers. All unspecified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#13 — Built-in sheet duplication <span class="sev low">low</span></h4>
+  <p>Built-ins are locked (not editable), but can a user <em>duplicate</em> a built-in to start a custom sheet from it ("Duplicate Basic → tweak")? Natural workflow; currently unaddressed. The header ops in §7 (Save As / Duplicate) apply to the open sheet — does "Duplicate a locked built-in" produce an unlocked copy?</p>
+</div>
+
+<div class="hole-item">
+  <h4>#14 — Curve / Color / Dropdown control rendering <span class="sev low">low</span></h4>
+  <p>A Curve vertex shows in the main panel as an editable curve widget — points? Bezier? RGB vs luminance? A Color vertex — swatch + picker (RGB/HSV/hex/native OS)? A Dropdown — how are its options defined in the node editor? All unspecified but low-risk to fill in later.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#15 — Free-param visibility in main editor <span class="sev low">low</span></h4>
+  <p>If a param is free, is its value shown anywhere in the main editor, or only inside the node editor? Probably the latter (only bound controls surface), but worth confirming so users aren't confused why a sheet "does something" they can't see a slider for.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#16 — Sheet library manager <span class="sev low">low</span></h4>
+  <p>§12.2 (header ops) and §7 cover the sheet's own header operations (Save, Save As, Rename, Duplicate, Delete) applied to the currently open sheet. But there's no way to manage sheets you're <em>not</em> currently editing (rename/delete/duplicate/categorise/organise) except by opening each one. A small library manager is implied but unspecified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#17 — Reorder-handle scope <span class="sev low">low</span></h4>
+  <p>§5 says "Reorder handle — drag within the Custom Edits section." §6 says customs always display at the bottom. Confirm: the handle cannot drag a custom above a built-in in the panel (only reorders within the custom section), and phase is what decides actual pipeline position. Worth a sentence to prevent confusion.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#18 — Nested sheets / sheet-as-node <span class="sev low">low</span></h4>
+  <p>Can a sheet reference another sheet as a node (nested sheets / sub-graphs)? §6 chose "stacked layers, not master graph with sub-graphs," which implies no — but it's a natural power-user feature. Confirm "no nested sheets in v1" explicitly.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#19 — Sheet name collisions <span class="sev low">low</span></h4>
+  <p>Two sheets with the same display name in the folder — how does the dropdown disambiguate (show filename? author? timestamp)? What happens on duplicate save?</p>
+</div>
+
+<div class="hole-item">
+  <h4>#20 — Error states <span class="sev low">low</span></h4>
+  <p>When a node fails (bad param values, unsupported bit depth, evaluation error), what does the user see? Red node? Warning badge? Fallback to last good output? Not specified.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#21 — Keyboard shortcuts <span class="sev low">low</span></h4>
+  <p>None defined. At minimum: node-editor toggle, fit-view, delete selection, undo/redo, add-node quick-search. Can wait.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#22 — Slider tooltips & value display <span class="sev low">low</span></h4>
+  <p>Hover a slider in the main editor — show current value? Range? Unit? Lightroom shows value on hover + while dragging. Confirm we match.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#23 — Phase naming vs built-in contents <span class="sev low">low</span></h4>
+  <p>Phase bucket is "After exposure correction" but the built-in there is "Basic" which does Exposure <em>and</em> Contrast/Highlights/Shadows/Whites/Blacks. Minor naming mismatch — "After Basic" might read clearer than "After exposure correction." Cosmetic but worth aligning.</p>
+</div>
+
+<div class="hole-item">
+  <h4>#4, #5, #8, #10, #11, #12, #24–#39 <span class="status moved">moved to extensions</span></h4>
+  <p>These holes cover masks (#4/#5), batch operations (#8), copy/link/Pin/broken-links/versioning (#10–#12), and the entire Lens Corrector subsystem (#24–#39). They have been moved to the relevant extension specs listed in <a href="#s16">§16</a>.</p>
+</div>
+
+</main>
+</div>
+</body>
+</html>

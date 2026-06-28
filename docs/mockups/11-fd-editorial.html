@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 — Editorial Magazine | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     11 — EDITORIAL MAGAZINE
+     Anchor: Kinfolk, Aperture Magazine, The Gentlewoman
+     Type: Playfair Display (display) + Lora (body)
+     Palette: paper white, ink black, muted gold accent
+     Layout: asymmetric — photo as hero, narrow right column
+     ============================================================ */
+  :root {
+    --paper: #f6f2ea;
+    --paper-2: #ece6d8;
+    --ink: #1a1814;
+    --ink-2: #3a3530;
+    --ink-3: #6a635a;
+    --rule: #c9bfa8;
+    --accent: #b08a3e;
+    --accent-2: #8a6a2e;
+    --soft-shadow: 0 1px 0 rgba(26, 24, 20, 0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font-family: "Lora", Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* paper texture */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.06 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+    z-index: 0;
+  }
+
+  /* doc banner */
+  .doc-banner {
+    position: relative; z-index: 2;
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 28px;
+    display: flex; align-items: center; gap: 16px;
+    font-size: 11px;
+    font-family: "Lora", serif;
+    letter-spacing: 0.04em;
+  }
+  .doc-banner .badge {
+    background: var(--ink); color: var(--paper);
+    padding: 3px 12px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    font-family: "Playfair Display", serif;
+  }
+  .doc-banner b { font-weight: 700; font-style: italic; }
+  .doc-banner span { color: var(--ink-3); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    color: var(--accent-2);
+    font-style: italic;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  .window {
+    position: relative; z-index: 1;
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 18px auto;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    display: grid;
+    grid-template-rows: 36px 1fr;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(26, 24, 20, 0.12);
+  }
+  /* win 11 chrome but styled as editorial */
+  .titlebar {
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--ink);
+    display: flex; align-items: center;
+    user-select: none;
+  }
+  .titlebar .tb-icon {
+    width: 16px; height: 16px; margin: 0 10px 0 14px;
+    background: var(--ink); color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; font-family: "Playfair Display", serif;
+  }
+  .titlebar .tb-title {
+    font-size: 12px; color: var(--ink-2); flex: 1;
+    font-family: "Playfair Display", serif; font-style: italic;
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 44px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); cursor: pointer;
+    border: none; background: transparent;
+    border-left: 1px solid var(--ink);
+    font-family: "Lora", serif;
+  }
+  .titlebar .tb-btn:hover { background: var(--ink); color: var(--paper); }
+  .titlebar .tb-btn svg { width: 9px; height: 9px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 1fr 88px;
+    height: 100%;
+    background: var(--paper);
+  }
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* LEFT: photo + toolbar (asymmetric) */
+  .canvas-zone {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    background: var(--paper-2);
+    border-right: 1px solid var(--rule);
+  }
+  .canvas-rail {
+    border-right: 1px solid var(--rule);
+    padding: 18px 0;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px;
+  }
+  .canvas-rail .glyph {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: "Playfair Display", serif;
+    font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .canvas-rail .issue {
+    font-family: "Playfair Display", serif;
+    font-style: italic; font-size: 10px; color: var(--ink-3);
+    writing-mode: vertical-rl; text-orientation: mixed;
+    transform: rotate(180deg);
+  }
+  .canvas-area {
+    position: relative;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .canvas-toolbar {
+    padding: 12px 20px;
+    display: flex; align-items: baseline; gap: 16px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-3);
+    font-size: 11px;
+    font-family: "Playfair Display", serif;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  .canvas-toolbar .ddl {
+    padding: 0 0;
+    border-bottom: 1px solid var(--ink);
+    color: var(--ink);
+    font-style: normal;
+  }
+  .canvas-toolbar .ddl::after { content: " ▾"; font-size: 9px; }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .count {
+    font-feature-settings: "lnum";
+    font-variant-numeric: oldstyle-nums;
+  }
+  .canvas-toolbar .icon-btn {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2);
+  }
+  .canvas-toolbar .icon-btn:hover { color: var(--accent-2); }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 14px, rgba(0,0,0,0.02) 14px 15px);
+  }
+  .canvas .photo-frame {
+    position: relative;
+    width: min(620px, 78%);
+    aspect-ratio: 3/2;
+    background: #fff;
+    padding: 14px 14px 36px;
+    box-shadow:
+      0 1px 0 rgba(0,0,0,0.1),
+      0 16px 32px rgba(26, 24, 20, 0.18);
+  }
+  .canvas .photo {
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 30% 25%, #f4c08a 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #5d3a4a 0%, transparent 60%),
+      linear-gradient(180deg, #2a4d6e 0%, #6b3e3a 45%, #d68a52 100%);
+  }
+  .canvas .caption {
+    position: absolute; bottom: 10px; left: 14px; right: 14px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: "Playfair Display", serif; font-size: 10px;
+    color: var(--ink-3); font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  .canvas .caption .fig { font-weight: 700; font-style: normal; }
+
+  /* RIGHT: narrow column with serif labels */
+  .right-panel {
+    background: var(--paper);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .histogram {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .histogram .h-title {
+    font-family: "Playfair Display", serif;
+    font-size: 11px; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.3em;
+    margin-bottom: 10px; font-weight: 700;
+  }
+  .histogram .h-title::after {
+    content: ""; display: block; width: 24px; height: 1px;
+    background: var(--accent); margin-top: 6px;
+  }
+  .histogram .h-canvas {
+    height: 50px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--ink);
+  }
+  .tabs .tab {
+    flex: 1; padding: 10px 0;
+    font-size: 11px; color: var(--ink-3);
+    text-align: center;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    font-family: "Playfair Display", serif; font-weight: 700;
+    border-right: 1px solid var(--rule);
+  }
+  .tabs .tab:last-child { border-right: 0; }
+  .tabs .tab.active {
+    color: var(--paper);
+    background: var(--ink);
+  }
+  .tabs .tab.disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.5; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 0;
+  }
+  .builtin {
+    border-bottom: 1px solid var(--rule);
+  }
+  .builtin .row {
+    display: flex; align-items: baseline;
+    padding: 14px 22px 12px;
+    gap: 12px;
+  }
+  .builtin .row .num {
+    font-family: "Playfair Display", serif; font-size: 11px;
+    color: var(--accent-2); font-style: italic;
+  }
+  .builtin .label {
+    flex: 1; font-size: 17px; font-weight: 700;
+    font-family: "Playfair Display", serif;
+  }
+  .builtin .icon-btn {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3); font-size: 11px;
+  }
+  .builtin .icon-btn:hover { color: var(--ink); }
+  .builtin .chev { color: var(--ink-3); font-size: 10px; font-family: serif; }
+  .builtin.open .controls { display: block; padding: 4px 22px 18px 38px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: baseline; gap: 6px;
+    margin-bottom: 12px; font-size: 12px;
+    font-family: "Lora", serif; font-style: italic;
+  }
+  .slider .lbl { color: var(--ink-2); }
+  .slider .val {
+    color: var(--accent-2); font-feature-settings: "lnum";
+    font-variant-numeric: oldstyle-nums;
+    font-size: 12px; font-weight: 500;
+  }
+  .slider .track {
+    grid-column: 1 / -1;
+    height: 1px; background: var(--ink);
+    position: relative;
+    margin: 6px 0 4px;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: -4px;
+    width: 9px; height: 9px;
+    background: var(--accent);
+    border: 2px solid var(--paper);
+    transform: translateX(-50%);
+    border-radius: 50%;
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin: 18px 22px;
+    text-align: center;
+    border: 1px solid var(--ink);
+    padding: 16px 12px;
+  }
+  .custom-add .add-btn {
+    width: 36px; height: 36px;
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--ink);
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+    font-family: "Playfair Display", serif; font-weight: 300;
+  }
+  .custom-add .add-btn:hover { background: var(--ink); color: var(--paper); }
+  .custom-add .add-text {
+    font-family: "Playfair Display", serif; font-style: italic;
+    font-size: 11px; color: var(--ink-2);
+  }
+
+  /* filmstrip — magazine spread */
+  .filmstrip {
+    background: var(--paper-2);
+    border-top: 1px solid var(--ink);
+    padding: 16px 22px;
+    display: flex; align-items: center; gap: 14px;
+    overflow-x: auto;
+  }
+  .filmstrip .label {
+    font-family: "Playfair Display", serif; font-style: italic;
+    font-size: 10px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.3em;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+  }
+  .filmstrip .frame {
+    width: 110px; height: 76px;
+    background: linear-gradient(135deg, #4a5d6e 0%, #d68a52 100%);
+    flex-shrink: 0;
+    border: 1px solid var(--ink);
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 9px;
+    padding: 2px 4px;
+    font-family: "Playfair Display", serif; font-style: italic;
+    border-top: 1px solid var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">11</span>
+  <b>Editorial Magazine</b>
+  <span>· Playfair Display + Lora · Paper texture · Asymmetric · Kinfolk / Aperture reference</span>
+  <span class="skill-tag">Built with the frontend-design skill</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon">P</div>
+    <div class="tb-title">Photo-Node-Super &mdash; the edit, vol. 1</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">—</button>
+      <button class="tb-btn" title="Maximize">▢</button>
+      <button class="tb-btn" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-rail">
+          <div class="glyph">No. 04 · Edit</div>
+          <div class="issue">Issue MMXXVI</div>
+        </div>
+        <div class="canvas-area">
+          <div class="canvas-toolbar">
+            <div class="ddl">Fit</div>
+            <span>·</span>
+            <div class="count">Frame <b>i</b> of <b>ccxlviii</b></div>
+            <div class="spacer"></div>
+            <div class="icon-btn" title="Fullscreen">⛶</div>
+          </div>
+          <div class="canvas">
+            <div class="photo-frame">
+              <div class="photo"></div>
+              <div class="caption">
+                <span class="fig">Fig. 1</span>
+                <span>Untitled (Coastal series, 2024)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="histogram">
+          <div class="h-title">Histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 296 50" preserveAspectRatio="none">
+              <g fill="none" stroke="#1a1814" stroke-width="0.5" opacity="0.7">
+                <path d="M0 44 L0 28 L8 26 L16 20 L24 16 L32 12 L40 8 L48 10 L56 14 L64 12 L72 8 L80 6 L88 4 L96 6 L104 10 L112 8 L120 6 L128 8 L136 12 L144 10 L152 6 L160 8 L168 12 L176 10 L184 6 L192 8 L200 12 L208 16 L216 20 L224 24 L232 28 L240 32 L248 36 L256 40 L264 44 L272 48 L280 50 L288 50 L296 50"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">Global</div>
+          <div class="tab disabled" title="Coming in a future version">Mask</div>
+          <div class="tab disabled" title="Coming in a future version">Crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="num">i.</div>
+              <div class="label">Lens Correction</div>
+              <div class="icon-btn">∅</div>
+              <div class="chev">▾</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="num">ii.</div>
+              <div class="label">Basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+              <div class="chev">▾</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track b2"></div></div>
+              <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track b4"></div></div>
+              <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track b3"></div></div>
+              <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track b2"></div></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="num">iii.</div>
+              <div class="label">Colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+              <div class="chev">▸</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="num">iv.</div>
+              <div class="label">HSL / Mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+              <div class="chev">▸</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="num">v.</div>
+              <div class="label">Tone Curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+              <div class="chev">▸</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="num">vi.</div>
+              <div class="label">Detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+              <div class="chev">▸</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">A new edit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="label">Plate</div>
+      <div class="frame active"><div class="name">i. DSC_0042</div></div>
+      <div class="frame"><div class="name">ii. DSC_0043</div></div>
+      <div class="frame"><div class="name">iii. DSC_0044</div></div>
+      <div class="frame dim"><div class="name">iv. DSC_0045</div></div>
+      <div class="frame dim"><div class="name">v. DSC_0046</div></div>
+      <div class="frame dim"><div class="name">vi. DSC_0047</div></div>
+      <div class="frame dim"><div class="name">vii. DSC_0048</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-scale=1.0">
+    <title>Final Mockup</title>
+    <style>
+        :root {
+            --bg: #e8e8ea;
+            --text: #2a2a30;
+            --hdr: #1f1f24;
+            --hdr-pill: #2a2a30;
+            --hdr-pill-hi: #34343c;
+            --hdr-text: #e8e8ec;
+            --hdr-muted: #6c6c76;
+            --hdr-divider: #3a3a44;
+            --accent: #6ea8ff;
+            --panel: #2a2a30;
+            --panel-border: #4a4a52;
+            --panel-text: #e8e8ec;
+            --panel-text-2: #a8a8b0;
+            --panel-text-3: #7a7a82;
+            --panel-hover: #3a3a42;
+            --panel-section: #34343c;
+            --track-bg: #4a4a52;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            color: var(--text);
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        body::after {
+            content: "";
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch' seed='5'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0.9 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+            background-size: 240px 240px;
+            background-repeat: repeat;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+        }
+
+        .toolbar {
+            position: absolute;
+            top: 58px;
+            left: 12px;
+            z-index: 3;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            background: var(--hdr-pill);
+            border-radius: 999px;
+            padding: 4px;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            padding: 6px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--hdr-text);
+            border-radius: 999px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .header .tab:hover:not(.disabled) { background: var(--hdr-pill-hi); }
+        .header .tab.active {
+            background: var(--accent);
+            color: #fff;
+        }
+        .header .tab.disabled {
+            color: var(--hdr-muted);
+            cursor: not-allowed;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .right-pill { gap: 0; }
+
+        .icon-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+            color: var(--hdr-text);
+        }
+        .icon-cell:hover { color: #fff; }
+
+        .icon-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 14px;
+            color: var(--hdr-text);
+            cursor: pointer;
+        }
+        .icon-pill:hover { color: #fff; }
+        .icon-pill svg { display: block; }
+
+        .zoom {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--hdr-text);
+            border-radius: 999px;
+            cursor: pointer;
+        }
+        .zoom .caret {
+            width: 8px; height: 8px;
+            border-right: 2px solid var(--hdr-text);
+            border-bottom: 2px solid var(--hdr-text);
+            transform: rotate(45deg) translate(-2px, -2px);
+            opacity: 0.7;
+        }
+
+        .divider {
+            width: 1px;
+            height: 20px;
+            background: var(--hdr-divider);
+            margin: 0 4px;
+        }
+
+        /* main layout */
+        .main {
+            position: relative;
+            z-index: 1;
+            flex: 1; min-height: 0;
+        }
+        .canvas-area { width: 100%; height: 100%; position: relative; }
+        .canvas-image {
+            position: absolute;
+            left: 0; top: 0;
+            transform-origin: 0 0;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: auto;
+            max-width: none;
+            will-change: transform;
+        }
+        .canvas-image:active { cursor: grabbing; }
+        .right-column {
+            position: absolute;
+            top: 12px; right: 12px; bottom: 12px;
+            width: 320px;
+            display: flex; flex-direction: column;
+            z-index: 2;
+        }
+
+        /* bottom filmstrip — shared across all four modules */
+        .filmstrip {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 344px;
+            height: 74px;
+            background: rgba(42, 42, 48, 0.75);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            overflow: visible;
+            z-index: 2;
+        }
+        .filmstrip-frames {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border-radius: 12px;
+        }
+        .filmstrip-frame {
+            flex-shrink: 0;
+            width: 72px;
+            height: 48px;
+            background: #1a1a1f;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .filmstrip-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .filmstrip-frame:hover { border-color: var(--panel-text-3); }
+        .filmstrip-frame.active { border-color: var(--accent); }
+
+        .filmstrip-resize-h {
+            position: absolute;
+            left: 0; right: 0; top: -5px;
+            height: 10px;
+            cursor: ns-resize;
+            z-index: 3;
+        }
+        .filmstrip-resize-h::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px; height: 2px;
+            background: var(--panel-text-3);
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .filmstrip-resize-h:hover::after { opacity: 0.6; }
+
+        .filmstrip-resize-w {
+            position: absolute;
+            top: 0; bottom: 0; right: -5px;
+            width: 10px;
+            cursor: ew-resize;
+            z-index: 3;
+        }
+        .filmstrip-resize-w::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px; height: 28px;
+            background: var(--panel-text-3);
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .filmstrip-resize-w:hover::after { opacity: 0.6; }
+
+        .resize-h {
+            position: absolute;
+            left: 0; right: 0; bottom: -5px;
+            height: 10px;
+            cursor: ns-resize;
+            z-index: 3;
+        }
+        .resize-h::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px; height: 2px;
+            background: var(--panel-text-3);
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .resize-h:hover::after { opacity: 0.6; }
+
+        .resize-h-top {
+            position: absolute;
+            left: 0; right: 0; top: -5px;
+            height: 10px;
+            cursor: ns-resize;
+            z-index: 3;
+        }
+        .resize-h-top::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px; height: 2px;
+            background: var(--panel-text-3);
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .resize-h-top:hover::after { opacity: 0.6; }
+
+        .resize-w {
+            position: absolute;
+            top: 0; bottom: 0; left: -5px;
+            width: 10px;
+            cursor: ew-resize;
+            z-index: 3;
+        }
+        .resize-w::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px; height: 28px;
+            background: var(--panel-text-3);
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .resize-w:hover::after { opacity: 0.6; }
+
+        /* right edit panel — floats over the canvas */
+        .edit-panel {
+            position: relative;
+            flex: 1; min-height: 0;
+            background: rgba(42, 42, 48, 0.75);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            display: flex; flex-direction: column;
+            overflow: visible;
+        }
+        .histogram {
+            flex-shrink: 0;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(42, 42, 48, 0.75);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 150px;
+            position: relative;
+        }
+        .histogram-header {
+            background: var(--panel-section);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 10px; color: var(--panel-text-3);
+            text-transform: uppercase; letter-spacing: 0.10em;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .histogram-canvas {
+            flex: 1; min-height: 60px;
+            background: #1a1a1f;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .histogram svg { width: 100%; height: 100%; display: block; }
+
+        .tabs {
+            display: flex;
+            align-items: center;
+            background: var(--panel-section);
+            border: 1px solid var(--panel-border);
+            border-radius: 999px;
+            padding: 4px;
+            margin: 8px 8px 8px;
+            gap: 0;
+        }
+        .tabs .tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 6px 0;
+            font-size: 11px; color: var(--panel-text-2);
+            border-radius: 999px;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .tabs .tab:hover:not(.disabled):not(.active) { color: var(--panel-text); }
+        .tabs .tab.active {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+        .tabs .tab.active::after { display: none; }
+        .tabs .tab.disabled { color: var(--panel-text-3); cursor: not-allowed; }
+
+        /* edit list */
+        .edit-list {
+            flex: 1; overflow-y: auto;
+            padding: 8px;
+        }
+
+        .section {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .section-header {
+            display: flex; align-items: center;
+            padding: 8px;
+            gap: 8px;
+            cursor: pointer;
+            background: var(--panel-section);
+            font-size: 12px; font-weight: 600;
+            color: var(--panel-text);
+        }
+        .section-header:hover { background: var(--panel-hover); }
+        .section-label { flex: 1; }
+        .chev {
+            width: 14px; text-align: center;
+            color: var(--panel-text-3); font-size: 9px;
+        }
+        .section-icon {
+            width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--panel-text-3); border-radius: 999px;
+            cursor: pointer;
+        }
+        .section-icon:hover { background: rgba(255,255,255,0.08); color: var(--panel-text); }
+
+        .section.disabled .section-header { color: var(--panel-text-3); cursor: default; }
+        .section.disabled .section-header:hover { background: var(--panel-section); }
+
+        .section-controls {
+            padding: 8px;
+            border-top: 1px solid var(--panel-border);
+            display: none;
+        }
+        .section.open .section-controls { display: block; }
+
+        /* slider */
+        .slider {
+            display: grid; grid-template-columns: 1fr auto;
+            align-items: center; gap: 6px;
+            margin-bottom: 8px; font-size: 12px;
+        }
+        .slider .lbl { color: var(--panel-text-2); font-size: 11px; }
+        .slider .val {
+            color: var(--panel-text-3); font-variant-numeric: tabular-nums;
+            font-size: 10px;
+        }
+        .slider .track {
+            grid-column: 1 / -1;
+            height: 3px; background: var(--track-bg);
+            border-radius: 2px; position: relative;
+            cursor: pointer;
+            --pos: 50%;
+        }
+        .slider .track::before {
+            content: ""; position: absolute; left: var(--pos); top: -3px;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--accent);
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 1px rgba(110,168,255,0.25);
+        }
+
+        /* custom layer */
+        .custom-layer {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .layer-header {
+            display: flex; align-items: center;
+            padding: 8px;
+            gap: 8px;
+            background: var(--panel-section);
+            font-size: 12px; font-weight: 600;
+            color: var(--panel-text);
+        }
+        .layer-handle {
+            color: var(--panel-text-3); cursor: grab;
+            font-size: 12px; letter-spacing: -1px;
+            padding: 0 2px;
+        }
+        .layer-name { flex: 1; }
+        .toggle {
+            width: 28px; height: 16px;
+            background: var(--accent);
+            border-radius: 999px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .toggle::after {
+            content: ""; position: absolute;
+            right: 2px; top: 2px;
+            width: 12px; height: 12px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        .toggle.off { background: #5a5a62; }
+        .toggle.off::after { right: auto; left: 2px; }
+
+        .layer-controls {
+            padding: 10px 12px 12px;
+            border-top: 1px solid var(--panel-border);
+        }
+        .placeholder {
+            color: var(--panel-text-3);
+            font-size: 11px; font-style: italic;
+            text-align: center; padding: 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <nav class="pill" role="tablist" aria-label="Module">
+            <div class="tab">Library</div>
+            <div class="tab active" aria-selected="true">Edit</div>
+            <div class="tab">Nodes</div>
+            <div class="tab disabled" title="Coming in a future version" aria-disabled="true">Lens</div>
+        </nav>
+
+        <div class="pill icon-pill" title="Settings" aria-label="Settings">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.01a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.01a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="header-right"></div>
+</header>
+
+<div class="toolbar">
+    <div class="pill right-pill">
+        <div class="zoom">Fit <span class="caret"></span></div>
+        <div class="divider"></div>
+        <div class="icon-cell" title="Recenter image" aria-label="Recenter image">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 3v6M12 15v6M3 12h6M15 12h6"/>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+        </div>
+        <div class="divider"></div>
+        <div class="icon-cell" title="Fullscreen" aria-label="Fullscreen">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 8V4a1 1 0 011-1h4M21 8V4a1 1 0 00-1-1h-4M3 16v4a1 1 0 001 1h4M21 16v4a1 1 0 01-1 1h-4"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<main class="main">
+    <section class="canvas-area">
+        <img class="canvas-image" src="../../images/Fixed-It.png" alt="">
+    </section>
+
+    <div class="right-column">
+        <div class="histogram">
+            <div class="histogram-header">Histogram</div>
+            <div class="histogram-canvas">
+                <svg viewBox="0 0 280 48" preserveAspectRatio="none">
+                    <path d="M0 42 L0 24 L8 22 L16 16 L24 12 L32 8 L40 6 L48 8 L56 12 L64 10 L72 6 L80 4 L88 2 L96 4 L104 8 L112 6 L120 4 L128 6 L136 10 L144 8 L152 4 L160 6 L168 10 L176 8 L184 4 L192 6 L200 10 L208 14 L216 18 L224 22 L232 26 L240 30 L248 34 L256 38 L264 42 L272 46 L280 48 L0 48 Z" fill="#ffffff" opacity="0.45"/>
+                    <path d="M0 44 L0 28 L8 24 L16 18 L24 14 L32 10 L40 8 L48 10 L56 14 L64 12 L72 8 L80 6 L88 4 L96 6 L104 10 L112 8 L120 6 L128 8 L136 12 L144 10 L152 6 L160 8 L168 12 L176 10 L184 6 L192 8 L200 12 L208 16 L216 20 L224 24 L232 28 L240 32 L248 36 L256 40 L264 44 L272 47 L280 48 L0 48 Z" fill="#ff5a5a" opacity="0.5"/>
+                    <path d="M0 44 L0 26 L8 22 L16 18 L24 14 L32 10 L40 6 L48 8 L56 12 L64 10 L72 6 L80 4 L88 2 L96 4 L104 8 L112 6 L120 4 L128 6 L136 10 L144 8 L152 4 L160 6 L168 10 L176 8 L184 4 L192 6 L200 10 L208 14 L216 18 L224 22 L232 26 L240 30 L248 34 L256 38 L264 42 L272 46 L280 48 L0 48 Z" fill="#5adb5a" opacity="0.5"/>
+                    <path d="M0 44 L0 30 L8 26 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 48 L280 48 L0 48 Z" fill="#5a8aff" opacity="0.5"/>
+                </svg>
+            </div>
+            <div class="resize-h"></div>
+        </div>
+
+        <aside class="edit-panel">
+        <div class="resize-h-top"></div>
+        <nav class="tabs" role="tablist" aria-label="Edit list scope">
+            <div class="tab active" aria-selected="true">global</div>
+            <div class="tab disabled" title="Coming in a future version" aria-disabled="true">mask</div>
+            <div class="tab disabled" title="Coming in a future version" aria-disabled="true">crop</div>
+        </nav>
+
+        <div class="edit-list">
+            <div class="section disabled" title="Reserved slot — empty until Lens module ships">
+                <div class="section-header">
+                    <div class="chev">▸</div>
+                    <div class="section-label">Lens Correction</div>
+                </div>
+            </div>
+
+            <div class="section open">
+                <div class="section-header">
+                    <div class="chev">▾</div>
+                    <div class="section-label">Basic</div>
+                    <div class="section-icon" title="Reset">↺</div>
+                    <div class="section-icon" title="Enable">⏻</div>
+                </div>
+                <div class="section-controls">
+                    <div class="slider"><span class="lbl">Exposure</span><span class="val">+0.40</span><div class="track" style="--pos:60%"></div></div>
+                    <div class="slider"><span class="lbl">Contrast</span><span class="val">+15</span><div class="track" style="--pos:58%"></div></div>
+                    <div class="slider"><span class="lbl">Highlights</span><span class="val">−20</span><div class="track" style="--pos:40%"></div></div>
+                    <div class="slider"><span class="lbl">Shadows</span><span class="val">+25</span><div class="track" style="--pos:62%"></div></div>
+                    <div class="slider"><span class="lbl">Whites</span><span class="val">+10</span><div class="track" style="--pos:55%"></div></div>
+                    <div class="slider"><span class="lbl">Blacks</span><span class="val">−5</span><div class="track" style="--pos:48%"></div></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="chev">▸</div>
+                    <div class="section-label">Colour</div>
+                    <div class="section-icon" title="Reset">↺</div>
+                    <div class="section-icon" title="Enable">⏻</div>
+                </div>
+                <div class="section-controls">
+                    <div class="placeholder">Temperature, Tint, Saturation, Vibrance…</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="chev">▸</div>
+                    <div class="section-label">HSL / Mix</div>
+                    <div class="section-icon" title="Reset">↺</div>
+                    <div class="section-icon" title="Enable">⏻</div>
+                </div>
+                <div class="section-controls">
+                    <div class="placeholder">8-colour hue / sat / luminance</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="chev">▸</div>
+                    <div class="section-label">Tone Curve</div>
+                    <div class="section-icon" title="Reset">↺</div>
+                    <div class="section-icon" title="Enable">⏻</div>
+                </div>
+                <div class="section-controls">
+                    <div class="placeholder">RGB + per-channel curves</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="chev">▸</div>
+                    <div class="section-label">Detail</div>
+                    <div class="section-icon" title="Reset">↺</div>
+                    <div class="section-icon" title="Enable">⏻</div>
+                </div>
+                <div class="section-controls">
+                    <div class="placeholder">Sharpening, Noise Reduction…</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="chev">▾</div>
+                    <div class="section-label">Custom Edits</div>
+                    <div class="section-icon" title="Add custom edit" style="font-size:16px;line-height:1;">+</div>
+                </div>
+                <div class="section-controls" style="padding:8px;">
+                    <div class="custom-layer" style="margin-bottom:0;">
+                        <div class="layer-header">
+                            <div class="toggle" title="Enable / bypass"></div>
+                            <div class="layer-handle" title="Drag to reorder">⋮⋮</div>
+                            <div class="layer-name">My Edits</div>
+                            <div class="section-icon" title="Open in node editor">✎</div>
+                        </div>
+                        <div class="layer-controls">
+                            <div class="placeholder">UI node controls appear here</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <div class="resize-w"></div>
+    </div>
+
+    <div class="filmstrip">
+        <div class="filmstrip-frames">
+            <div class="filmstrip-frame active" title="Fixed-It.png">
+                <img src="../../images/Fixed-It.png" alt="">
+            </div>
+            <div class="filmstrip-frame" title="Photo 2"></div>
+            <div class="filmstrip-frame" title="Photo 3"></div>
+            <div class="filmstrip-frame" title="Photo 4"></div>
+            <div class="filmstrip-frame" title="Photo 5"></div>
+            <div class="filmstrip-frame" title="Photo 6"></div>
+            <div class="filmstrip-frame" title="Photo 7"></div>
+            <div class="filmstrip-frame" title="Photo 8"></div>
+            <div class="filmstrip-frame" title="Photo 9"></div>
+            <div class="filmstrip-frame" title="Photo 10"></div>
+            <div class="filmstrip-frame" title="Photo 11"></div>
+            <div class="filmstrip-frame" title="Photo 12"></div>
+        </div>
+        <div class="filmstrip-resize-h"></div>
+        <div class="filmstrip-resize-w"></div>
+    </div>
+</main>
+
+<script>
+    document.querySelectorAll('.section:not(.disabled) .section-header').forEach(function (header) {
+        header.addEventListener('click', function (e) {
+            if (e.target.closest('.section-icon')) return;
+            var section = header.closest('.section');
+            var chev = header.querySelector('.chev');
+            var opening = !section.classList.contains('open');
+            section.classList.toggle('open');
+            if (chev) chev.textContent = opening ? '▾' : '▸';
+        });
+    });
+    document.querySelectorAll('.toggle').forEach(function (t) {
+        t.addEventListener('click', function () { t.classList.toggle('off'); });
+    });
+
+    (function () {
+        function makeDraggable(handle, onStart, onMove) {
+            handle.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                var startX = e.clientX, startY = e.clientY;
+                var ctx = onStart ? onStart() : {};
+                function move(ev) { onMove(ev, startX, startY, ctx); }
+                function up() {
+                    document.removeEventListener('mousemove', move);
+                    document.removeEventListener('mouseup', up);
+                }
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', up);
+            });
+        }
+
+        var rightColumn = document.querySelector('.right-column');
+        var filmstrip = document.querySelector('.filmstrip');
+        makeDraggable(rightColumn.querySelector('.resize-w'),
+            function () { return { width: rightColumn.offsetWidth }; },
+            function (e, startX, startY, ctx) {
+                var dx = startX - e.clientX;
+                var newWidth = Math.max(240, Math.min(640, ctx.width + dx));
+                rightColumn.style.width = newWidth + 'px';
+                filmstrip.style.right = (newWidth + 24) + 'px';
+            }
+        );
+
+        filmstrip.querySelectorAll('.filmstrip-frame').forEach(function (frame) {
+            frame.addEventListener('click', function () {
+                filmstrip.querySelectorAll('.filmstrip-frame').forEach(function (f) { f.classList.remove('active'); });
+                frame.classList.add('active');
+            });
+        });
+
+        function updateFrameSize() {
+            var h = filmstrip.offsetHeight;
+            var frameH = Math.max(48, h - 26);
+            var frameW = Math.round(frameH * 1.5);
+            filmstrip.querySelectorAll('.filmstrip-frame').forEach(function (f) {
+                f.style.height = frameH + 'px';
+                f.style.width = frameW + 'px';
+            });
+        }
+
+        makeDraggable(filmstrip.querySelector('.filmstrip-resize-h'),
+            function () { return { height: filmstrip.offsetHeight }; },
+            function (e, startX, startY, ctx) {
+                var dy = e.clientY - startY;
+                var newHeight = Math.max(74, Math.min(200, ctx.height - dy));
+                filmstrip.style.height = newHeight + 'px';
+                updateFrameSize();
+            }
+        );
+
+        makeDraggable(filmstrip.querySelector('.filmstrip-resize-w'),
+            function () { return { width: rightColumn.offsetWidth }; },
+            function (e, startX, startY, ctx) {
+                var dx = startX - e.clientX;
+                var newWidth = Math.max(240, Math.min(640, ctx.width + dx));
+                rightColumn.style.width = newWidth + 'px';
+                filmstrip.style.right = (newWidth + 24) + 'px';
+            }
+        );
+
+        var histogram = document.querySelector('.histogram');
+        var editPanel = document.querySelector('.edit-panel');
+        function resizeHistogram(e, startX, startY, ctx) {
+            var dy = e.clientY - startY;
+            var newHeight = Math.max(130, Math.min(360, ctx.height + dy));
+            histogram.style.height = newHeight + 'px';
+        }
+        makeDraggable(histogram.querySelector('.resize-h'),
+            function () { return { height: histogram.offsetHeight }; },
+            resizeHistogram
+        );
+        makeDraggable(editPanel.querySelector('.resize-h-top'),
+            function () { return { height: histogram.offsetHeight }; },
+            function (e, startX, startY, ctx) {
+                var dy = e.clientY - startY;
+                var newHeight = Math.max(130, Math.min(360, ctx.height - dy));
+                histogram.style.height = newHeight + 'px';
+            }
+        );
+
+        var image = document.querySelector('.canvas-image');
+        var canvasArea = document.querySelector('.canvas-area');
+        var toolbar = document.querySelector('.toolbar');
+        var rightColumnEl = document.querySelector('.right-column');
+        var naturalW = 0, naturalH = 0;
+        var imgScale = 1, imgX = 0, imgY = 0;
+        var GAP = 12;
+
+        var probe = new Image();
+        probe.onload = function () {
+            naturalW = probe.naturalWidth;
+            naturalH = probe.naturalHeight;
+            image.style.width = naturalW + 'px';
+            image.style.height = naturalH + 'px';
+            fitToCanvas();
+        };
+        probe.src = image.getAttribute('src');
+
+        function fitToCanvas() {
+            var cRect = canvasArea.getBoundingClientRect();
+            var tRect = toolbar.getBoundingClientRect();
+            var rRect = rightColumnEl.getBoundingClientRect();
+            var fRect = filmstrip.getBoundingClientRect();
+            var availLeft = GAP;
+            var availTop = (tRect.bottom - cRect.top) + GAP;
+            var availRight = (rRect.left - cRect.left) - GAP;
+            var availBottom = (fRect.top - cRect.top) - GAP;
+            var availW = availRight - availLeft;
+            var availH = availBottom - availTop;
+            imgScale = Math.min(Math.max(availW, 1) / naturalW, Math.max(availH, 1) / naturalH, 1);
+            var dispW = naturalW * imgScale;
+            var dispH = naturalH * imgScale;
+            var centerX = availLeft + availW / 2;
+            var centerY = availTop + availH / 2;
+            imgX = centerX - dispW / 2;
+            imgY = centerY - dispH / 2;
+            applyImageTransform();
+        }
+
+        document.querySelector('.toolbar .icon-cell[title="Recenter image"]')
+            .addEventListener('click', fitToCanvas);
+
+        function applyImageTransform() {
+            image.style.transform = 'translate(' + imgX + 'px,' + imgY + 'px) scale(' + imgScale + ')';
+        }
+
+        var dragging = false;
+        var dragSX = 0, dragSY = 0, startIX = 0, startIY = 0;
+
+        image.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            dragging = true;
+            dragSX = e.clientX;
+            dragSY = e.clientY;
+            startIX = imgX;
+            startIY = imgY;
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return;
+            imgX = startIX + (e.clientX - dragSX);
+            imgY = startIY + (e.clientY - dragSY);
+            applyImageTransform();
+        });
+
+        document.addEventListener('mouseup', function () {
+            dragging = false;
+        });
+
+        image.addEventListener('wheel', function (e) {
+            e.preventDefault();
+            var rect = image.getBoundingClientRect();
+            var localX = (e.clientX - rect.left) / imgScale;
+            var localY = (e.clientY - rect.top) / imgScale;
+            var factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+            var newScale = Math.max(0.05, Math.min(20, imgScale * factor));
+            imgX = e.clientX - localX * newScale;
+            imgY = e.clientY - localY * newScale;
+            imgScale = newScale;
+            applyImageTransform();
+        }, { passive: false });
+    })();
+</script>
+
+</body>
+</html>

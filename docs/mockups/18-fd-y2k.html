@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18 — Y2K Web 1.0 | Photo-Node-Super</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     18 — Y2K WEB 1.0
+     Anchor: Geocities, MySpace, Windows 9x, MSN Messenger
+     Type: Press Start 2P (display) + VT323 (body)
+     Palette: Win 9x grey, beveled buttons, electric blue
+     Layout: beveled, starry background, busy borders
+     ============================================================ */
+  :root {
+    --win-grey: #c0c0c0;
+    --win-grey-2: #a0a0a0;
+    --win-grey-3: #808080;
+    --ink: #000000;
+    --title: #000080;
+    --title-2: #1084d0;
+    --link: #0000ee;
+    --visited: #551a8b;
+    --hot: #ff0080;
+    --cyan: #00ffff;
+    --yellow: #ffff00;
+    --lime: #00ff00;
+    --bevel-light: #ffffff;
+    --bevel-dark: #404040;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: #000033;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 100%),
+      radial-gradient(1px 1px at 35% 60%, #fff 50%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 30%, #fff 50%, transparent 100%),
+      radial-gradient(1px 1px at 75% 80%, #fff 50%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 88% 25%, #fff 50%, transparent 100%),
+      radial-gradient(1px 1px at 25% 75%, #fff 50%, transparent 100%),
+      radial-gradient(1px 1px at 65% 15%, #fff 50%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 8% 50%, #fff 50%, transparent 100%),
+      radial-gradient(1px 1px at 92% 65%, #fff 50%, transparent 100%),
+      radial-gradient(1px 1px at 45% 90%, #fff 50%, transparent 100%),
+      repeating-linear-gradient(0deg, #000033 0px, #0a0040 100px);
+    font-family: "VT323", "Courier New", monospace;
+    font-size: 18px;
+    line-height: 1.3;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+  }
+
+  /* marquee */
+  .doc-banner {
+    background: var(--title);
+    color: var(--yellow);
+    border: 3px outset var(--win-grey);
+    padding: 8px 20px;
+    margin: 12px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 16px;
+    font-family: "VT323", monospace;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+  }
+  .doc-banner::before {
+    content: "★ ";
+    color: var(--yellow);
+    animation: spin 3s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .doc-banner .badge {
+    background: var(--hot); color: var(--yellow);
+    padding: 4px 10px;
+    font-family: "Press Start 2P", monospace;
+    font-size: 9px;
+    border: 2px outset var(--win-grey);
+  }
+  .doc-banner b {
+    font-family: "Press Start 2P", monospace;
+    font-size: 10px;
+    color: var(--cyan);
+  }
+  .doc-banner span { color: var(--yellow); }
+  .doc-banner .skill-tag {
+    margin-left: auto;
+    background: var(--lime); color: var(--ink);
+    padding: 4px 10px;
+    font-family: "Press Start 2P", monospace;
+    font-size: 8px;
+    border: 2px inset var(--win-grey);
+  }
+
+  .window {
+    width: min(1480px, 98vw);
+    height: min(940px, 96vh);
+    margin: 0 12px 12px;
+    background: var(--win-grey);
+    border: 3px outset var(--win-grey);
+    display: grid;
+    grid-template-rows: 32px 1fr;
+    overflow: hidden;
+  }
+  .titlebar {
+    background: linear-gradient(90deg, var(--title), var(--title-2));
+    display: flex; align-items: center;
+    user-select: none;
+    border-bottom: 2px solid var(--ink);
+  }
+  .titlebar .tb-icon {
+    width: 16px; height: 16px; margin: 0 6px 0 8px;
+    background: var(--hot);
+    border: 1px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--yellow); font-size: 10px; font-weight: 700;
+    font-family: "Press Start 2P", monospace;
+  }
+  .titlebar .tb-title {
+    font-size: 14px; color: var(--yellow); flex: 1;
+    font-family: "VT323", monospace;
+    text-shadow: 1px 1px 0 var(--ink);
+  }
+  .titlebar .tb-controls { display: flex; height: 100%; }
+  .titlebar .tb-btn {
+    width: 36px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); cursor: pointer;
+    border: none; background: var(--win-grey);
+    border-left: 2px outset var(--bevel-light);
+    border-right: 2px inset var(--bevel-dark);
+    font-family: "Press Start 2P", monospace;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .titlebar .tb-btn:active {
+    border-left: 2px inset var(--bevel-dark);
+    border-right: 2px outset var(--bevel-light);
+  }
+  .titlebar .tb-btn.close { color: var(--yellow); background: var(--hot); }
+  .titlebar .tb-btn svg { width: 10px; height: 10px; }
+
+  .app {
+    display: grid;
+    grid-template-rows: 44px 1fr 100px;
+    height: 100%;
+    background: var(--win-grey);
+  }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 4px 8px;
+    border-bottom: 2px solid var(--ink);
+    background: var(--win-grey);
+    gap: 6px;
+  }
+  .app-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 10px;
+    font-size: 14px; color: var(--ink);
+    background: var(--win-grey);
+    border: 2px outset var(--bevel-light);
+    font-family: "VT323", monospace;
+  }
+  .app-title .glyph {
+    width: 14px; height: 14px;
+    background: var(--hot);
+    border: 1px solid var(--ink);
+  }
+  .spacer { flex: 1; }
+  .switcher {
+    display: flex; gap: 0; align-items: center;
+  }
+  .switcher .seg {
+    padding: 4px 14px;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--win-grey);
+    border: 2px outset var(--bevel-light);
+    font-family: "VT323", monospace;
+    margin-right: -2px;
+  }
+  .switcher .seg.active {
+    border-style: inset;
+    background: var(--win-grey-2);
+    font-weight: 700;
+    color: var(--title);
+  }
+  .switcher .seg.disabled { color: var(--win-grey-3); cursor: not-allowed; }
+
+  .edit-body {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    overflow: hidden;
+    padding: 4px;
+    gap: 4px;
+  }
+  .canvas-zone {
+    background: var(--win-grey);
+    border: 2px inset var(--bevel-dark);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .canvas-toolbar {
+    height: 32px;
+    background: var(--win-grey-2);
+    border-bottom: 2px solid var(--ink);
+    display: flex; align-items: center; padding: 0 8px;
+    gap: 6px;
+    color: var(--ink);
+    font-size: 14px;
+    font-family: "VT323", monospace;
+  }
+  .canvas-toolbar .ddl {
+    height: 22px;
+    padding: 0 22px 0 6px;
+    background: var(--win-grey);
+    border: 2px inset var(--bevel-dark);
+    color: var(--ink);
+    display: flex; align-items: center;
+    font-size: 14px;
+    position: relative;
+  }
+  .canvas-toolbar .ddl::after {
+    content: "▼"; position: absolute; right: 4px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+  }
+  .canvas-toolbar .spacer { flex: 1; }
+  .canvas-toolbar .icon-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--win-grey);
+    border: 2px outset var(--bevel-light);
+    color: var(--ink);
+    font-family: "Press Start 2P", monospace;
+    font-size: 8px;
+  }
+  .canvas-toolbar .icon-btn:active { border-style: inset; }
+
+  .canvas {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+  .canvas .photo {
+    width: min(720px, 80%);
+    aspect-ratio: 3/2;
+    background:
+      radial-gradient(ellipse at 30% 25%, #ff8060 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 80%, #4a2a4a 0%, transparent 60%),
+      linear-gradient(180deg, #1a3a6e 0%, #6b2a3a 45%, #ff6a40 100%);
+    border: 3px outset var(--bevel-light);
+  }
+  .canvas .badge-90s {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--yellow); color: var(--ink);
+    padding: 4px 8px;
+    font-family: "Press Start 2P", monospace;
+    font-size: 7px;
+    border: 2px solid var(--ink);
+    transform: rotate(-3deg);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .canvas .new {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--hot); color: var(--yellow);
+    padding: 4px 8px;
+    font-family: "Press Start 2P", monospace;
+    font-size: 7px;
+    border: 2px solid var(--ink);
+    transform: rotate(3deg);
+    box-shadow: 2px 2px 0 var(--ink);
+    animation: blink 1.2s steps(2) infinite;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0.6; }
+  }
+
+  .right-panel {
+    background: var(--win-grey);
+    border: 2px inset var(--bevel-dark);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .panel-title {
+    background: var(--title);
+    color: var(--yellow);
+    padding: 4px 10px;
+    font-size: 14px;
+    font-family: "Press Start 2P", monospace;
+    border-bottom: 2px solid var(--ink);
+  }
+  .histogram {
+    padding: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .histogram .h-title {
+    font-size: 12px; color: var(--ink);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-family: "VT323", monospace;
+    font-weight: 700;
+  }
+  .histogram .h-canvas {
+    height: 56px; position: relative;
+    background: var(--win-grey);
+    border: 2px inset var(--bevel-dark);
+  }
+  .histogram svg { width: 100%; height: 100%; display: block; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid var(--ink);
+  }
+  .tabs .tab {
+    flex: 1; padding: 6px 0;
+    font-size: 12px; color: var(--ink);
+    text-align: center;
+    background: var(--win-grey);
+    border-right: 2px outset var(--bevel-light);
+    font-family: "VT323", monospace;
+    text-transform: uppercase;
+  }
+  .tabs .tab:last-child { border-right: 0; }
+  .tabs .tab.active {
+    background: var(--win-grey-2);
+    border-style: inset;
+    font-weight: 700;
+    color: var(--title);
+  }
+  .tabs .tab.disabled { color: var(--win-grey-3); cursor: not-allowed; }
+
+  .edit-list {
+    flex: 1; overflow-y: auto;
+    padding: 4px;
+  }
+  .builtin {
+    background: var(--win-grey);
+    border: 2px outset var(--bevel-light);
+    margin-bottom: 4px;
+  }
+  .builtin .row {
+    display: flex; align-items: center;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .builtin .label {
+    flex: 1; font-size: 16px; font-weight: 700;
+    font-family: "VT323", monospace;
+    text-transform: uppercase;
+  }
+  .builtin .icon-btn {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--win-grey);
+    border: 2px outset var(--bevel-light);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .builtin .icon-btn:active { border-style: inset; }
+  .builtin .chev { color: var(--ink); font-size: 10px; font-weight: 700; }
+  .builtin.open .controls { display: block; padding: 4px 8px 10px; }
+  .builtin .controls { display: none; }
+  .slider {
+    display: grid; grid-template-columns: 80px 1fr 50px;
+    align-items: center; gap: 4px;
+    margin-bottom: 4px; font-size: 14px;
+    height: 22px;
+  }
+  .slider .lbl { color: var(--ink); font-family: "VT323", monospace; }
+  .slider .val {
+    color: var(--title); text-align: right;
+    font-weight: 700; font-family: "VT323", monospace;
+  }
+  .slider .track {
+    height: 14px;
+    background: var(--win-grey);
+    border: 2px inset var(--bevel-dark);
+    position: relative;
+  }
+  .slider .track::before {
+    content: ""; position: absolute; left: 50%; top: 1px;
+    width: 8px; height: 8px;
+    background: linear-gradient(135deg, var(--win-grey), var(--win-grey-3));
+    border: 1px outset var(--bevel-light);
+    transform: translateX(-50%);
+  }
+  .slider .track.b2::before { left: 35%; }
+  .slider .track.b3::before { left: 65%; }
+  .slider .track.b4::before { left: 45%; }
+  .slider .track.b5::before { left: 55%; }
+
+  .custom-add {
+    margin: 8px 4px;
+    background: var(--win-grey);
+    border: 2px outset var(--bevel-light);
+    padding: 12px;
+    text-align: center;
+  }
+  .custom-add .add-btn {
+    width: 28px; height: 28px;
+    background: var(--win-grey);
+    color: var(--ink);
+    border: 2px outset var(--bevel-light);
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 6px;
+    font-family: "Press Start 2P", monospace;
+  }
+  .custom-add .add-btn:active { border-style: inset; }
+  .custom-add .add-text {
+    font-size: 13px; color: var(--ink);
+    font-family: "VT323", monospace;
+  }
+
+  .filmstrip {
+    background: var(--win-grey);
+    border: 2px inset var(--bevel-dark);
+    padding: 8px;
+    margin: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .filmstrip .frame {
+    width: 110px; height: 70px;
+    background: linear-gradient(135deg, #2a3a4a 0%, #ff6a40 100%);
+    flex-shrink: 0;
+    border: 3px outset var(--bevel-light);
+    cursor: pointer;
+    position: relative;
+  }
+  .filmstrip .frame.active {
+    border-style: inset;
+    border-color: var(--ink);
+  }
+  .filmstrip .frame.dim { opacity: 0.5; }
+  .filmstrip .frame .name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--title);
+    color: var(--yellow);
+    font-size: 12px;
+    padding: 1px 4px;
+    font-family: "VT323", monospace;
+    text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-banner">
+  <span class="badge">18</span>
+  <b>welcome 2 photo-node-super!!</b>
+  <span>★ Press Start 2P + VT323 ★ beveled buttons ★ starry background ★ Geocities reference ★</span>
+  <span class="skill-tag">under construction</span>
+</div>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="tb-icon">P</div>
+    <div class="tb-title">►► Photo-Node-Super — Edit — Best viewed in 1024x768 ◄◄</div>
+    <div class="tb-controls">
+      <button class="tb-btn" title="Minimize">_</button>
+      <button class="tb-btn" title="Maximize">□</button>
+      <button class="tb-btn close" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <div class="app-title">
+        <div class="glyph"></div>
+        <span>Photo-Node-Super v1.0</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="switcher">
+        <div class="seg">[ Library ]</div>
+        <div class="seg active">[ Edit ]</div>
+        <div class="seg">[ Nodes ]</div>
+        <div class="seg disabled" title="Coming in a future version">[ Lens ]</div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="edit-body">
+      <div class="canvas-zone">
+        <div class="canvas-toolbar">
+          <div class="ddl">Fit</div>
+          <div style="color:var(--ink)">::</div>
+          <div>img 001/248</div>
+          <div class="spacer"></div>
+          <div class="icon-btn" title="Fullscreen">⛶</div>
+        </div>
+        <div class="canvas">
+          <div class="badge-90s">★ NEW! ★</div>
+          <div class="new">!!! RAW !!!</div>
+          <div class="photo"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="panel-title">★ Control Panel ★</div>
+        <div class="histogram">
+          <div class="h-title">► Histogram</div>
+          <div class="h-canvas">
+            <svg viewBox="0 0 320 56" preserveAspectRatio="none">
+              <g fill="#000080" stroke="none" opacity="0.8">
+                <path d="M0 50 L0 30 L8 28 L16 22 L24 18 L32 14 L40 10 L48 12 L56 16 L64 14 L72 10 L80 8 L88 6 L96 8 L104 12 L112 10 L120 8 L128 10 L136 14 L144 12 L152 8 L160 10 L168 14 L176 12 L184 8 L192 10 L200 14 L208 18 L216 22 L224 26 L232 30 L240 34 L248 38 L256 42 L264 46 L272 50 L280 54 L288 56 L296 56 L304 56 L312 56 L320 56 L0 56 Z"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active">Global</div>
+          <div class="tab disabled" title="Coming in a future version">Mask</div>
+          <div class="tab disabled" title="Coming in a future version">Crop</div>
+        </div>
+
+        <div class="edit-list">
+          <div class="builtin">
+            <div class="row">
+              <div class="label">► Lens Correction</div>
+              <div class="icon-btn">∅</div>
+              <div class="chev">▼</div>
+            </div>
+          </div>
+          <div class="builtin open">
+            <div class="row">
+              <div class="chev">▼</div>
+              <div class="label">► Basic</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+            <div class="controls">
+              <div class="slider"><span class="lbl">Exposure</span><div class="track b4"></div><span class="val">+0.40</span></div>
+              <div class="slider"><span class="lbl">Contrast</span><div class="track b3"></div><span class="val">+15</span></div>
+              <div class="slider"><span class="lbl">Highlights</span><div class="track b2"></div><span class="val">-20</span></div>
+              <div class="slider"><span class="lbl">Shadows</span><div class="track b4"></div><span class="val">+25</span></div>
+              <div class="slider"><span class="lbl">Whites</span><div class="track b3"></div><span class="val">+10</span></div>
+              <div class="slider"><span class="lbl">Blacks</span><div class="track b2"></div><span class="val">-5</span></div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▶</div>
+              <div class="label">► Colour</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▶</div>
+              <div class="label">► HSL / Mix</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▶</div>
+              <div class="label">► Tone Curve</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+          <div class="builtin">
+            <div class="row">
+              <div class="chev">▶</div>
+              <div class="label">► Detail</div>
+              <div class="icon-btn">↺</div>
+              <div class="icon-btn">⏻</div>
+            </div>
+          </div>
+
+          <div class="custom-add">
+            <button class="add-btn">+</button>
+            <div class="add-text">add a custom edit!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filmstrip">
+      <div class="frame active"><div class="name">DSC_0042</div></div>
+      <div class="frame"><div class="name">DSC_0043</div></div>
+      <div class="frame"><div class="name">DSC_0044</div></div>
+      <div class="frame dim"><div class="name">DSC_0045</div></div>
+      <div class="frame dim"><div class="name">DSC_0046</div></div>
+      <div class="frame dim"><div class="name">DSC_0047</div></div>
+      <div class="frame dim"><div class="name">DSC_0048</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

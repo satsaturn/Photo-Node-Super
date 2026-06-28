@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style Mockups Index — Photo-Node-Super v1</title>
+<style>
+  :root {
+    --bg: #f3f3f3;
+    --surface: #ffffff;
+    --surface-2: #fafafa;
+    --text: #1c1c1c;
+    --text-2: #424242;
+    --text-3: #5d5d5d;
+    --accent: #0067c0;
+    --accent-2: #1976d2;
+    --accent-light: rgba(0,103,192,0.08);
+    --border: rgba(0,0,0,0.08);
+    --border-2: rgba(0,0,0,0.14);
+
+    --r-md: 6px;
+    --r-lg: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--text);
+    font-family: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    background: var(--bg);
+    background-image:
+      radial-gradient(at 0% 0%, rgba(0,103,192,0.04) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(0,120,106,0.04) 0px, transparent 50%),
+      linear-gradient(180deg, #f6f6f6 0%, #ececec 100%);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+  h1 {
+    font-size: 28px; font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    color: var(--text-3);
+    margin: 0 0 24px;
+    font-size: 14px;
+  }
+  .subtitle a { color: var(--accent); text-decoration: none; }
+  .subtitle a:hover { text-decoration: underline; }
+
+  /* Shortlist callout at the top of the page */
+  .shortlist {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--r-lg);
+    padding: 18px 22px;
+    margin: 0 0 8px;
+    display: flex; align-items: center; gap: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .shortlist:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  }
+  .shortlist .label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 3px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .shortlist .body { flex: 1; min-width: 0; }
+  .shortlist .title {
+    font-size: 16px; font-weight: 600;
+    color: var(--text);
+    margin: 0 0 4px;
+  }
+  .shortlist .desc {
+    color: var(--text-3);
+    font-size: 13px;
+    margin: 0;
+  }
+  .shortlist .preview {
+    width: 140px; height: 72px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    color: #6ea8ff;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .shortlist .preview::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(110,168,255,0.15) 0%, transparent 60%);
+  }
+  .shortlist .arrow {
+    color: var(--text-3);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .shortlist:hover .arrow { color: var(--accent); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none;
+    color: inherit;
+    display: flex; flex-direction: column;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border-color: var(--border-2);
+  }
+  .card .num {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    width: fit-content;
+    border-radius: 0 0 var(--r-md) 0;
+  }
+  .card h3 {
+    margin: 12px 16px 4px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .card .desc {
+    color: var(--text-3);
+    font-size: 12px;
+    margin: 0 16px 12px;
+    flex: 1;
+  }
+  .card .meta {
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    padding: 8px 16px;
+    font-size: 11px;
+    color: var(--text-3);
+    display: flex; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card .meta .tag {
+    background: var(--surface-3);
+    padding: 1px 7px;
+    border-radius: 999px;
+    color: var(--text-2);
+  }
+  .preview {
+    height: 140px;
+    background: linear-gradient(135deg, #555 0%, #222 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    position: relative;
+    overflow: hidden;
+  }
+  .preview::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%);
+    background-size: 14px 14px;
+  }
+  .preview span { position: relative; z-index: 1; }
+
+  /* Themed preview swatches (per style) */
+  .p1 { background: linear-gradient(135deg, #fafafa 0%, #d4d4d4 100%); color: #0067c0; }
+  .p2 { background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%); color: #4cc2ff; }
+  .p3 { background: #000; color: #ffff00; border: 2px solid #ffff00; }
+  .p4 { background: linear-gradient(135deg, #ff8a4c 0%, #5cc8ff 50%, #b88de8 100%); color: #fff; }
+  .p5 { background: #fff; color: #111; border: 1px solid #ececec; }
+  .p6 { background: linear-gradient(135deg, #252526 0%, #1a1a1a 100%); color: #4cc2ff; }
+  .p7 { background: linear-gradient(135deg, #f0ecf8 0%, #d4c4f0 100%); color: #7c4dff; }
+  .p8 { background: linear-gradient(135deg, #2b2b2b 0%, #1f1f1f 100%); color: #2a8eff; }
+  .p9 { background: linear-gradient(135deg, #1e1e1e 0%, #2d2d30 100%); color: #569cd6; }
+  .p10 { background: #000; color: #6ea8ff; }
+
+  /* Section heading for the frontend-design skill set */
+  .section-heading {
+    margin: 56px 0 6px;
+    padding: 16px 20px;
+    background: linear-gradient(90deg, rgba(124, 77, 255, 0.08), rgba(0, 168, 156, 0.04));
+    border-left: 4px solid #7c4dff;
+    border-radius: 0 8px 8px 0;
+    display: flex; align-items: center; gap: 14px;
+    flex-wrap: wrap;
+  }
+  .section-heading .tag {
+    background: #7c4dff; color: #fff;
+    padding: 4px 12px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border-radius: 999px;
+  }
+  .section-heading h2 {
+    margin: 0; font-size: 18px; font-weight: 700;
+    color: var(--text);
+  }
+  .section-heading .meta {
+    color: var(--text-3);
+    font-size: 12px; margin-left: auto;
+  }
+  .section-heading .meta b { color: var(--text); }
+  .section-blurb {
+    color: var(--text-3);
+    font-size: 13px;
+    margin: 0 0 18px;
+    max-width: 880px;
+  }
+  .section-blurb b { color: var(--text); }
+  .section-blurb code {
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    color: #7c4dff;
+  }
+
+  /* FD card swatches */
+  .p11 { background: linear-gradient(135deg, #f6f2ea 0%, #c9bfa8 100%); color: #b08a3e; }
+  .p12 { background: linear-gradient(135deg, #ededea 0%, #0a0a0a 100%); color: #d11d1d; }
+  .p13 { background: linear-gradient(135deg, #faf5ee 0%, #e8c5c0 50%, #b8c4a8 100%); color: #c4796e; }
+  .p14 { background: #050a05; color: #00ff88; border: 1px solid #008844; font-family: "Fira Code", monospace; }
+  .p15 { background: linear-gradient(180deg, #0a0a2e 0%, #ff2d92 50%, #00f0ff 100%); color: #ffd84d; }
+  .p16 { background: linear-gradient(135deg, #ff6b9d 0%, #6b8cff 50%, #4ed4c2 100%); color: #fff; }
+  .p17 { background: linear-gradient(135deg, #f0e9d6 0%, #1a1812 100%); color: #a01e1e; font-family: "Crimson Pro", serif; }
+  .p18 { background: #000033; color: #00ffff; border: 2px ridge #c0c0c0; font-family: "VT323", monospace; font-size: 18px; }
+  .p19 { background: linear-gradient(135deg, #f5efe1 0%, #c25e3a 50%, #7d8b5e 100%); color: #2e3a1e; }
+  .p20 { background: #f4ede0; color: #ff4081; border: 2px solid #1c1c1c; box-shadow: 4px 4px 0 #00a89c; font-family: "Archivo Black", sans-serif; }
+
+  /* Section 3 card swatches (clean / Zen-grain) */
+  .p21 { background: linear-gradient(135deg, #f4f1ec 0%, #ebe7df 100%); color: #7c6aae; position: relative; }
+  .p21::after { content: ""; position: absolute; inset: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100' height='100' filter='url(%23n)' opacity='0.4'/></svg>"); }
+  .p22 { background: linear-gradient(135deg, #f7f6f4 0%, #efeeea 100%); color: #4f46e5; }
+  .p23 { background: linear-gradient(135deg, #f3ede1 0%, #e8e0cf 100%); color: #b85c2a; }
+  .p24 { background: linear-gradient(135deg, #eef0f3 0%, #e3e6ec 100%); color: #3b6cb0; }
+  .p25 { background: linear-gradient(135deg, #f5ecf0 0%, #ecdfe5 100%); color: #c4567a; }
+
+  .info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-md);
+    padding: 14px 18px;
+    margin-top: 32px;
+    color: var(--text-2);
+    font-size: 13px;
+  }
+  .info b { color: var(--text); }
+  .info code {
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Photo-Node-Super v1 &mdash; Style mockups</h1>
+<p class="subtitle">
+  10 visual style directions for the Edit module. Each is a fully self-contained HTML file rendering the same spec-v1 content (Library | Edit | Nodes | Lens switcher, photo canvas, histogram, global/mask/crop tabs, Basic/Colour/HSL/Tone Curve/Detail built-ins, custom-add, shared filmstrip) in a different style. All are Win 11 themed.
+  See <a href="../spec-v1.html">spec-v1</a> for the layout each one implements.
+</p>
+
+<a class="shortlist" href="10-photo-first.html">
+  <div class="label">Shortlisted</div>
+  <div class="body">
+    <div class="title">10 &middot; Photo-first / Focus</div>
+    <p class="desc">Photo dominates. Floating switcher and zoom controls on the left, edits list fills the right edge, pure dark cinema. The strongest &quot;normal plane&quot; starting point.</p>
+  </div>
+  <div class="preview">open &rarr;</div>
+  <div class="arrow">&rsaquo;</div>
+</a>
+
+<div class="grid">
+
+  <a class="card" href="01-fluent-light.html">
+    <div class="num">01</div>
+    <h3>Fluent Light</h3>
+    <p class="desc">Default Win 11 light mode. Mica background, Fluent UI controls, default blue accent. The baseline style for system-aligned look.</p>
+    <div class="preview p1"><span>Mica · #0067c0 · 14px</span></div>
+    <div class="meta">
+      <span class="tag">Light</span>
+      <span class="tag">Mica</span>
+      <span class="tag">Default</span>
+    </div>
+  </a>
+
+  <a class="card" href="02-fluent-dark.html">
+    <div class="num">02</div>
+    <h3>Fluent Dark</h3>
+    <p class="desc">Default Win 11 dark mode. Dark Mica + Acrylic filmstrip, lighter blue accent for contrast. System-aligned dark.</p>
+    <div class="preview p2"><span>Dark Mica · #4cc2ff</span></div>
+    <div class="meta">
+      <span class="tag">Dark</span>
+      <span class="tag">Mica</span>
+      <span class="tag">Default</span>
+    </div>
+  </a>
+
+  <a class="card" href="03-high-contrast.html">
+    <div class="num">03</div>
+    <h3>High Contrast</h3>
+    <p class="desc">Win 11 High Contrast theme for accessibility. Pure black, bright yellow accent, 2px hard borders, no shadows. WCAG AAA.</p>
+    <div class="preview p3"><span>#000 · #ffff00 · 2px border</span></div>
+    <div class="meta">
+      <span class="tag">A11y</span>
+      <span class="tag">High Contrast</span>
+      <span class="tag">WCAG AAA</span>
+    </div>
+  </a>
+
+  <a class="card" href="04-heavy-acrylic.html">
+    <div class="num">04</div>
+    <h3>Heavy Acrylic</h3>
+    <p class="desc">Vivid desktop wallpaper showing through, strong backdrop blur on every panel, layered rounded surfaces. Leans into Win 11's signature material.</p>
+    <div class="preview p4"><span>Acrylic · blur(40px) · saturate(160%)</span></div>
+    <div class="meta">
+      <span class="tag">Translucent</span>
+      <span class="tag">Expressive</span>
+      <span class="tag">Material-led</span>
+    </div>
+  </a>
+
+  <a class="card" href="05-minimalist-flat.html">
+    <div class="num">05</div>
+    <h3>Minimalist Flat</h3>
+    <p class="desc">No shadows, no blurs, no gradients. Hairline borders, lots of whitespace, monochrome with one accent. The opposite of Heavy Acrylic.</p>
+    <div class="preview p5"><span>Flat · hairline · monochrome</span></div>
+    <div class="meta">
+      <span class="tag">Flat</span>
+      <span class="tag">Restrained</span>
+      <span class="tag">Editorial</span>
+    </div>
+  </a>
+
+  <a class="card" href="06-compact-dense.html">
+    <div class="num">06</div>
+    <h3>Compact / Dense</h3>
+    <p class="desc">Power-user layout. 12px body, 18px row height, more info per square inch, dark, sharp corners. Fits more on screen at the cost of breathing room.</p>
+    <div class="preview p6"><span>12px · dense · 280px rail</span></div>
+    <div class="meta">
+      <span class="tag">Dense</span>
+      <span class="tag">Power user</span>
+      <span class="tag">Dark</span>
+    </div>
+  </a>
+
+  <a class="card" href="07-colorful-bold.html">
+    <div class="num">07</div>
+    <h3>Colorful Bold</h3>
+    <p class="desc">Purple/violet accent, category tints visible on built-ins, gradient highlights, rounded pill switcher. Vibrant, expressive, but still on Win 11.</p>
+    <div class="preview p7"><span>Violet · #7c4dff · category tints</span></div>
+    <div class="meta">
+      <span class="tag">Colourful</span>
+      <span class="tag">Expressive</span>
+      <span class="tag">Personal</span>
+    </div>
+  </a>
+
+  <a class="card" href="08-lightroom-dark.html">
+    <div class="num">08</div>
+    <h3>Lightroom-style Dark</h3>
+    <p class="desc">LR-classic dark grey panels, blue accent, diamond slider thumbs, all-caps labels, generous padding. Familiar to Lightroom users.</p>
+    <div class="preview p8"><span>#2b2b2b · #2a8eff · diamond thumbs</span></div>
+    <div class="meta">
+      <span class="tag">LR-inspired</span>
+      <span class="tag">Familiar</span>
+      <span class="tag">Pro</span>
+    </div>
+  </a>
+
+  <a class="card" href="09-ide-developer.html">
+    <div class="num">09</div>
+    <h3>IDE / Developer</h3>
+    <p class="desc">Cascadia Code monospaced labels, VS Code-style dark theme, syntax-coloured text, file-path breadcrumbs. For the keyboard-first power user.</p>
+    <div class="preview p9"><span>Cascadia Code · monospace · #569cd6</span></div>
+    <div class="meta">
+      <span class="tag">Monospace</span>
+      <span class="tag">Code-style</span>
+      <span class="tag">Keyboard-first</span>
+    </div>
+  </a>
+
+  <a class="card" href="10-photo-first.html">
+    <div class="num">10</div>
+    <h3>Photo-first / Focus</h3>
+    <p class="desc">Photo dominates. Floating panels, minimal chrome, dark cinema. Pure photo-first &mdash; the canvas owns the screen.</p>
+    <div class="preview p10"><span>Photo 70% · floating panels · cinema</span></div>
+    <div class="meta">
+      <span class="tag">Focus</span>
+      <span class="tag">Distraction-free</span>
+      <span class="tag">Cinema</span>
+    </div>
+  </a>
+
+</div>
+
+<!-- ================================================================
+     Section 2 — frontend-design skill (10 more)
+     ================================================================ -->
+<div class="section-heading">
+  <span class="tag">Skill</span>
+  <h2>Section 2 &mdash; built with the <code style="background:rgba(124,77,255,0.12); color:#7c4dff; padding:1px 6px; border-radius:4px; font-family:'Cascadia Mono',Consolas,monospace; font-size:14px;">frontend-design</code> skill</h2>
+  <span class="meta">10 additional style directions · each anchored to a concrete aesthetic reference · distinctive Google Fonts</span>
+</div>
+<p class="section-blurb">
+  A second pass, produced using the agent's <b>frontend-design</b> skill. Each direction is anchored to a specific reference (a magazine, an era, a piece of software, a material) rather than a generic adjective. Typography is committed &mdash; not Inter, not Roboto, not a purple-on-white gradient &mdash; and the implementation is intentionally opinionated. The spec-v1 content is identical across all 20 mockups; only the visual language differs.
+</p>
+
+<div class="grid">
+
+  <a class="card" href="11-fd-editorial.html">
+    <div class="num">11</div>
+    <h3>Editorial Magazine</h3>
+    <p class="desc"><b>Playfair Display + Lora.</b> Asymmetric Kinfolk-style spread, paper texture, ink + muted gold, serif labels with old-style numerals, italic captions. Built around the idea of an editorial page rather than an app.</p>
+    <div class="preview p11"><span>Playfair · #b08a3e · asymmetric</span></div>
+    <div class="meta">
+      <span class="tag">Editorial</span>
+      <span class="tag">Kinfolk / Aperture</span>
+      <span class="tag">Asymmetric</span>
+    </div>
+  </a>
+
+  <a class="card" href="12-fd-brutalist.html">
+    <div class="num">12</div>
+    <h3>Brutalist Industrial</h3>
+    <p class="desc"><b>JetBrains Mono + IBM Plex Mono.</b> Exposed grid, registration marks, slash-numerated sections, blood-red accent on paper, hard 2px borders. The Vignelli / Bureau Borsche reference.</p>
+    <div class="preview p12"><span>JBMono · #d11d1d · exposed grid</span></div>
+    <div class="meta">
+      <span class="tag">Brutalist</span>
+      <span class="tag">Vignelli</span>
+      <span class="tag">Hard grid</span>
+    </div>
+  </a>
+
+  <a class="card" href="13-fd-pastel.html">
+    <div class="num">13</div>
+    <h3>Soft Pastel</h3>
+    <p class="desc"><b>Fraunces italic + Manrope.</b> Cream/blush/sage palette, rounded everything, italic display, gentle motion on hover. The Cereal Magazine / Studio App reference &mdash; calm and approachable.</p>
+    <div class="preview p13"><span>Fraunces · #c4796e · airy</span></div>
+    <div class="meta">
+      <span class="tag">Soft</span>
+      <span class="tag">Cereal / Studio</span>
+      <span class="tag">Airy</span>
+    </div>
+  </a>
+
+  <a class="card" href="14-fd-terminal.html">
+    <div class="num">14</div>
+    <h3>Terminal Hacker</h3>
+    <p class="desc"><b>Fira Code + IBM Plex Mono.</b> Phosphor green on black, CRT scanlines, blinking cursor, ASCII borders, prompt-prefixed labels. The classic CRT terminal reference.</p>
+    <div class="preview p14"><span>$ Fira Code · #00ff88 · scanlines</span></div>
+    <div class="meta">
+      <span class="tag">Terminal</span>
+      <span class="tag">CRT</span>
+      <span class="tag">Keyboard</span>
+    </div>
+  </a>
+
+  <a class="card" href="15-fd-synthwave.html">
+    <div class="num">15</div>
+    <h3>Synthwave / Outrun</h3>
+    <p class="desc"><b>Major Mono Display + Rubik.</b> Deep navy with neon magenta / cyan / yellow, perspective grid floor, sun-on-horizon glow, all-caps lowercase labels. The Outrun / Tron reference.</p>
+    <div class="preview p15"><span>Mono Display · #ff2d92 · neon</span></div>
+    <div class="meta">
+      <span class="tag">Synthwave</span>
+      <span class="tag">Outrun / Tron</span>
+      <span class="tag">Neon</span>
+    </div>
+  </a>
+
+  <a class="card" href="16-fd-glass.html">
+    <div class="num">16</div>
+    <h3>Glassmorphism Deep</h3>
+    <p class="desc"><b>Cabinet Grotesk + Satoshi.</b> Aurora gradient wallpaper, blur(60px) saturate(180%) on every panel, frosted white surfaces, luminous edges. The Apple Vision Pro / iOS lockscreen reference.</p>
+    <div class="preview p16"><span>Cabinet · #fff · blur(60px)</span></div>
+    <div class="meta">
+      <span class="tag">Glass</span>
+      <span class="tag">Vision Pro</span>
+      <span class="tag">Aurora</span>
+    </div>
+  </a>
+
+  <a class="card" href="17-fd-newspaper.html">
+    <div class="num">17</div>
+    <h3>Newspaper Print</h3>
+    <p class="desc"><b>Crimson Pro + IBM Plex Serif.</b> Newsprint cream, masthead double-rule, masthead-red accent, italic fig captions, drop-cap-ready. The NYT / Financial Times broadsheet reference.</p>
+    <div class="preview p17"><span>Crimson Pro · #a01e1e · masthead</span></div>
+    <div class="meta">
+      <span class="tag">Newspaper</span>
+      <span class="tag">NYT / FT</span>
+      <span class="tag">Broadsheet</span>
+    </div>
+  </a>
+
+  <a class="card" href="18-fd-y2k.html">
+    <div class="num">18</div>
+    <h3>Y2K Web 1.0</h3>
+    <p class="desc"><b>Press Start 2P + VT323.</b> Beveled Win 9x buttons, starry background, electric blue title bar, hot-pink + yellow stamps, pixel display, spinning-star marquee. The Geocities / MySpace reference.</p>
+    <div class="preview p18"><span>★ press start 2p ★ #00ffff</span></div>
+    <div class="meta">
+      <span class="tag">Y2K</span>
+      <span class="tag">Geocities</span>
+      <span class="tag">Nostalgia</span>
+    </div>
+  </a>
+
+  <a class="card" href="19-fd-organic.html">
+    <div class="num">19</div>
+    <h3>Organic / Nature</h3>
+    <p class="desc"><b>Fraunces italic + Manrope.</b> Cream / terracotta / sage / moss, organic blob shapes in the background, soft drop shadows, photo-centric composition. The Kinfolk / Patagonia reference.</p>
+    <div class="preview p19"><span>Fraunces · #c25e3a · organic</span></div>
+    <div class="meta">
+      <span class="tag">Organic</span>
+      <span class="tag">Patagonia</span>
+      <span class="tag">Photo-first</span>
+    </div>
+  </a>
+
+  <a class="card" href="20-fd-riso.html">
+    <div class="num">20</div>
+    <h3>Risograph Zine</h3>
+    <p class="desc"><b>Archivo Black + IBM Plex Sans.</b> Two-colour RISO print (fluorescent pink + teal) with off-register halftone ghost, shadow-stack, sticker stamps. The Nieves / indie-zine reference.</p>
+    <div class="preview p20"><span>Archivo Black · #ff4081 + #00a89c</span></div>
+    <div class="meta">
+      <span class="tag">Risograph</span>
+      <span class="tag">Nieves</span>
+      <span class="tag">2-colour print</span>
+    </div>
+  </a>
+
+</div>
+
+<!-- ================================================================
+     Section 3 — clean / Zen-grain (5 more, frontend-design skill)
+     ================================================================ -->
+<div class="section-heading">
+  <span class="tag" style="background:#7c6aae">Skill</span>
+  <h2>Section 3 &mdash; clean &quot;normal plane&quot; directions with Zen-style grain <code style="background:rgba(124,106,174,0.12); color:#7c6aae; padding:1px 6px; border-radius:4px; font-family:'Cascadia Mono',Consolas,monospace; font-size:14px;">frontend-design</code></h2>
+  <span class="meta">5 grounded, refined variations · subtle gradient mesh + fine grain · curated typographic pairings</span>
+</div>
+<p class="section-blurb">
+  A third pass, also produced with the <code>frontend-design</code> skill. These are deliberately <b>grounded</b> &mdash; not maximalist or experimental. Each uses a clean modern font pair (Geist, Inter, Plus Jakarta Sans, DM Sans, Sora) and a carefully toning palette, set on a subtle gradient mesh with fine SVG grain. The Zen Browser reference is the through-line: calm, restrained, real-feeling.
+</p>
+
+<div class="grid">
+
+  <a class="card" href="21-fd-zen.html">
+    <div class="num">21</div>
+    <h3>Zen &mdash; calm</h3>
+    <p class="desc"><b>Geist + Geist Mono.</b> Warm off-white, soft lavender accent, fine grain. The Zen Browser reference &mdash; calm gradient mesh, muted type, no decoration.</p>
+    <div class="preview p21"><span>Geist · #7c6aae · grain</span></div>
+    <div class="meta">
+      <span class="tag">Calm</span>
+      <span class="tag">Zen Browser</span>
+      <span class="tag">Lavender</span>
+    </div>
+  </a>
+
+  <a class="card" href="22-fd-linear.html">
+    <div class="num">22</div>
+    <h3>Linear &mdash; monochrome + indigo</h3>
+    <p class="desc"><b>Inter + JetBrains Mono.</b> Warm grey scale with a single sharp indigo accent. Linear-app precise: hairline borders, soft shadows, tabular numerals.</p>
+    <div class="preview p22"><span>Inter · #4f46e5 · precise</span></div>
+    <div class="meta">
+      <span class="tag">Monochrome</span>
+      <span class="tag">Linear</span>
+      <span class="tag">Indigo</span>
+    </div>
+  </a>
+
+  <a class="card" href="23-fd-warm-earth.html">
+    <div class="num">23</div>
+    <h3>Warm Earth</h3>
+    <p class="desc"><b>Plus Jakarta Sans.</b> Cream + terracotta + deep clay, warm gradient, refined Frame.io-style polish. A grounded, tactile palette.</p>
+    <div class="preview p23"><span>Jakarta Sans · #b85c2a · earth</span></div>
+    <div class="meta">
+      <span class="tag">Warm</span>
+      <span class="tag">Frame.io</span>
+      <span class="tag">Terracotta</span>
+    </div>
+  </a>
+
+  <a class="card" href="24-fd-cool-slate.html">
+    <div class="num">24</div>
+    <h3>Cool Slate</h3>
+    <p class="desc"><b>Geist + Geist Mono.</b> Cool grey scale with a slate blue accent. Apple Photos-style polish &mdash; clean, modern, slightly cool undertone.</p>
+    <div class="preview p24"><span>Geist · #3b6cb0 · slate</span></div>
+    <div class="meta">
+      <span class="tag">Cool</span>
+      <span class="tag">Apple Photos</span>
+      <span class="tag">Slate blue</span>
+    </div>
+  </a>
+
+  <a class="card" href="25-fd-dusk.html">
+    <div class="num">25</div>
+    <h3>Dusk</h3>
+    <p class="desc"><b>Sora + DM Sans.</b> Aubergine + dusty pink + warm coral accent. Arc browser-inspired evening calm &mdash; a darker, moodier grounded take.</p>
+    <div class="preview p25"><span>Sora · #c4567a · dusk</span></div>
+    <div class="meta">
+      <span class="tag">Evening</span>
+      <span class="tag">Arc browser</span>
+      <span class="tag">Coral</span>
+    </div>
+  </a>
+
+</div>
+
+<div class="info">
+  <b>How to use this folder.</b> Each file is standalone &mdash; open any in a browser to view at full size. The content shown in every mockup is the same Edit module per <a href="../spec-v1.html">spec-v1</a> &sect;3 (single-result canvas + right panel with histogram + global/mask/crop tabs + built-in edit list + custom-add) plus the shared filmstrip and 4-way module switcher from &sect;13.2. Differences are pure visual style.
+  <br><br>
+  <b>Shortlisted pick.</b> Mockup&nbsp;<a href="10-photo-first.html"><b>10</b></a> (Photo-first / Focus) is the current &quot;normal plane&quot; pick &mdash; the most production-ready starting point if you want a clean, minimal, photo-first layout. Open it from the callout box at the top of the page.
+  <br><br>
+  <b>Three sections.</b> Section&nbsp;1 (mockups&nbsp;01&ndash;10) are baseline <i>Win 11 look-and-feel</i> style directions &mdash; conservative system-aligned treatments using Segoe UI Variable. Section&nbsp;2 (mockups&nbsp;11&ndash;20) are <i>characterful aesthetic</i> directions produced via the agent's <code>frontend-design</code> skill &mdash; committed typographic pairings, anchored to concrete references, intentionally opinionated. Section&nbsp;3 (mockups&nbsp;21&ndash;25) is a refined &quot;normal plane&quot; set &mdash; clean, with nice color toning and a Zen Browser-style grain background &mdash; produced via the same <code>frontend-design</code> skill.
+  <br><br>
+  <b>Suggested next step.</b> Use mockup&nbsp;10 as the base. Pick a section&nbsp;3 palette to skin it (21 lavender, 22 indigo, 23 terracotta, 24 slate, 25 dusk) and we can iterate on a refined v1 mockup that fuses the chosen base with the v1 spec's data-type palette, node editor, and Library module. All files live in <code>docs/style mockups/</code>.
+</div>
+
+</div>
+</body>
+</html>
