@@ -60,8 +60,13 @@ exploring different UI themes (fluent light/dark, high-contrast, acrylic,
 minimalist, compact, lightroom-dark, IDE-style, photo-first, editorial,
 brutalist, pastel, terminal, synthwave, glass, newspaper, Y2K, organic, RISO,
 zen, linear, warm-earth, cool-slate, dusk) plus an `index.html` gallery.
-**They are not authoritative** — they are style exploration, not design
-decisions. Refer to `spec-v1.html` for current v1 scope.
+**The 25 style mockups are not authoritative** — they are style exploration,
+not design decisions. Refer to `spec-v1.html` for current v1 scope.
+
+The canonical mockup for the **Edit** module view is
+[`docs/mockups/final-mockup.html`](docs/mockups/final-mockup.html); other
+modules share the same shell, header, and filmstrip but have their own module
+bodies. See `spec-v1.html` for the full module breakdown.
 
 ## Repo state
 
@@ -81,8 +86,9 @@ docs/
   spec-windows.html
   spec-settings.html         ← placeholder
   spec.html                ← historical combined spec (reference)
-  mockups/                 ← 25 style mockups + index.html gallery
+  mockups/                 ← 25 style mockups + final-mockup + index.html gallery
     index.html
+    final-mockup.html       ← canonical Edit module mockup (per spec-v1.html)
     01-fluent-light.html … 25-fd-dusk.html
 ```
 
