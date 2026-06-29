@@ -1,10 +1,29 @@
 # Photo-Node-Super
 
-Working name for a Lightroom-style non-destructive photo editor with a node-graph
-backend. **v1 is a personal project that runs on Windows 10/11** (Electron +
-React + TypeScript — see `docs/spec-v1.html` §14). **A Linux port is a long-term
-personal goal; the stack is cross-platform, and app logic avoids Windows-only
-APIs, but no Linux work is scheduled or committed.**
+> Non-destructive photo editor with a node-graph backend
+
+A Lightroom-style photo editor where adjustments are built from a visual node
+graph instead of a linear panel. All edits are non-destructive — the original
+file is never modified. v1 runs on Windows 10/11 (Electron + React +
+TypeScript — see [`docs/spec-v1.html`](docs/spec-v1.html) §14). The stack is
+chosen for cross-platform compatibility, avoiding OS-specific APIs where
+practical.
+
+![Edit module style exploration mockup](images/edit-mockup.png)
+*Style exploration mockup of the Edit module (photo editor view)*
+
+## Feature Roadmap
+
+| Phase | Focus | Status |
+|---|---|---|
+| **v1** | App shell, Library (import + grid + filmstrip), Edit (global tab only), Node editor (full authoring), Lens (disabled), Settings (stub) | **Spec complete — build target** |
+| **Crop** | Aspect ratio, straighten, flip, reset | [Extension spec](docs/spec-crop.html) |
+| **Masks** | Mask list + per-mask edit list, all shapes | [Extension spec](docs/spec-masks.html) |
+| **Lens** | Lens module + Lens Correction built-in | [Extension spec](docs/spec-lens.html) |
+| **Library extras** | Metadata panel, source tree, sort, search, multi-select, relink, XMP, albums | [Extension spec](docs/spec-library.html) |
+| **GPU acceleration** | WebGPU preferred, WebGL2 fallback, native addon | [Extension spec](docs/spec-gpu.html) |
+| **Windows shell** | "Open with" verb, Explorer drag-drop, lens-pack storage | [Extension spec](docs/spec-windows.html) |
+| **Settings UI** | Themes, density, storage management, shortcuts, prefs | [Placeholder](docs/spec-settings.html) |
 
 ## v1 scope
 
@@ -24,15 +43,27 @@ Lens** — where **Lens is a disabled placeholder** in v1.
   pipeline, per-sheet undo). A layer's *Edit* button in Edit switches here
   with that sheet loaded.
 - **Lens** — disabled placeholder. The lens-corrector tool (authoring /
-  calibration / library) is deferred; see `docs/spec-lens.html`.
+  calibration / library) is deferred; see [`docs/spec-lens.html`](docs/spec-lens.html).
 - **Settings gear** (in the header, next to the module switcher) — visible
   from day one; opens an empty dialog in v1 pointing at
-  `docs/spec-settings.html` for planned categories. v1 ships baked-in
+  [`docs/spec-settings.html`](docs/spec-settings.html) for planned categories. v1 ships baked-in
   defaults only.
 
 **v1 ships custom sheets as linked-only** — no copy/link prompt on add, no
 sheet-file picker, no Pin. Those features are deferred to
-`docs/spec-copy-link.html`.
+[`docs/spec-copy-link.html`](docs/spec-copy-link.html).
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Desktop shell | Electron (Chromium + Node.js) |
+| UI framework | React + TypeScript |
+| Styling | Tailwind CSS |
+| Node graph canvas | React Flow |
+| Catalog database | SQLite via better-sqlite3 |
+| Image processing | Sharp (libvips) + LibRaw (RAW decode) |
+| Rendering | CPU-only in v1 (GPU acceleration deferred to [spec-gpu](docs/spec-gpu.html)) |
 
 ## Specs
 

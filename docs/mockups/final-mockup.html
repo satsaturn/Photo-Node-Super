@@ -30,21 +30,10 @@
         body {
             margin: 0;
             color: var(--text);
-            background: var(--bg);
+            background-color: var(--bg);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             overflow: hidden;
             display: flex; flex-direction: column;
-        }
-
-        body::after {
-            content: "";
-            position: fixed; inset: 0;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch' seed='5'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0.9 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
-            background-size: 240px 240px;
-            background-repeat: repeat;
-            opacity: 0.6;
-            pointer-events: none;
-            z-index: 0;
         }
 
         .header {
@@ -880,6 +869,121 @@
             applyImageTransform();
         }, { passive: false });
     })();
+</script>
+
+<script>
+(function () {
+  // === CONFIG — easy to update ===
+  const SIZE         = 512;
+  const DENSITY      = 0.20;
+  const MAIN_COLOR   = '#e8e8ea';
+  const GRAIN_COLOR  = '#d4d4d6';
+  const CANDIDATES   = 16;
+  const BLUR_PX      = 0.5;
+  // ================================
+
+  function parseHex(hex) {
+    const m = hex.replace('#', '');
+    return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)];
+  }
+
+  function generatePoints(w, h, density) {
+    const numPoints = Math.floor(w * h * density);
+    const cellSize  = Math.max(2, Math.floor(1 / Math.sqrt(density)));
+    const gridW = Math.ceil(w / cellSize);
+    const gridH = Math.ceil(h / cellSize);
+    const grid  = new Array(gridW * gridH).fill(null);
+
+    function gx(x) { return Math.floor(x / cellSize); }
+    function gy(y) { return Math.floor(y / cellSize); }
+
+    function add(x, y) {
+      const cx = gx(x), cy = gy(y);
+      if (cx < 0 || cx >= gridW || cy < 0 || cy >= gridH) return;
+      const idx = cy * gridW + cx;
+      if (!grid[idx]) grid[idx] = [];
+      grid[idx].push(x, y);
+    }
+
+    function minDist(x, y) {
+      const cx = gx(x), cy = gy(y);
+      let best = Infinity;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const c = grid[(cy + dy) * gridW + (cx + dx)];
+          if (!c) continue;
+          for (let i = 0; i < c.length; i += 2) {
+            const ddx = x - c[i], ddy = y - c[i + 1];
+            const d = ddx * ddx + ddy * ddy;
+            if (d < best) best = d;
+          }
+        }
+      }
+      return best;
+    }
+
+    add(Math.random() * w, Math.random() * h);
+    for (let i = 1; i < numPoints; i++) {
+      let bx = 0, by = 0, bd = 0;
+      for (let c = 0; c < CANDIDATES; c++) {
+        const x = Math.random() * w, y = Math.random() * h;
+        const d = minDist(x, y);
+        if (d > bd) { bd = d; bx = x; by = y; }
+      }
+      add(bx, by);
+    }
+    return grid;
+  }
+
+  function render(w, h, grid, mainHex, grainHex) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    const [mr, mg, mb] = parseHex(mainHex);
+    const [gr, gg, gb] = parseHex(grainHex);
+
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i] = mr; d[i + 1] = mg; d[i + 2] = mb; d[i + 3] = 255;
+    }
+    for (let i = 0; i < grid.length; i++) {
+      const cell = grid[i];
+      if (!cell) continue;
+      for (let j = 0; j < cell.length; j += 2) {
+        const x = Math.floor(cell[j]);
+        const y = Math.floor(cell[j + 1]);
+        if (x < 0 || x >= w || y < 0 || y >= h) continue;
+        const k = (y * w + x) * 4;
+        d[k] = gr; d[k + 1] = gg; d[k + 2] = gb; d[k + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    if (BLUR_PX > 0) {
+      const out = document.createElement('canvas');
+      out.width = w;
+      out.height = h;
+      const octx = out.getContext('2d');
+      octx.filter = 'blur(' + BLUR_PX + 'px)';
+      octx.drawImage(canvas, 0, 0);
+      return out.toDataURL('image/png');
+    }
+    return canvas.toDataURL('image/png');
+  }
+
+  function apply() {
+    const grid = generatePoints(SIZE, SIZE, DENSITY);
+    const url = render(SIZE, SIZE, grid, MAIN_COLOR, GRAIN_COLOR);
+    document.body.style.backgroundImage  = 'url(' + url + ')';
+    document.body.style.backgroundSize   = SIZE + 'px ' + SIZE + 'px';
+    document.body.style.backgroundRepeat = 'repeat';
+  }
+
+  window.regenerateGrain = apply;
+  apply();
+})();
 </script>
 
 </body>

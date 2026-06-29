@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Module — Mockup</title>
+    <style>
+        :root {
+            --bg: #e8e8ea;
+            --text: #2a2a30;
+            --hdr: #1f1f24;
+            --hdr-pill: #2a2a30;
+            --hdr-pill-hi: #34343c;
+            --hdr-text: #e8e8ec;
+            --hdr-muted: #6c6c76;
+            --hdr-divider: #3a3a44;
+            --accent: #6ea8ff;
+            --panel: #2a2a30;
+            --panel-border: #4a4a52;
+            --panel-text: #e8e8ec;
+            --panel-text-2: #a8a8b0;
+            --panel-text-3: #7a7a82;
+            --panel-hover: #3a3a42;
+            --panel-section: #34343c;
+            --track-bg: #4a4a52;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            color: var(--text);
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        body::after {
+            content: "";
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch' seed='5'/><feColorMatrix values='0 0 0 0.2 0.4 0 0 0 0.2 0.4 0 0 0 0.2 0.4 0 0 0 0 1'/></filter><rect width='512' height='512' filter='url(%23n)'/></svg>");
+            background-size: 512px 512px;
+            background-repeat: repeat;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ---- header (module switcher) ---- */
+        .header {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        :root { --gap: 12px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            background: var(--hdr-pill);
+            border-radius: 999px;
+            padding: 4px;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            padding: 6px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--hdr-text);
+            border-radius: 999px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .header .tab:hover:not(.disabled) { background: var(--hdr-pill-hi); }
+        .header .tab.active {
+            background: var(--accent);
+            color: #fff;
+        }
+        .header .tab.disabled {
+            color: var(--hdr-muted);
+            cursor: not-allowed;
+        }
+
+        .icon-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 14px;
+            color: var(--hdr-text);
+            cursor: pointer;
+        }
+        .icon-pill:hover { color: #fff; }
+        .icon-pill svg { display: block; }
+
+        .divider {
+            width: 1px;
+            height: 20px;
+            background: var(--hdr-divider);
+            margin: 0 4px;
+        }
+
+        /* ---- top toolbar (Import + thumb-size slider) ----
+           sits 12px below the header. Header top=12, header height ~38 → bottom=50.
+           Toolbar top = 50 + 12 (gap) = 62. Use calc to stay honest about the gap. */
+        .toolbar {
+            position: absolute;
+            top: calc(12px + 38px + 12px);
+            left: 12px;
+            z-index: 3;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            color: var(--hdr-text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 999px;
+        }
+        .btn:hover { background: var(--hdr-pill-hi); }
+        .btn svg { display: block; }
+
+        .thumb-size {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            color: var(--hdr-text);
+        }
+        .thumb-size .icon-cell {
+            display: flex; align-items: center; justify-content: center;
+            color: var(--hdr-text);
+        }
+        .thumb-size .icon-cell svg { display: block; }
+        .thumb-size .slider-track {
+            width: 100px; height: 3px;
+            background: var(--track-bg);
+            border-radius: 2px;
+            position: relative;
+            --pos: 50%;
+            cursor: pointer;
+        }
+        .thumb-size .slider-track::before {
+            content: ""; position: absolute; left: var(--pos); top: -3px;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--accent);
+            transform: translateX(-50%);
+        }
+        .thumb-size .label {
+            font-size: 13px;
+            color: var(--hdr-text);
+            font-variant-numeric: tabular-nums;
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .toolbar .divider {
+            width: 1px;
+            height: 20px;
+            background: var(--hdr-divider);
+            margin: 0 4px;
+        }
+
+        /* ---- main library grid ----
+           12px gap rule: grid-card sits 12px below toolbar, 12px above filmstrip.
+           Geometry: header top=12, header h=38 → bottom=50. Gap 12. Toolbar top=62,
+           toolbar h=38 → bottom=100. Gap 12. Grid top=112. Filmstrip bottom=12,
+           filmstrip h=74 → top=86. Gap 12. Grid bottom=98. */
+        .main {
+            position: relative;
+            z-index: 1;
+            flex: 1; min-height: 0;
+            --gap: 12px;
+            --header-h: 38px;
+            --toolbar-h: 38px;
+            --filmstrip-h: 74px;
+            padding-top: calc(12px + var(--header-h) + var(--gap) + var(--toolbar-h) + var(--gap));
+            padding-bottom: calc(var(--filmstrip-h) + var(--gap) + var(--gap));
+        }
+        .grid {
+            position: absolute;
+            top: calc(12px + var(--header-h) + var(--gap) + var(--toolbar-h) + var(--gap));
+            bottom: calc(var(--filmstrip-h) + var(--gap) + var(--gap));
+            left: 12px; right: 12px;
+            background: rgba(42, 42, 48, 0.75);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .grid-header {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--panel-section);
+            border-bottom: 1px solid var(--panel-border);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--panel-text-2);
+        }
+        .grid-header .count { flex: 1; }
+        .grid-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .grid-inner {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(var(--thumb, 140px), 1fr));
+            gap: 8px;
+        }
+
+        .thumb {
+            position: relative;
+            background: #1a1a1f;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        .thumb:hover { border-color: var(--panel-text-3); }
+        .thumb.active { border-color: var(--accent); }
+        .thumb img {
+            width: 100%;
+            aspect-ratio: 3 / 2;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb .badge {
+            position: absolute;
+            top: 6px; right: 6px;
+            background: var(--hdr-pill);
+            color: var(--hdr-text);
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        .thumb.active .badge {
+            background: var(--accent);
+            color: #fff;
+        }
+        .thumb.recent .badge {
+            background: #4ec9b0;
+            color: #0a1f1a;
+        }
+        .thumb .filename {
+            padding: 6px 8px;
+            font-size: 11px;
+            color: var(--panel-text-2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        /* ---- bottom filmstrip (shared) ---- */
+        .filmstrip {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            height: 74px;
+            background: rgba(42, 42, 48, 0.75);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            overflow: visible;
+            z-index: 2;
+        }
+        .filmstrip-frames {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border-radius: 12px;
+        }
+        .filmstrip-frame {
+            flex-shrink: 0;
+            width: 72px;
+            height: 48px;
+            background: #1a1a1f;
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .filmstrip-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .filmstrip-frame:hover { border-color: var(--panel-text-3); }
+        .filmstrip-frame.active { border-color: var(--accent); }
+
+        .filmstrip-resize-h {
+            position: absolute;
+            left: 0; right: 0; top: -5px;
+            height: 10px;
+            cursor: ns-resize;
+            z-index: 3;
+        }
+        .filmstrip-resize-h::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px; height: 2px;
+            background: var(--panel-text-3);
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .filmstrip-resize-h:hover::after { opacity: 0.6; }
+
+        /* ---- annotations (mockup-only labels) ---- */
+        .annot {
+            position: absolute;
+            z-index: 4;
+            background: rgba(110, 168, 255, 0.95);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .annot::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 32px;
+            height: 1px;
+            background: rgba(110, 168, 255, 0.6);
+        }
+        .annot.left::after { right: -34px; }
+        .annot.right { transform: translateX(-100%); }
+        .annot.right::after { left: -34px; }
+
+        /* ---- keyboard hint (§13.5) ----
+           floats inside the grid card, top-right, just below the card header. */
+        .kbd-hint {
+            position: absolute;
+            top: 48px;
+            right: 24px;
+            z-index: 3;
+            background: rgba(26, 26, 31, 0.85);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 10px;
+            color: var(--panel-text-2);
+        }
+        .kbd-hint .row { display: flex; align-items: center; gap: 8px; }
+        .kbd-hint kbd {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 20px; height: 18px; padding: 0 5px;
+            background: var(--panel-section);
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
+            font-family: "SF Mono", Consolas, monospace;
+            font-size: 10px;
+            color: var(--panel-text);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============== HEADER (module switcher + settings) ============== -->
+    <div class="header">
+        <div class="header-left">
+            <div class="pill">
+                <div class="tab active">Library</div>
+                <div class="tab">Edit</div>
+                <div class="tab">Nodes</div>
+                <div class="tab disabled" title="Coming in a future version">Lens</div>
+            </div>
+            <div class="pill" style="padding:4px">
+                <div class="icon-pill" title="Settings (v1 stub)" aria-label="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="header-right"></div>
+    </div>
+
+    <!-- ============== TOOLBAR (Import + thumb size) ============== -->
+    <div class="toolbar">
+        <div class="pill">
+            <div class="btn" title="Import photos from a folder">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Import
+            </div>
+            <div class="divider"></div>
+            <div class="thumb-size" title="Adjust thumbnail size">
+                <div class="icon-cell">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                </div>
+                <div class="slider-track" id="thumbSlider"></div>
+                <div class="icon-cell">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                </div>
+                <div class="label" id="thumbLabel">140px</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== MAIN GRID ============== -->
+    <div class="main">
+        <div class="grid">
+            <div class="grid-header">
+                <span class="count" id="photoCount">20 photos</span>
+            </div>
+            <div class="grid-body">
+                <div class="grid-inner" id="gridInner">
+
+                <div class="thumb active recent" data-name="DSC_0001.jpg">
+                    <div class="badge">New</div>
+                    <img src="https://picsum.photos/seed/photo01/300/200" alt="">
+                    <div class="filename">DSC_0001.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0002.jpg">
+                    <img src="https://picsum.photos/seed/photo02/300/200" alt="">
+                    <div class="filename">DSC_0002.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0003.jpg">
+                    <img src="https://picsum.photos/seed/photo03/300/200" alt="">
+                    <div class="filename">DSC_0003.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0004.jpg">
+                    <img src="https://picsum.photos/seed/photo04/300/200" alt="">
+                    <div class="filename">DSC_0004.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0005.jpg">
+                    <img src="https://picsum.photos/seed/photo05/300/200" alt="">
+                    <div class="filename">DSC_0005.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0006.jpg">
+                    <img src="https://picsum.photos/seed/photo06/300/200" alt="">
+                    <div class="filename">DSC_0006.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0007.jpg">
+                    <img src="https://picsum.photos/seed/photo07/300/200" alt="">
+                    <div class="filename">DSC_0007.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0008.jpg">
+                    <img src="https://picsum.photos/seed/photo08/300/200" alt="">
+                    <div class="filename">DSC_0008.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0009.jpg">
+                    <img src="https://picsum.photos/seed/photo09/300/200" alt="">
+                    <div class="filename">DSC_0009.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0010.jpg">
+                    <img src="https://picsum.photos/seed/photo10/300/200" alt="">
+                    <div class="filename">DSC_0010.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0011.jpg">
+                    <img src="https://picsum.photos/seed/photo11/300/200" alt="">
+                    <div class="filename">DSC_0011.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0012.jpg">
+                    <img src="https://picsum.photos/seed/photo12/300/200" alt="">
+                    <div class="filename">DSC_0012.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0013.jpg">
+                    <img src="https://picsum.photos/seed/photo13/300/200" alt="">
+                    <div class="filename">DSC_0013.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0014.jpg">
+                    <img src="https://picsum.photos/seed/photo14/300/200" alt="">
+                    <div class="filename">DSC_0014.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0015.jpg">
+                    <img src="https://picsum.photos/seed/photo15/300/200" alt="">
+                    <div class="filename">DSC_0015.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0016.jpg">
+                    <img src="https://picsum.photos/seed/photo16/300/200" alt="">
+                    <div class="filename">DSC_0016.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0017.jpg">
+                    <img src="https://picsum.photos/seed/photo17/300/200" alt="">
+                    <div class="filename">DSC_0017.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0018.jpg">
+                    <img src="https://picsum.photos/seed/photo18/300/200" alt="">
+                    <div class="filename">DSC_0018.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0019.jpg">
+                    <img src="https://picsum.photos/seed/photo19/300/200" alt="">
+                    <div class="filename">DSC_0019.jpg</div>
+                </div>
+                <div class="thumb" data-name="DSC_0020.jpg">
+                    <img src="https://picsum.photos/seed/photo20/300/200" alt="">
+                    <div class="filename">DSC_0020.jpg</div>
+                </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== FILMSTRIP (shared) ============== -->
+    <div class="filmstrip">
+        <div class="filmstrip-resize-h"></div>
+        <div class="filmstrip-frames">
+            <div class="filmstrip-frame active"><img src="https://picsum.photos/seed/photo01/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo02/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo03/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo04/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo05/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo06/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo07/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo08/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo09/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo10/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo11/120/80" alt=""></div>
+            <div class="filmstrip-frame"><img src="https://picsum.photos/seed/photo12/120/80" alt=""></div>
+        </div>
+    </div>
+
+    <!-- ============== KEYBOARD HINT (§13.5) ============== -->
+    <div class="kbd-hint">
+        <div class="row"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd><span>navigate</span></div>
+        <div class="row"><kbd>Enter</kbd><span>open in Edit</span></div>
+        <div class="row"><kbd>Esc</kbd><span>clear selection</span></div>
+    </div>
+
+    <!-- ============== ANNOTATIONS (mockup-only) ============== -->
+    <div class="annot left" style="top: 28px; left: 200px;">§13.2 Module switcher (Lens disabled in v1)</div>
+    <div class="annot left" style="top: 28px; left: 520px;">§15 Settings — immediately next to switcher</div>
+    <div class="annot left" style="top: 80px; left: 90px;">§13.3 Top toolbar (Import only in v1)</div>
+    <div class="annot right" style="top: 80px; right: 250px;">Adjustable thumbnail size</div>
+    <div class="annot right" style="top: 130px; right: 24px;">§13.3 Thumbnail grid card (3:2, double-click → Edit)</div>
+    <div class="annot right" style="bottom: 50px; right: 24px;">§13.2 Filmstrip (shared across all 4 modules)</div>
+    <div class="annot right" style="bottom: 175px; right: 220px;">§13.4 Most-recently-imported highlight</div>
+    <div class="annot right" style="top: 130px; right: 240px;">§13.5 Keyboard: arrows, Enter, Esc</div>
+
+    <script>
+        // ---- thumbnail size slider ----
+        const slider = document.getElementById('thumbSlider');
+        const label = document.getElementById('thumbLabel');
+        const grid = document.getElementById('gridInner');
+        let thumbPx = 140;
+
+        function setThumb(px) {
+            thumbPx = px;
+            const pct = ((px - 80) / (280 - 80)) * 100;
+            slider.style.setProperty('--pos', pct + '%');
+            label.textContent = px + 'px';
+            grid.style.setProperty('--thumb', px + 'px');
+        }
+        setThumb(140);
+
+        slider.addEventListener('mousedown', startDrag);
+        function startDrag(e) {
+            e.preventDefault();
+            const rect = slider.getBoundingClientRect();
+            function move(ev) {
+                const pct = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+                const px = Math.round(80 + pct * (280 - 80));
+                setThumb(px);
+            }
+            function up() {
+                window.removeEventListener('mousemove', move);
+                window.removeEventListener('mouseup', up);
+            }
+            window.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', up);
+        }
+
+        // ---- grid: single-click to set active, double-click to "open in Edit" ----
+        const thumbs = document.querySelectorAll('.thumb');
+        thumbs.forEach(t => {
+            t.addEventListener('click', () => {
+                thumbs.forEach(x => {
+                    x.classList.remove('active', 'recent');
+                    const b = x.querySelector('.badge');
+                    if (b) b.remove();
+                });
+                t.classList.add('active');
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.textContent = 'Active';
+                t.insertBefore(badge, t.firstChild);
+
+                // sync filmstrip
+                const name = t.dataset.name;
+                const frames = document.querySelectorAll('.filmstrip-frame');
+                frames.forEach(f => f.classList.remove('active'));
+                const idx = Array.from(thumbs).indexOf(t);
+                if (frames[idx]) frames[idx].classList.add('active');
+            });
+            t.addEventListener('dblclick', () => {
+                // mockup-only: in the real app this switches to Edit
+                t.style.outline = '2px solid #6ea8ff';
+                setTimeout(() => t.style.outline = '', 300);
+            });
+        });
+
+        // ---- filmstrip: click to set active, also highlight grid ----
+        const frames = document.querySelectorAll('.filmstrip-frame');
+        frames.forEach((f, i) => {
+            f.addEventListener('click', () => {
+                frames.forEach(x => x.classList.remove('active'));
+                f.classList.add('active');
+                if (thumbs[i]) {
+                    thumbs.forEach(x => {
+                        x.classList.remove('active');
+                        const b = x.querySelector('.badge');
+                        if (b) b.remove();
+                    });
+                    thumbs[i].classList.add('active');
+                    const badge = document.createElement('div');
+                    badge.className = 'badge';
+                    badge.textContent = 'Active';
+                    thumbs[i].insertBefore(badge, thumbs[i].firstChild);
+                }
+            });
+        });
+
+        // ---- module switcher (mockup-only) ----
+        const moduleTabs = document.querySelectorAll('.header .tab');
+        moduleTabs.forEach(t => {
+            if (t.classList.contains('disabled')) return;
+            t.addEventListener('click', () => {
+                moduleTabs.forEach(x => x.classList.remove('active'));
+                t.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

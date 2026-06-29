@@ -159,6 +159,7 @@
   <li><strong>Edit-panel card</strong> — tabbed container with three tabs: <strong>global</strong> (active in v1), <strong>mask</strong> and <strong>crop</strong> (disabled placeholders, greyed out with a "coming in a future version" tooltip). The <strong>global</strong> tab shows the global edit list for the current photo. Top→bottom = visual order within the list.</li>
   <li>Built-in edits always present, fixed visual order among themselves (Lens Correction → Basic → Colour → HSL/Mix → Tone Curve → Detail), Lightroom-style. Not removable. <strong>The Lens Correction slot is reserved/empty in v1</strong> — it executes as identity until the Lens module ships (see <a href="spec-lens.html">spec-lens</a>). <strong>Visual list position ≠ execution order</strong> — see §6.</li>
   <li><strong>Custom Edits section</strong> pinned at the bottom with a <strong>+</strong> button.</li>
+  <li><strong>Phase-group dividers.</strong> Within the Custom Edits section, layers are visually grouped by their execution phase (§6). A thin divider labelled with the phase name (e.g. "After exposure", "At end") separates each group. Dividers are only shown for phases that currently have at least one layer — empty phases are hidden. Layers cannot be dragged across a divider; reordering is constrained to within the same phase group. To change a layer's phase, edit its sheet settings (§12.2.1).</li>
 </ul>
 <p>Pressing <strong>+</strong> creates a custom layer header containing:</p>
 <ul>
@@ -209,7 +210,7 @@
 <p>Every layer in v1 exposes in its header:</p>
 <ul>
   <li><strong>Enable/bypass toggle</strong> — off = identity passthrough (Image-In → Image-Out, controls ignored).</li>
-  <li><strong>Reorder handle</strong> — drag within the Custom Edits section (sets execution order within a phase bucket — see §6).</li>
+  <li><strong>Reorder handle</strong> — drag within a phase group (sets tie-break execution order within that phase bucket — see §6). The handle cannot drag a layer across a phase-group divider (§3); to move a layer to a different phase, edit its sheet settings.</li>
   <li><strong>Edit</strong> button → opens the node editor for that sheet.</li>
 </ul>
 <div class="callout future">
@@ -253,7 +254,9 @@
   <li><strong>A header section</strong> (Nodes), not a full-screen toggle inside Edit. Entered from the header, or via a layer's <strong>Edit</strong> button in the Edit module (switches to Nodes with that sheet loaded). Works with no photo loaded.</li>
   <li>No-photo state: <strong>blank graph</strong>; header ops let you open an existing sheet or start new. Image-In shows nothing; thumbnails stay blank until the sheet is applied to a real photo. <strong>No sample-image concept exists.</strong></li>
   <li>Canvas: <strong>per-node output thumbnails</strong> on each node body + <strong>main canvas shows final sheet output</strong> (on Image-Out).</li>
+  <li><strong>No nested sheets.</strong> A sheet is a flat graph — a node cannot reference or embed another sheet file. Composition is achieved by stacking layers in a photo's edit list (§6), not by nesting graphs. This constraint may be revisited in a later version.</li>
   <li>Built-in sheets are locked — openable for inspection/thumbnail-scrub but graph not editable.</li>
+  <li><strong>Error states.</strong> If a node fails during evaluation (bad params, unsupported bit depth, evaluation error): the node passes its input image through unchanged, its body border turns red, and a warning badge appears on its header. Hovering the badge shows a tooltip with the error message. Downstream nodes receive the pass-through and continue. If Image-Out itself fails, the main canvas shows a "Render error" message. Errors are also logged to the developer console.</li>
 </ul>
 
 <h2 id="s8">8. History / undo</h2>
@@ -407,25 +410,116 @@
   <li><strong>Graph canvas</strong> holds the two planes (image + control), per §10. Image-Out's thumbnail is the final sheet output shown on the main canvas when not in the node editor.</li>
 </ul>
 
-<h3>12.2 Right top — node sheet settings</h3>
+<h4>12.1.1 Canvas interactions</h4>
+<p>Provided by React Flow (§14.2). v1 adopts the following conventions:</p>
+<ul>
+  <li><strong>Pan</strong> — middle-click drag, or Space + left-click drag. Cursor changes to <code>grab</code> → <code>grabbing</code>.</li>
+  <li><strong>Zoom</strong> — mouse wheel or trackpad pinch. Clamped 0.05–20×. The <strong>fit-to-view</strong> button in the toolbar resets zoom to fit all nodes.</li>
+  <li><strong>Drag-to-connect</strong> — drag from a source port (right side of node) to a target port (left side). Invalid connections (type mismatch, would create a cycle) show a red indicator and are rejected on drop. Valid connections snap into place.</li>
+  <li><strong>Delete edge</strong> — click to select an edge (highlights), press Delete or Backspace.</li>
+  <li><strong>Reconnect edge</strong> — drag either endpoint of a selected edge to a different port.</li>
+  <li><strong>Select node</strong> — click a node to select it (single selection). Click on empty canvas to deselect.</li>
+  <li><strong>Multi-select nodes</strong> — Shift+click to toggle a node into/out of the current selection; or drag a selection rectangle (marquee) on empty canvas to select all nodes within.</li>
+  <li><strong>Delete nodes</strong> — select one or more nodes and press Delete or Backspace.</li>
+  <li><strong>Copy / paste nodes</strong> — select node(s) and press Ctrl+C / Ctrl+V. Pasted nodes are offset 30px down-right from the originals. Edges that connected two copied nodes are preserved; edges to/from uncopied nodes are dropped.</li>
+  <li><strong>Undo / redo</strong> — Ctrl+Z / Ctrl+Y per the per-sheet undo stack (§8).</li>
+  <li><strong>Drag move nodes</strong> — standard click-drag on the node body to reposition. Arrow keys nudge the selected node by 1px (or 10px with Shift).</li>
+  <li><strong>Select all</strong> — Ctrl+A selects all nodes on the canvas.</li>
+  <li><strong>Fit to view</strong> — F key centres the canvas and zooms to encompass all nodes (same as the toolbar button).</li>
+  <li><strong>Quick-add node search</strong> — Tab opens an overlay search box at the canvas centre. Type to filter nodes by name across all palette categories; pressing Enter adds the top result at the current cursor position. Esc closes the overlay without adding.</li>
+  <li><strong>Escape</strong> — deselects all nodes and closes any open popover (properties panel returns to sheet settings).</li>
+</ul>
+
+<h3>12.2 Right top — contextual properties panel</h3>
+<p>The right-top panel switches content based on what is selected on the canvas. The palette always stays visible in the right-bottom section (§12.3).</p>
+<ul>
+  <li><strong>Nothing selected</strong> (default) — shows sheet settings (§12.2.1).</li>
+  <li><strong>Node selected</strong> (effect / terminal / math) — shows node properties (§12.2.2).</li>
+  <li><strong>Vertex selected</strong> (on the UI node) — shows vertex properties (§12.2.3).</li>
+</ul>
+
+<h4>12.2.1 Sheet settings (default, nothing selected)</h4>
 <ul>
   <li><strong>Sheet name</strong> — editable; shown in the main-editor layer header and the sheet-file dropdown.</li>
+  <li><strong>Name collisions.</strong> If two saved sheets have the same display name, the dropdown disambiguates by appending the filename in muted text: <code>"Sunset Tone" — sunset-tone.json</code>. On Save As, if the target filename already exists, a "Replace existing file?" confirmation is shown before overwriting.</li>
   <li><strong>Execution phase</strong> — dropdown: First / After exposure / After colour / At end (§6).</li>
   <li><strong>Description / notes</strong> — free text; shown as a tooltip in the sheet-file dropdown so users recall what a saved sheet does.</li>
   <li><strong>Author / last-saved timestamp</strong> — for managing a growing library.</li>
   <li><strong>Header ops</strong> (from §7): Save, Save As, Rename, Duplicate, Delete — applied to the open sheet.</li>
+  <li><strong>Note — Built-in duplication.</strong> Duplicating a locked built-in sheet produces a new unlocked sheet file with an identical graph. The user is prompted to name the copy (default: "{original name} Copy"), and it is saved to the user's sheets folder. The original built-in remains unchanged.</li>
 </ul>
 <div class="callout future">
   <strong>Deferred to <a href="spec-copy-link.html">spec-copy-link</a>:</strong> the "Copy/Link default override" sheet setting (v1 has no copy, so no per-sheet override is needed).
 </div>
 
+<h4>12.2.2 Node properties (when a node is selected)</h4>
+<ul>
+  <li><strong>Node name</strong> — editable text field. Defaults to the node type (e.g. "Exposure", "Blend").</li>
+  <li><strong>Category</strong> — read-only indicator: Terminal / Effect / Math-utility / UI.</li>
+  <li><strong>Description</strong> — optional free-text notes for the author.</li>
+</ul>
+<p>Free-param values are edited directly on the node body (§12.3.2), not in this panel.</p>
+
+<h4>12.2.3 Vertex properties (when a vertex on the UI node is selected)</h4>
+<ul>
+  <li><strong>Label</strong> — editable text; this is what appears as the control's name in the main-editor panel.</li>
+  <li><strong>Type</strong> — read-only: Number / Color / Curve / Boolean / Dropdown. Set on creation.</li>
+  <li><strong>Range</strong> (Number only) — min, max, step value. The main editor's slider uses these bounds.</li>
+  <li><strong>Default value</strong> — the value a new layer gets before the user touches the control. Expressed per type: a number, a colour swatch, a curve, a boolean toggle state, or a dropdown index.</li>
+  <li><strong>Dropdown options</strong> (Dropdown/enum only) — an editable list of option labels. The user adds, removes, and reorders items; each item becomes one entry in the main editor's dropdown.</li>
+  <li><strong>Reorder</strong> — up/down buttons to change the vertex's position in the main editor's control list. The order in the UI node determines the top-to-bottom order in the edit panel.</li>
+</ul>
+
 <h3>12.3 Right bottom — node palette</h3>
 <ul>
   <li><strong>Search box</strong> at the top — filter-as-you-type across node names.</li>
-  <li><strong>Collapsible category sections</strong> below: Terminals / Effects / Math-utility / UI.</li>
+  <li><strong>Collapsible category sections</strong> below:
+    <ul>
+      <li><strong>Terminals</strong> — Image-In, Image-Out. Shown but locked; each sheet has exactly one of each, and they cannot be added or removed.</li>
+      <li><strong>Effects</strong> — the 13 effect nodes listed in §12.3.1. These are the building blocks for custom sheets.</li>
+      <li><strong>Math-utility</strong> — <em>Deferred.</em> The category header is shown but collapsed by default and marked "Coming in a future version." No nodes ship in v1. The planned set (Number constant, Math, Remap/clamp, Curve-from-number, Color constant) is listed in §10.2 for reference.</li>
+      <li><strong>UI</strong> — "UI Node" entry. Greyed out if a UI node already exists on the canvas (a sheet may have zero or one UI node).</li>
+    </ul>
+  </li>
   <li><strong>Add gesture:</strong> drag a node from the palette onto the canvas, OR click to drop it at the canvas centre / last-click position.</li>
   <li>Categories collapse to save vertical space; search filters across all categories regardless of collapse state.</li>
 </ul>
+
+<h4>12.3.1 Effect-node inventory (v1)</h4>
+<p>Thirteen effect nodes ship in v1. Each has an Image-In port and an Image-Out port, plus zero or more free-able param ports. Params may be bound to UI-node vertices (§4/§10.3) or left free (set inside the node editor). The <strong>Blend</strong> node is the only node with two image inputs (Image-A and Image-B).</p>
+<table>
+  <thead><tr><th>Node</th><th>Description</th><th>Free-able params</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Exposure</strong></td><td>Basic exposure, contrast, and tonal adjustments</td><td>Exposure (±), Contrast, Highlights, Shadows, Whites, Blacks (6 × Number)</td></tr>
+    <tr><td><strong>White Balance</strong></td><td>Colour temperature and tint correction</td><td>Temperature, Tint (2 × Number)</td></tr>
+    <tr><td><strong>Vibrance</strong></td><td>Vibrant and overall saturation</td><td>Vibrance, Saturation (2 × Number)</td></tr>
+    <tr><td><strong>HSL</strong></td><td>Per-colour hue, saturation, and luminance adjustments across 8 colour bins (Red, Orange, Yellow, Green, Aqua, Blue, Purple, Magenta)</td><td>H × 8, S × 8, L × 8 (24 × Number; each colour's three params may be grouped or independent per vertex binding)</td></tr>
+    <tr><td><strong>Tone Curve</strong></td><td>Parametric curve (shadows / darks / lights / highlights) + point curve</td><td>Curve (1 × Curve)</td></tr>
+    <tr><td><strong>Split Tone</strong></td><td>Shadow and highlight colour grading with balance control</td><td>Shadow Color, Highlight Color (2 × Color), Balance (1 × Number)</td></tr>
+    <tr><td><strong>Color Balance</strong></td><td>Shadows / midtones / highlights RGB offset</td><td>Shadows RGB, Midtones RGB, Highlights RGB (9 × Number)</td></tr>
+    <tr><td><strong>Channel Mixer</strong></td><td>Per-output-channel mix of Red, Green, Blue input channels plus constant offset</td><td>Red-R/G/B/Const, Green-R/G/B/Const, Blue-R/G/B/Const (12 × Number)</td></tr>
+    <tr><td><strong>Blend</strong></td><td>Composite two image inputs with opacity and blend mode. Has two image input ports (Image-A, Image-B).</td><td>Opacity (1 × Number), Mode (1 × Dropdown: Normal, Multiply, Screen, Overlay, Soft Light, Hard Light, Darken, Lighten, Difference, Exclusion)</td></tr>
+    <tr><td><strong>Sharpen</strong></td><td>Sharpening with amount, radius, and threshold control</td><td>Amount, Radius, Threshold (3 × Number)</td></tr>
+    <tr><td><strong>Noise Reduction</strong></td><td>Luminance and colour noise reduction</td><td>Luminance Amount, Luminance Detail, Luminance Contrast, Color Amount, Color Detail (5 × Number)</td></tr>
+    <tr><td><strong>Vignette</strong></td><td>Post-crop vignette effect</td><td>Amount, Feather, Midpoint, Roundness (4 × Number)</td></tr>
+    <tr><td><strong>Invert</strong></td><td>Invert all colour channels (no adjustable parameters; operates directly)</td><td>(none)</td></tr>
+  </tbody>
+</table>
+
+<h4>12.3.2 Free-param editing on node bodies</h4>
+<p>When a node param is <em>free</em> (not bound to a UI vertex), its default value is set directly on the node body. The editing widget sits next to the socket label, Blender-style. When a param is <em>bound</em> (connected to a UI vertex via §10.3), the widget is hidden — the value is driven by the connected vertex.</p>
+<ul>
+  <li><strong>Number</strong> — small editable number field. Click to type a value; drag horizontally to scrub. Shows 1–3 decimal places as appropriate.</li>
+  <li><strong>Color</strong> — colour swatch thumbnail. Click opens a colour picker popover (RGB sliders + hex input).</li>
+  <li><strong>Curve</strong> — small curve preview thumbnail. Click opens a curve editor popover with control-point editing.</li>
+  <li><strong>Boolean</strong> — inline toggle / checkbox, flush with the socket row.</li>
+  <li><strong>Dropdown/enum</strong> — compact inline dropdown selector, same row as the socket label.</li>
+  <li><strong>Node resize:</strong> if the body has more params than fit, the node shows a scrollbar. The user may also drag-resize the node vertically to see more params at once.</li>
+  <li><strong>Collapsible param groups:</strong> nodes with many params (e.g. HSL's 8 colour bins) group them under collapsible headers. Clicking the header triangle toggles visibility of that group's fields on the node body.</li>
+</ul>
+<div class="callout">
+  <strong>Blender reference.</strong> The free-param widget sits on the same row as the socket label, left-aligned after the label text. The socket dot is always visible on the left edge of the node; connecting a wire to the socket hides the inline widget. v1 follows this pattern precisely.
+</div>
 
 <h3>12.4 Resizing</h3>
 <ul>
@@ -638,18 +732,18 @@
 <p style="color:var(--muted)">Gaps and unspecified details that affect v1. Severity: <span class="sev high">high</span> blocks v1; <span class="sev med">med</span> needs an answer before build; <span class="sev low">low</span> can wait. Holes #4, #5, #8, #10, #11, #12, and #24–#39 have been moved to the relevant extension specs (see <a href="#s16">§16</a>).</p>
 
 <div class="hole-item">
-  <h4>#1 — Effect-node set for the palette <span class="sev high">high</span></h4>
-  <p>Built-in <em>sheets</em> are defined (Basic, Colour, HSL, Tone Curve, Detail), but the individual effect <em>nodes</em> available in the node palette to build custom sheets are not. What nodes ship in v1? (Exposure, Curves, Channel Mixer, Blend, HSL, Split Tone, Sharpen, Noise, Vignette, …?) The §12.3 palette lists categories but no contents. Without this, users can't build anything.</p>
+  <h4>#1 — Effect-node set for the palette <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.3.1:</strong> thirteen effect nodes ship in v1 (Exposure, White Balance, Vibrance, HSL, Tone Curve, Split Tone, Color Balance, Channel Mixer, Blend, Sharpen, Noise Reduction, Vignette, Invert). Each has its free-able params listed. Math-utility nodes are deferred; the category header is shown collapsed with a "Coming in a future version" marker.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#2 — Free-param editing UX <span class="sev high">high</span></h4>
-  <p>When an effect-node param is <em>free</em> (not bound to a UI vertex), where/how is its value set inside the node editor? Options: inline field on the node body, a separate node-properties panel, double-click the node to open a param sheet. Not specified — and it's the most common authoring action.</p>
+  <h4>#2 — Free-param editing UX <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.3.2:</strong> Blender-style inline fields on the node body. Number fields, colour swatches, curve thumbnails, toggles, and dropdowns sit next to their socket labels. Bound params hide the widget; free params show it. Clicking a colour/curve opens a popover for detailed editing. Collapsible param groups keep crowded nodes manageable.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#3 — UI vertex authoring details <span class="sev high">high</span></h4>
-  <p>§4/§10.3 say vertices support "custom label, custom range, reorder" but don't say <em>where</em> those are edited. Is there a vertex-properties panel? Inline edit on the UI node? How do you set a Dropdown/enum's option list? How do you define a Curve vertex's default curve? This is core to the killer feature.</p>
+  <h4>#3 — UI vertex authoring details <span class="sev high">high</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.2.3:</strong> selecting a vertex on the UI node opens its properties in the right-top panel (replacing sheet settings). The panel exposes label, type, range (Number), default value, dropdown options (Enum), and reorder buttons. The right-top panel is contextual: nothing selected → sheet settings, node selected → node properties, vertex selected → vertex properties (§12.2). The palette is always visible in the bottom section (§12.3).</p>
 </div>
 
 <div class="hole-item">
@@ -663,13 +757,13 @@
 </div>
 
 <div class="hole-item">
-  <h4>#9 — Node-editor wiring interactions <span class="sev med">med</span></h4>
-  <p>Deferred earlier. Pan/zoom gestures, drag-to-connect from port to port, delete an edge, reconnect (drag endpoint vs redraw), multi-select nodes, copy/paste nodes, delete nodes, align/snap, keyboard modifiers. All unspecified.</p>
+  <h4>#9 — Node-editor wiring interactions <span class="sev med">med</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.1.1:</strong> pan (middle-click / Space+drag), zoom (wheel, 0.05–20×), drag-to-connect with type/cycle validation, edge delete/reconnect, node select/multi-select/marquee, delete, copy/paste (offset placement, preserved intra-copy edges), undo/redo, drag-move, and arrow-key nudge.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#13 — Built-in sheet duplication <span class="sev low">low</span></h4>
-  <p>Built-ins are locked (not editable), but can a user <em>duplicate</em> a built-in to start a custom sheet from it ("Duplicate Basic → tweak")? Natural workflow; currently unaddressed. The header ops in §7 (Save As / Duplicate) apply to the open sheet — does "Duplicate a locked built-in" produce an unlocked copy?</p>
+  <h4>#13 — Built-in sheet duplication <span class="sev low">low</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.2.1:</strong> duplicating a locked built-in produces a new unlocked sheet file with an identical graph. The user names the copy; the original remains unchanged.</p>
 </div>
 
 <div class="hole-item">
@@ -688,28 +782,28 @@
 </div>
 
 <div class="hole-item">
-  <h4>#17 — Reorder-handle scope <span class="sev low">low</span></h4>
-  <p>§5 says "Reorder handle — drag within the Custom Edits section." §6 says customs always display at the bottom. Confirm: the handle cannot drag a custom above a built-in in the panel (only reorders within the custom section), and phase is what decides actual pipeline position. Worth a sentence to prevent confusion.</p>
+  <h4>#17 — Reorder-handle scope <span class="sev low">low</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §3 and §5:</strong> phase-group dividers in the Custom Edits section group layers by phase. Dividers only appear for non-empty phases. Reordering is constrained within a group — the handle cannot drag across a divider. Phase change is done via sheet settings, not drag.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#18 — Nested sheets / sheet-as-node <span class="sev low">low</span></h4>
-  <p>Can a sheet reference another sheet as a node (nested sheets / sub-graphs)? §6 chose "stacked layers, not master graph with sub-graphs," which implies no — but it's a natural power-user feature. Confirm "no nested sheets in v1" explicitly.</p>
+  <h4>#18 — Nested sheets / sheet-as-node <span class="sev low">low</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §7:</strong> no nested sheets in v1. A sheet is a flat graph; a node cannot reference another sheet. Composition is by layers in the edit list.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#19 — Sheet name collisions <span class="sev low">low</span></h4>
-  <p>Two sheets with the same display name in the folder — how does the dropdown disambiguate (show filename? author? timestamp)? What happens on duplicate save?</p>
+  <h4>#19 — Sheet name collisions <span class="sev low">low</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.2.1:</strong> dropdown shows <code>"display name" — filename.json</code> for disambiguation. Save As prompts before overwriting an existing file.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#20 — Error states <span class="sev low">low</span></h4>
-  <p>When a node fails (bad param values, unsupported bit depth, evaluation error), what does the user see? Red node? Warning badge? Fallback to last good output? Not specified.</p>
+  <h4>#20 — Error states <span class="sev low">low</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §7:</strong> failed node passes its input through unchanged, shows a red border + warning badge with tooltip. Downstream nodes receive the pass-through and continue. Image-Out failure shows "Render error" on the canvas.</p>
 </div>
 
 <div class="hole-item">
-  <h4>#21 — Keyboard shortcuts <span class="sev low">low</span></h4>
-  <p>None defined. At minimum: node-editor toggle, fit-view, delete selection, undo/redo, add-node quick-search. Can wait.</p>
+  <h4>#21 — Keyboard shortcuts <span class="sev low">low</span> <span class="status resolved">resolved</span></h4>
+  <p><strong>Resolved by §12.1.1 and §14.7:</strong> node-editor shortcuts defined (F = fit view, Tab = quick-add search, Ctrl+A = select all, Esc = deselect/close, plus existing Undo/Redo, Delete, Copy/Paste, arrow nudge, Space+drag pan). Standard app shortcuts (Ctrl+O/S, F11, etc.) are in §14.7.</p>
 </div>
 
 <div class="hole-item">
