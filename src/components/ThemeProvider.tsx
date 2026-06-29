@@ -48,13 +48,14 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     const body = document.body
     if (grainStrength > 0) {
-      body.style.backgroundImage = `url("${grainUrl}")`
-      body.style.backgroundSize = '256px 256px'
-      body.style.backgroundRepeat = 'repeat'
-      body.style.backgroundBlendMode = 'overlay'
-    } else {
+      body.style.setProperty('--grain-image', `url("${grainUrl}")`)
+      body.classList.add('has-grain')
       body.style.backgroundImage = ''
+      body.style.backgroundSize = ''
+      body.style.backgroundRepeat = ''
       body.style.backgroundBlendMode = ''
+    } else {
+      body.classList.remove('has-grain')
     }
   }, [grainStrength, grainUrl])
 

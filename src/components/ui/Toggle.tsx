@@ -6,7 +6,7 @@ type ToggleProps = {
 
 export default function Toggle({ checked, onChange, label }: ToggleProps) {
   return (
-    <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
       <input
         type="checkbox"
         checked={checked}

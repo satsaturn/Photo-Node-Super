@@ -74,14 +74,14 @@ export default function Slider({
   )
 
   return (
-    <div className={`grid grid-cols-[1fr_auto] items-start gap-1.5 mb-2 select-none ${className}`}>
+    <div className={`grid grid-cols-[1fr_auto] items-start gap-2 mb-2 select-none ${className}`}>
       <span className="text-[11px] text-panel-text-2">{label}</span>
       <span className="text-[10px] text-panel-text-3 tabular-nums text-right">
         {formatValue(value)}
       </span>
       <div
         ref={trackRef}
-        className="h-[24px] flex flex-col cursor-pointer col-span-2 group px-1"
+        className="h-[24px] flex flex-col cursor-pointer col-span-2 group p-1"
         onMouseDown={onMouseDown}
       >
         {ticks && (

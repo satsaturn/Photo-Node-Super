@@ -36,7 +36,7 @@ export default function Dialog({ isOpen, onClose, title, hideHeader = false, chi
       <Card className="w-[640px] max-h-[80vh] flex flex-col overflow-hidden border border-panel-border relative">
         <button
           onClick={onClose}
-          className={`absolute top-0 right-0 z-10 w-7 h-7 rounded-full flex items-center justify-center text-panel-text-2 hover:text-panel-text hover:bg-panel-hover transition-colors ${hideHeader ? '' : 'hidden'}`}
+          className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-panel-text-2 hover:text-panel-text hover:bg-panel-hover transition-colors ${hideHeader ? '' : 'hidden'}`}
           aria-label="Close"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -45,7 +45,7 @@ export default function Dialog({ isOpen, onClose, title, hideHeader = false, chi
           </svg>
         </button>
         {!hideHeader && (
-          <div className="flex items-center justify-between px-5 py-3 border-b border-panel-border shrink-0">
+          <div className="flex items-center justify-between p-4 border-b border-panel-border shrink-0">
             <h2 className="text-sm font-semibold text-panel-text">{title}</h2>
             <button
               onClick={onClose}
@@ -59,7 +59,7 @@ export default function Dialog({ isOpen, onClose, title, hideHeader = false, chi
             </button>
           </div>
         )}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className={`flex-1 overflow-y-auto ${hideHeader ? 'p-8' : 'p-4'}`}>
           {children}
         </div>
       </Card>

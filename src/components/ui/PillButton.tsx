@@ -19,7 +19,7 @@ export default function PillButton({
   const sizing =
     variant === 'icon'
       ? 'p-1'
-      : 'px-[18px] py-[6px] text-[14px] gap-1.5'
+      : 'px-4 py-1.5 text-[14px] gap-2'
   const state = active
     ? 'bg-accent text-white'
     : disabled

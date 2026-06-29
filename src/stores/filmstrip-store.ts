@@ -14,7 +14,7 @@ export interface FilmstripState {
   setHeight: (h: number) => void
 }
 
-const defaultPhotos: FilmstripPhoto[] = Array.from({ length: 12 }, (_, i) => ({
+const defaultPhotos: FilmstripPhoto[] = Array.from({ length: 50 }, (_, i) => ({
   id: `photo${String(i + 1).padStart(2, '0')}`,
   name: `DSC_${String(i + 2).padStart(4, '0')}.jpg`,
   thumbnail: `https://picsum.photos/seed/photo${String(i + 2).padStart(2, '0')}/144/96`,
@@ -23,7 +23,7 @@ const defaultPhotos: FilmstripPhoto[] = Array.from({ length: 12 }, (_, i) => ({
 export const useFilmstripStore = create<FilmstripState>()((set) => ({
   photos: defaultPhotos,
   activePhotoId: defaultPhotos[0]?.id ?? null,
-  height: 74,
+  height: 120,
   selectPhoto: (id) => set({ activePhotoId: id }),
   setHeight: (h) => set({ height: Math.max(74, Math.min(200, h)) }),
 }))
