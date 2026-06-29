@@ -358,27 +358,31 @@ Panel tabs (global/mask/crop) and header tabs (Library/Edit/Nodes/Lens) use the 
 
 ---
 
-## 6. Grain Texture Overlay
+## 6. Grain Texture
 
-The canvas has a subtle noise texture applied as a fixed overlay:
+The canvas background is a **single PNG of blue-noise** generated in
+JavaScript on page load, with the two colours (`--bg` + a slightly
+darker grain) baked directly into the pixels. There is no overlay layer,
+no blend mode, no `::after` pseudo-element.
 
 ```css
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg ...>");
-    background-size: 512px 512px;
-    mix-blend-mode: overlay;
-    pointer-events: none;
-    z-index: 0;
+body {
+    background-color: var(--bg);   /* fallback, set by JS below */
 }
 ```
 
-- Fractal noise via SVG filter (`feTurbulence`)
-- 512×512px tile, repeated
-- `mix-blend-mode: overlay` for subtle texture
-- Non-interactive (`pointer-events: none`)
+```js
+// Generated once, assigned to body.style.backgroundImage
+document.body.style.backgroundImage  = 'url(' + dataUrl + ')';
+document.body.style.backgroundSize   = '512px 512px';
+document.body.style.backgroundRepeat = 'repeat';
+```
+
+Defaults: 512×512 px, 20% density, main `#e8e8ea`, grain `#d4d4d6`,
+16 candidates per point, 0.5 px Gaussian blur.
+
+Full implementation details (algorithm, tuning, app-integration plan) in
+[`docs/GRAIN-TEXTURE.md`](GRAIN-TEXTURE.md).
 
 ---
 

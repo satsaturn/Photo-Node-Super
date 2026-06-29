@@ -101,8 +101,9 @@ bodies. See `spec-v1.html` for the full module breakdown.
 
 ## Repo state
 
-No source code yet; the software stack is decided in `spec-v1.html` §14.
-This repository currently contains the v1 spec set and style mockups only.
+The repository contains the v1 spec set, style mockups, and Electron + React
+scaffolding (electron-vite, React 19, TypeScript, Tailwind CSS). The software
+stack is decided in `spec-v1.html` §14.
 
 ```
 .git/
