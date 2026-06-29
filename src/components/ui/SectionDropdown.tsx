@@ -21,7 +21,7 @@ export default function SectionDropdown({
 
   return (
     <div
-      className={`bg-[rgba(var(--panel-rgb),var(--panel-opacity,0.85))] border border-panel-border rounded-xl overflow-hidden mb-2 ${className}`}
+      className={`bg-[rgba(var(--panel-rgb),var(--panel-opacity,0.85))] border border-panel-border rounded-lg overflow-hidden ${className}`}
     >
       <div
         onClick={() => {
