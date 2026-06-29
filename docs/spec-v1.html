@@ -229,9 +229,9 @@
     <tr><td>0</td><td><strong>Lens correction</strong></td><td><em>Reserved in v1 — identity passthrough.</em> Lens Correction built-in slot ships empty; the Lens module and its profile files are deferred (see <a href="spec-lens.html">spec-lens</a>).</td></tr>
     <tr><td>1</td><td><strong>Crop</strong></td><td><em>Deferred in v1 — identity passthrough.</em> Crop / straighten / flip → <a href="spec-crop.html">spec-crop</a>.</td></tr>
     <tr><td>2</td><td><strong>First / at start</strong></td><td>customs with phase=first</td></tr>
-    <tr><td>3</td><td>(built-in)</td><td><strong>Basic</strong> — Exposure, Contrast, Highlights, Shadows, Whites, Blacks</td></tr>
+    <tr><td>3</td><td>(built-in)</td><td><strong>Basic</strong> — Exposure, Contrast, Highlights, Shadows, Whites, Blacks, White Balance</td></tr>
     <tr><td>4</td><td><strong>After exposure correction</strong></td><td>customs with phase=after-exposure</td></tr>
-    <tr><td>5</td><td>(built-in)</td><td><strong>Colour</strong> (Temp/Tint/Vibrance/Saturation), <strong>HSL / Colour Mix</strong>, <strong>Tone Curve</strong></td></tr>
+    <tr><td>5</td><td>(built-in)</td><td><strong>Colour</strong> (Vibrance/Saturation), <strong>HSL / Colour Mix</strong>, <strong>Tone Curve</strong></td></tr>
     <tr><td>6</td><td><strong>After colour</strong></td><td>customs with phase=after-colour</td></tr>
     <tr><td>7</td><td>(built-in)</td><td><strong>Detail</strong> — Sharpen, Luminance + Colour Noise</td></tr>
     <tr><td>8</td><td><strong>At end</strong></td><td>customs with phase=at-end</td></tr>
@@ -337,8 +337,8 @@
 <ul>
   <li><strong>Canvas background</strong> — light grey <code>#e8e8ea</code> with a grain overlay (SVG <code>feTurbulence</code>, 240×240 tile, opacity 0.6, dark color matrix). The grain is the background; no separate background image.</li>
   <li><strong>Floating pills</strong> (header, toolbar, tabs, icon cells) — solid <code>#2a2a30</code> (<code>--hdr-pill</code>). Used for chrome that sits above the canvas with no grain showing through.</li>
-  <li><strong>Floating cards</strong> (histogram, edit panel, section, custom layer, filmstrip) — translucent <code>rgba(42,42,48,0.75)</code> (<code>--panel</code>) so the grain shows through. 1px border in <code>--panel-border</code> (<code>#4a4a52</code>).</li>
-  <li><strong>Section header / tabs background</strong> — <code>--panel-section</code> (<code>#34343c</code>), one shade lighter than cards, for a clear header strip inside a card.</li>
+  <li><strong>Floating cards</strong> (histogram, edit panel, section, custom layer, filmstrip) — translucent <code>rgba(63,63,69,0.75)</code> (<code>--panel</code>) so the grain shows through. 1px border in <code>--panel-border</code> (<code>#5c5c63</code>).</li>
+  <li><strong>Section header / tabs background</strong> — <code>--panel-section</code> (<code>#484850</code>), one shade lighter than cards, for a clear header strip inside a card.</li>
   <li><strong>Accent</strong> — <code>--accent</code> (<code>#6ea8ff</code>) for active tabs, the layer enable toggle, the slider knob, and the active filmstrip frame border.</li>
 </ul>
 
