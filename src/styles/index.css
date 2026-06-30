@@ -21,6 +21,14 @@
   .filmstrip-container::-webkit-scrollbar {
     display: none;
   }
+  .filmstrip-thumb {
+    position: relative;
+  }
+  .filmstrip-thumb::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
 }
 
 [data-theme="light"] {

@@ -157,7 +157,7 @@ export default function FilmStrip() {
       >
         <div
           ref={thumbRef}
-          className="h-full rounded-full cursor-grab active:cursor-grabbing"
+          className="h-full rounded-full cursor-grab active:cursor-grabbing filmstrip-thumb"
           style={{
             width: 0,
             background: scrollHover || isDraggingThumb ? 'var(--accent)' : 'var(--panel-text-2)',
