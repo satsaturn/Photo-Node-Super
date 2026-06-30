@@ -106,20 +106,17 @@ export default function FilmStrip() {
 
   return (
     <div
-      className="bg-panel rounded-xl p-2 mx-4 mb-4 relative"
+      className="bg-panel rounded-xl p-2 relative"
       style={{ height: `${height}px` }}
     >
-      {/* Grab Handle */}
       <div
-        className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 cursor-ns-resize flex items-center justify-center group z-20"
+        className="filmstrip-resize-h"
         onMouseDown={(e) => {
           e.stopPropagation()
           dragRef.current = { ...dragRef.current, startHeight: height, startY: e.clientY }
           setIsDragging(true)
         }}
-      >
-        <div className="w-8 h-1 bg-panel-text-3 rounded-full group-hover:bg-accent transition-colors" />
-      </div>
+      />
 
       {/* Container */}
       <div

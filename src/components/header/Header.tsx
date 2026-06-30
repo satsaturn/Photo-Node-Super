@@ -1,10 +1,9 @@
-import { useState } from 'react'
 import { useSettingsStore } from '../../stores/settings-store'
 import Pill from '../ui/Pill'
 import PillButton from '../ui/PillButton'
 import { GearIcon } from '../ui/icons'
 
-type ModuleId = 'library' | 'edit' | 'nodes' | 'lens'
+export type ModuleId = 'library' | 'edit' | 'nodes' | 'lens'
 
 const modules: { id: ModuleId; label: string; disabled?: boolean }[] = [
   { id: 'library', label: 'Library' },
@@ -13,8 +12,12 @@ const modules: { id: ModuleId; label: string; disabled?: boolean }[] = [
   { id: 'lens', label: 'Lens', disabled: true },
 ]
 
-export default function Header() {
-  const [activeModule, setActiveModule] = useState<ModuleId>('library')
+type HeaderProps = {
+  activeModule: ModuleId
+  onModuleChange: (id: ModuleId) => void
+}
+
+export default function Header({ activeModule, onModuleChange }: HeaderProps) {
   const toggleSettings = useSettingsStore((s) => s.toggle)
 
   return (
@@ -25,7 +28,7 @@ export default function Header() {
             key={m.id}
             active={activeModule === m.id}
             disabled={m.disabled}
-            onClick={() => setActiveModule(m.id)}
+            onClick={() => onModuleChange(m.id)}
             title={m.disabled ? 'Coming in a future version' : m.label}
           >
             {m.label}
