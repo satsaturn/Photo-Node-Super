@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 export type CategoryId = 'themes' | 'storage' | 'performance' | 'keys' | 'display' | 'workspace'
 
-export interface SettingsState {
+export interface SettingsStore {
   isOpen: boolean
   activeCategory: CategoryId
   open: () => void
@@ -11,7 +11,7 @@ export interface SettingsState {
   setActiveCategory: (category: CategoryId) => void
 }
 
-export const useSettingsStore = create<SettingsState>()((set) => ({
+export const useSettingsStore = create<SettingsStore>()((set) => ({
   isOpen: false,
   activeCategory: 'themes',
   open: () => set({ isOpen: true }),

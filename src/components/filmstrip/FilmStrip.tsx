@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFilmstripStore } from '../../stores/filmstrip-store'
 import FilmStripItem from './FilmStripItem'
 
@@ -8,8 +8,13 @@ export default function FilmStrip() {
   const trackRef = useRef<HTMLDivElement>(null)
   const thumbRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isDraggingScroll, setIsDraggingScroll] = useState(false)
+  const [scrollHover, setScrollHover] = useState(false)
   const [isDraggingThumb, setIsDraggingThumb] = useState(false)
-  const dragRef = useRef({ startHeight: 0, startY: 0, startScrollLeft: 0, startMouseX: 0 })
+
+  const dragRef = useRef<{ startY: number; startHeight: number; startX: number | null; startScrollLeft: number; hasMoved: boolean }>({
+    startY: 0, startHeight: 0, startX: null, startScrollLeft: 0, hasMoved: false,
+  })
 
   useEffect(() => {
     if (activePhotoId && containerRef.current) {
@@ -20,29 +25,33 @@ export default function FilmStrip() {
     }
   }, [activePhotoId, height])
 
-  const updateScrollbar = useCallback(() => {
-    if (!containerRef.current || !thumbRef.current || !trackRef.current) return
-    const container = containerRef.current
-    const track = trackRef.current
-    const thumb = thumbRef.current
-    
-    const scrollRatio = container.clientWidth / container.scrollWidth
-    const thumbWidth = Math.max(40, scrollRatio * track.clientWidth)
-    
-    const maxScroll = container.scrollWidth - container.clientWidth
-    const scrollPercent = maxScroll > 0 ? container.scrollLeft / maxScroll : 0
-    
-    const maxThumbLeft = track.clientWidth - thumbWidth
-    
-    thumb.style.width = `${thumbWidth}px`
-    thumb.style.left = `${scrollPercent * maxThumbLeft}px`
-  }, [])
-
   useEffect(() => {
-    updateScrollbar()
-    window.addEventListener('resize', updateScrollbar)
-    return () => window.removeEventListener('resize', updateScrollbar)
-  }, [updateScrollbar, height])
+    const container = containerRef.current
+    const thumb = thumbRef.current
+    const track = trackRef.current
+    if (!container || !thumb || !track) return
+
+    const update = () => {
+      const ratio = container.clientWidth / container.scrollWidth
+      if (ratio >= 1) { thumb.style.width = '0px'; return }
+
+      const tw = Math.max(40, ratio * track.clientWidth)
+      const maxScroll = container.scrollWidth - container.clientWidth
+      const pct = maxScroll > 0 ? container.scrollLeft / maxScroll : 0
+      const maxLeft = track.clientWidth - tw
+
+      thumb.style.width = `${tw}px`
+      thumb.style.transform = `translateX(${pct * maxLeft}px)`
+    }
+
+    update()
+    container.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
+    return () => {
+      container.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -51,36 +60,55 @@ export default function FilmStrip() {
         const deltaY = dragRef.current.startY - e.clientY
         const newHeight = Math.max(74, Math.min(200, dragRef.current.startHeight + deltaY))
         setHeight(newHeight)
-      } else if (isDraggingThumb && containerRef.current && trackRef.current && thumbRef.current) {
-        const track = trackRef.current
-        const thumb = thumbRef.current
-        const deltaX = e.clientX - dragRef.current.startMouseX
-        
-        const scrollRatio = containerRef.current.scrollWidth / track.clientWidth
-        containerRef.current.scrollLeft = dragRef.current.startScrollLeft + deltaX * scrollRatio
+        return
+      }
+
+      if (dragRef.current.startX === null || !containerRef.current) return
+
+      if (!dragRef.current.hasMoved && Math.abs(e.clientX - dragRef.current.startX) > 10) {
+        setIsDraggingScroll(true)
+        dragRef.current.hasMoved = true
+        document.body.style.userSelect = 'none'
+      }
+
+      if (dragRef.current.hasMoved) {
+        const deltaX = e.clientX - dragRef.current.startX
+        containerRef.current.scrollLeft = dragRef.current.startScrollLeft - deltaX
       }
     }
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
       setIsDragging(false)
-      setIsDraggingThumb(false)
+      setIsDraggingScroll(false)
+
+      if (dragRef.current.startX !== null && !dragRef.current.hasMoved) {
+        const target = e.target as HTMLElement
+        const button = target.closest('button')
+        if (button) {
+          const id = button.getAttribute('data-photo-id')
+          if (id) selectPhoto(id)
+        }
+      }
+
+      dragRef.current.startX = null
+      dragRef.current.hasMoved = false
       document.body.style.userSelect = ''
     }
 
-    if (isDragging || isDraggingThumb) {
-      document.body.style.userSelect = 'none'
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
-    }
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isDragging, isDraggingThumb, setHeight])
+  }, [isDragging, setHeight, selectPhoto])
 
   return (
-    <div className="bg-panel rounded-xl p-2 mx-4 mb-4 relative" style={{ height: `${height}px` }}>
+    <div
+      className="bg-panel rounded-xl p-2 mx-4 mb-4 relative"
+      style={{ height: `${height}px` }}
+    >
       {/* Grab Handle */}
       <div
         className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 cursor-ns-resize flex items-center justify-center group z-20"
@@ -97,34 +125,67 @@ export default function FilmStrip() {
       <div
         ref={containerRef}
         className="overflow-x-auto filmstrip-container h-full rounded-lg"
-        onScroll={updateScrollbar}
+        onMouseDown={(e) => {
+          dragRef.current.startX = e.clientX
+          dragRef.current.startScrollLeft = containerRef.current?.scrollLeft || 0
+          dragRef.current.hasMoved = false
+        }}
       >
-        <div className="flex items-center gap-2 h-full pb-6">
+        <div className={`flex items-center gap-2 h-full pb-3 ${isDraggingScroll ? 'pointer-events-none' : ''}`}>
           {photos.map((photo) => (
             <div key={photo.id} data-id={photo.id} className="shrink-0 h-full flex items-center">
-              <FilmStripItem
-                photo={photo}
-                isActive={photo.id === activePhotoId}
-                onClick={() => selectPhoto(photo.id)}
-              />
+              <FilmStripItem photo={photo} isActive={photo.id === activePhotoId} />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Custom Scrollbar */}
-      <div ref={trackRef} className="filmstrip-scrollbar-track">
+      {/* Scrollbar */}
+      <div
+        ref={trackRef}
+        className="absolute bottom-1.5 left-3 right-3 h-2 rounded-full cursor-pointer"
+        onMouseEnter={() => setScrollHover(true)}
+        onMouseLeave={() => { if (!isDraggingThumb) setScrollHover(false) }}
+        onMouseDown={(e) => {
+          const container = containerRef.current
+          const track = trackRef.current
+          if (!container || !track) return
+          const rect = track.getBoundingClientRect()
+          const pct = (e.clientX - rect.left) / rect.width
+          container.scrollLeft = pct * (container.scrollWidth - container.clientWidth)
+        }}
+      >
         <div
           ref={thumbRef}
-          className="filmstrip-scrollbar-thumb absolute"
+          className="h-full rounded-full cursor-grab active:cursor-grabbing"
+          style={{
+            width: 0,
+            background: scrollHover || isDraggingThumb ? 'var(--accent)' : 'var(--panel-text-2)',
+            opacity: scrollHover || isDraggingThumb ? 1 : 0.85,
+          }}
           onMouseDown={(e) => {
             e.stopPropagation()
-            dragRef.current = { 
-                ...dragRef.current, 
-                startScrollLeft: containerRef.current?.scrollLeft || 0, 
-                startMouseX: e.clientX 
-            }
             setIsDraggingThumb(true)
+            const container = containerRef.current
+            const track = trackRef.current
+            if (!container || !track) return
+            const startX = e.clientX
+            const startScroll = container.scrollLeft
+            const onMove = (e2: MouseEvent) => {
+              e2.preventDefault()
+              const deltaX = e2.clientX - startX
+              container.scrollLeft = startScroll + deltaX * (container.scrollWidth / track.clientWidth)
+            }
+            const onUp = () => {
+              setIsDraggingThumb(false)
+              setScrollHover(false)
+              window.removeEventListener('mousemove', onMove)
+              window.removeEventListener('mouseup', onUp)
+              document.body.style.userSelect = ''
+            }
+            document.body.style.userSelect = 'none'
+            window.addEventListener('mousemove', onMove)
+            window.addEventListener('mouseup', onUp)
           }}
         />
       </div>

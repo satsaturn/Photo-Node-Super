@@ -26,34 +26,23 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   const grainUrl = useMemo(() => grainDataUri(grainStrength), [grainStrength])
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', mode)
-  }, [mode])
+    const root = document.documentElement
+    root.setAttribute('data-theme', mode)
+    root.style.setProperty('--accent', accent)
+    root.style.setProperty('--panel-opacity', String(panelOpacity / 100))
 
-  useEffect(() => {
-    document.documentElement.style.setProperty('--accent', accent)
-  }, [accent])
-
-  useEffect(() => {
     if (highContrast) {
-      document.documentElement.setAttribute('data-high-contrast', 'true')
+      root.setAttribute('data-high-contrast', 'true')
     } else {
-      document.documentElement.removeAttribute('data-high-contrast')
+      root.removeAttribute('data-high-contrast')
     }
-  }, [highContrast])
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--panel-opacity', String(panelOpacity / 100))
-  }, [panelOpacity])
+  }, [mode, accent, highContrast, panelOpacity])
 
   useEffect(() => {
     const body = document.body
     if (grainStrength > 0) {
       body.style.setProperty('--grain-image', `url("${grainUrl}")`)
       body.classList.add('has-grain')
-      body.style.backgroundImage = ''
-      body.style.backgroundSize = ''
-      body.style.backgroundRepeat = ''
-      body.style.backgroundBlendMode = ''
     } else {
       body.classList.remove('has-grain')
     }

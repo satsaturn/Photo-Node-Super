@@ -56,11 +56,7 @@ export default function SettingsDialog() {
 
         <div className="flex-1 min-w-0">
           {activeCategory === 'themes' && <ThemeSettings />}
-          {(activeCategory === 'storage' ||
-            activeCategory === 'performance' ||
-            activeCategory === 'keys' ||
-            activeCategory === 'display' ||
-            activeCategory === 'workspace') && (
+          {activeCategory !== 'themes' && (
             <div className="flex items-center justify-center h-full min-h-[200px]">
               <p className="text-sm text-panel-text-3">Coming in a future version</p>
             </div>

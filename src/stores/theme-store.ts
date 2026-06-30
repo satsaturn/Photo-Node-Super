@@ -3,23 +3,18 @@ import { persist } from 'zustand/middleware'
 
 export type ThemeMode = 'white' | 'light' | 'dark' | 'black'
 
-export interface ThemeState {
+export interface ThemeStore {
   mode: ThemeMode
   accent: string
   highContrast: boolean
   panelOpacity: number
   grainStrength: number
-}
-
-export interface ThemeActions {
   setMode: (mode: ThemeMode) => void
   setAccent: (accent: string) => void
   setHighContrast: (highContrast: boolean) => void
   setPanelOpacity: (panelOpacity: number) => void
   setGrainStrength: (grainStrength: number) => void
 }
-
-export type ThemeStore = ThemeState & ThemeActions
 
 export const accentSwatches = [
   '#6ea8ff',

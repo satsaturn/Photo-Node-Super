@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import Card from './Card'
+import { CloseIcon } from './icons'
 
 type DialogProps = {
   isOpen: boolean
@@ -39,10 +40,7 @@ export default function Dialog({ isOpen, onClose, title, hideHeader = false, chi
           className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-panel-text-2 hover:text-panel-text hover:bg-panel-hover transition-colors ${hideHeader ? '' : 'hidden'}`}
           aria-label="Close"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <CloseIcon />
         </button>
         {!hideHeader && (
           <div className="flex items-center justify-between p-4 border-b border-panel-border shrink-0">
@@ -52,10 +50,7 @@ export default function Dialog({ isOpen, onClose, title, hideHeader = false, chi
               className="w-7 h-7 rounded-full flex items-center justify-center text-panel-text-2 hover:text-panel-text hover:bg-panel-hover transition-colors"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+              <CloseIcon />
             </button>
           </div>
         )}

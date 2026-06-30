@@ -1,4 +1,4 @@
-import { useCallback, useRef, useMemo } from 'react'
+import { useCallback, useRef } from 'react'
 
 type SliderProps = {
   label: string
@@ -27,19 +27,15 @@ export default function Slider({
 }: SliderProps) {
   const trackRef = useRef<HTMLDivElement>(null)
 
-  const pct = useMemo(
-    () => ((value - min) / (max - min)) * 100,
-    [value, min, max]
-  )
-
-  const clamp = (v: number) => Math.max(min, Math.min(max, v))
+  const pct = ((value - min) / (max - min)) * 100
 
   const valueFromPct = useCallback(
     (p: number) => {
       const f = Math.pow(10, decimalPlaces)
-      return clamp(Math.round((min + (p / 100) * (max - min)) * f) / f)
+      const raw = Math.round((min + (p / 100) * (max - min)) * f) / f
+      return Math.max(min, Math.min(max, raw))
     },
-    [clamp, min, max, decimalPlaces]
+    [min, max, decimalPlaces]
   )
 
   const setFromEvent = useCallback(
